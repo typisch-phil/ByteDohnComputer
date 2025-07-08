@@ -177,7 +177,7 @@
 {% block scripts %}
 <script>
 // Pre-built PC functionality
-const prebuilts = {{ prebuilts | tojson }};
+const prebuilts = {{ prebuilt_pcs | tojson }};
 
 function showDetails(pcName) {
     const pc = prebuilts.find(p => p.name === pcName);
