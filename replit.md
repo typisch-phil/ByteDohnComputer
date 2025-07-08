@@ -98,7 +98,8 @@ The application is designed for flexible deployment:
 
 ## Changelog
 
-- July 08, 2025. Initial setup
+- July 08, 2025: Initial setup
+- July 08, 2025: Vollständige Migration zu MySQL - alle PostgreSQL und SQLite Komponenten entfernt, nur MySQL als Datenquelle
 
 ## User Preferences
 

@@ -17,8 +17,14 @@ db = SQLAlchemy(model_class=Base)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 
-# Configure the database - use SQLite for local development
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bytedohm.db"
+# Configure the database - MySQL only 
+# User must provide MySQL connection string in MYSQL_DATABASE_URL
+mysql_url = os.environ.get("MYSQL_DATABASE_URL")
+if not mysql_url:
+    # Default local MySQL configuration for development
+    mysql_url = "mysql+pymysql://root:password@localhost:3306/bytedohm"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = mysql_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
@@ -45,26 +51,27 @@ from admin_routes import *
 with app.app_context():
     # Import models to ensure tables are created
     import models
-    db.create_all()
-    
-    # Create default admin user if none exists
-    from models import AdminUser, Component, PrebuiltPC
-    import json
-    if not AdminUser.query.first():
-        admin = AdminUser(
-            username='admin',
-            email='admin@bytedohm.de'
-        )
-        admin.set_password('admin123')
-        db.session.add(admin)
-        db.session.commit()
-        logging.info("Default admin user created: admin / admin123")
-    
-    # Create sample components if none exist
-    if not Component.query.first():
-        sample_components = [
-            # CPUs
-            Component(
+    try:
+        db.create_all()
+        
+        # Create default admin user if none exists
+        from models import AdminUser, Component, PrebuiltPC
+        import json
+        if not AdminUser.query.first():
+            admin = AdminUser(
+                username='admin',
+                email='admin@bytedohm.de'
+            )
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()
+            logging.info("Default admin user created: admin / admin123")
+        
+        # Create sample components if none exist
+        if not Component.query.first():
+            sample_components = [
+                # CPUs
+                Component(
                 name='AMD Ryzen 7 7800X3D',
                 category='cpus',
                 price=449.99,
@@ -140,16 +147,16 @@ with app.app_context():
             )
         ]
         
-        for component in sample_components:
-            db.session.add(component)
+            for component in sample_components:
+                db.session.add(component)
+            
+            db.session.commit()
+            logging.info("Sample components created")
         
-        db.session.commit()
-        logging.info("Sample components created")
-    
-    # Create sample prebuilt PCs if none exist
-    if not PrebuiltPC.query.first():
-        sample_prebuilts = [
-            PrebuiltPC(
+        # Create sample prebuilt PCs if none exist
+        if not PrebuiltPC.query.first():
+            sample_prebuilts = [
+                PrebuiltPC(
                 name='Gaming Beast Pro',
                 price=1899.99,
                 category='gaming',
@@ -199,13 +206,16 @@ with app.app_context():
                     '5 Jahre Garantie'
                 ])
             )
-        ]
-        
-        for prebuilt in sample_prebuilts:
-            db.session.add(prebuilt)
-        
-        db.session.commit()
-        logging.info("Sample prebuilt PCs created")
+            ]
+            
+            for prebuilt in sample_prebuilts:
+                db.session.add(prebuilt)
+            
+            db.session.commit()
+            logging.info("Sample prebuilt PCs created")
+    except Exception as e:
+        logging.error(f"Database connection failed: {e}")
+        logging.info("Application will start but database features will not work until MySQL is connected")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -5,12 +5,12 @@ import json
 import os
 
 def load_components():
-    """Load component data from database and JSON file as fallback"""
+    """Load component data from MySQL database only"""
     components = {}
     
-    # Try to load from database first
-    db_components = Component.query.filter_by(is_active=True).all()
-    if db_components:
+    try:
+        # Load from MySQL database only
+        db_components = Component.query.filter_by(is_active=True).all()
         for comp in db_components:
             if comp.category not in components:
                 components[comp.category] = []
@@ -22,13 +22,22 @@ def load_components():
                 **comp.get_specs()
             }
             components[comp.category].append(comp_data)
-    else:
-        # Fallback to JSON file
-        try:
-            with open('data/components.json', 'r', encoding='utf-8') as f:
-                components = json.load(f)
-        except FileNotFoundError:
-            components = {"cpus": [], "motherboards": [], "ram": [], "gpus": [], "ssds": [], "cases": [], "psus": [], "coolers": []}
+    except Exception as e:
+        # If database is not connected, return empty structure
+        print(f"Database error: {e}")
+    
+    # Initialize empty categories if no components exist yet
+    if not components:
+        components = {
+            'cpus': [],
+            'motherboards': [],
+            'ram': [],
+            'gpus': [],
+            'ssds': [],
+            'cases': [],
+            'psus': [],
+            'coolers': []
+        }
     
     return components
 
