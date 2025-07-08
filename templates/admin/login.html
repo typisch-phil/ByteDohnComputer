@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - ByteDohm.de</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #0066cc);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 3rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: #1a1a1a;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #0066cc, #004499);
+            border: none;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .back-link a {
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            color: #0066cc;
+        }
+
+        .admin-icon {
+            color: #0066cc;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fas fa-user-shield admin-icon"></i>
+            <h1>Admin Panel</h1>
+            <p>ByteDohm.de Verwaltung</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-floating">
+                <input type="text" 
+                       class="form-control" 
+                       id="username" 
+                       name="username" 
+                       placeholder="Benutzername"
+                       required>
+                <label for="username">
+                    <i class="fas fa-user"></i> Benutzername
+                </label>
+            </div>
+
+            <div class="form-floating">
+                <input type="password" 
+                       class="form-control" 
+                       id="password" 
+                       name="password" 
+                       placeholder="Passwort"
+                       required>
+                <label for="password">
+                    <i class="fas fa-lock"></i> Passwort
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-login">
+                <i class="fas fa-sign-in-alt"></i> Anmelden
+            </button>
+        </form>
+
+        <div class="back-link">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-arrow-left"></i> Zurück zur Website
+            </a>
+        </div>
+
+        <!-- Default Login Info -->
+        <div class="mt-4 p-3 bg-light rounded">
+            <small class="text-muted">
+                <strong>Standard-Anmeldedaten:</strong><br>
+                Benutzername: <code>admin</code><br>
+                Passwort: <code>admin123</code>
+            </small>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

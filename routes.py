@@ -1,16 +1,36 @@
 from flask import render_template, request, jsonify, redirect, url_for
 from app import app, db
-from models import Configuration, Component
+from models import Configuration, Component, PrebuiltPC
 import json
 import os
 
 def load_components():
-    """Load component data from JSON file"""
-    try:
-        with open('data/components.json', 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {"cpus": [], "motherboards": [], "ram": [], "gpus": [], "ssds": [], "cases": [], "psus": [], "coolers": []}
+    """Load component data from database and JSON file as fallback"""
+    components = {}
+    
+    # Try to load from database first
+    db_components = Component.query.filter_by(is_active=True).all()
+    if db_components:
+        for comp in db_components:
+            if comp.category not in components:
+                components[comp.category] = []
+            
+            comp_data = {
+                'id': comp.id,
+                'name': comp.name,
+                'price': comp.price,
+                **comp.get_specs()
+            }
+            components[comp.category].append(comp_data)
+    else:
+        # Fallback to JSON file
+        try:
+            with open('data/components.json', 'r', encoding='utf-8') as f:
+                components = json.load(f)
+        except FileNotFoundError:
+            components = {"cpus": [], "motherboards": [], "ram": [], "gpus": [], "ssds": [], "cases": [], "psus": [], "coolers": []}
+    
+    return components
 
 @app.route('/')
 def index():
@@ -23,8 +43,25 @@ def configurator():
 
 @app.route('/fertig-pcs')
 def prebuild():
-    # Load some example pre-built configurations
-    prebuilts = [
+    # Load from database first
+    prebuilt_pcs = []
+    db_prebuilts = PrebuiltPC.query.filter_by(is_active=True).all()
+    
+    if db_prebuilts:
+        for pc in db_prebuilts:
+            prebuilt_pcs.append({
+                'id': pc.id,
+                'name': pc.name,
+                'price': pc.price,
+                'image': pc.image_url,
+                'category': pc.category,
+                'description': pc.description,
+                'specs': pc.get_specs(),
+                'features': pc.get_features()
+            })
+    else:
+        # Fallback data if database is empty
+        prebuilt_pcs = [
         {
             "name": "Gaming Beast Pro",
             "price": 1899.99,
@@ -163,8 +200,9 @@ def prebuild():
                 "Premium-Komponenten"
             ]
         }
-    ]
-    return render_template('prebuild.html', prebuilts=prebuilts)
+        ]
+    
+    return render_template('prebuild.html', prebuilt_pcs=prebuilt_pcs)
 
 @app.route('/api/validate-compatibility', methods=['POST'])
 def validate_compatibility():

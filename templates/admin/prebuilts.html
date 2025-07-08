@@ -1,0 +1,224 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}Fertig-PCs verwalten{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Fertig-PCs verwalten</h4>
+        <p class="text-muted mb-0">Alle verfügbaren Fertig-PC-Systeme</p>
+    </div>
+    <a href="{{ url_for('admin_add_prebuilt') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Neuer Fertig-PC
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="form-section">
+    <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label for="category" class="form-label">Kategorie</label>
+            <select name="category" id="category" class="form-select">
+                <option value="">Alle Kategorien</option>
+                {% for category in categories %}
+                <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>
+                    {{ category.title() }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="fas fa-filter"></i> Filtern
+            </button>
+            <a href="{{ url_for('admin_prebuilts') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-times"></i> Zurücksetzen
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Prebuilts Grid -->
+<div class="form-section">
+    {% if prebuilts.items %}
+    <div class="row">
+        {% for prebuilt in prebuilts.items %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <!-- Image -->
+                <div class="card-img-top position-relative" style="height: 200px; background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+                    {% if prebuilt.image_url %}
+                    <img src="{{ prebuilt.image_url }}" 
+                         alt="{{ prebuilt.name }}" 
+                         class="img-fluid w-100 h-100" 
+                         style="object-fit: cover;">
+                    {% else %}
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <i class="fas fa-computer text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Category Badge -->
+                    <div class="position-absolute top-0 start-0 p-2">
+                        {% if prebuilt.category == 'gaming' %}
+                        <span class="badge bg-danger">Gaming</span>
+                        {% elif prebuilt.category == 'workstation' %}
+                        <span class="badge bg-warning">Workstation</span>
+                        {% elif prebuilt.category == 'office' %}
+                        <span class="badge bg-success">Office</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Status Badge -->
+                    <div class="position-absolute top-0 end-0 p-2">
+                        {% if prebuilt.is_active %}
+                        <span class="badge bg-success">Aktiv</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inaktiv</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ prebuilt.name }}</h5>
+                    <p class="card-text text-muted small">{{ prebuilt.description[:100] }}{% if prebuilt.description|length > 100 %}...{% endif %}</p>
+                    
+                    <!-- Specifications -->
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <strong>Spezifikationen:</strong><br>
+                            {% if prebuilt.get_specs() %}
+                            CPU: {{ prebuilt.get_specs().get('cpu', 'N/A') }}<br>
+                            GPU: {{ prebuilt.get_specs().get('gpu', 'N/A') }}<br>
+                            RAM: {{ prebuilt.get_specs().get('ram', 'N/A') }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    
+                    <!-- Price -->
+                    <div class="mb-3">
+                        <span class="h5 text-primary">€{{ "%.2f"|format(prebuilt.price) }}</span>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="mt-auto">
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('admin_edit_prebuilt', prebuilt_id=prebuilt.id) }}" 
+                               class="btn btn-sm btn-outline-primary flex-fill">
+                                <i class="fas fa-edit"></i> Bearbeiten
+                            </a>
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="deletePrebuilt({{ prebuilt.id }}, '{{ prebuilt.name }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Footer -->
+                <div class="card-footer bg-transparent">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar"></i> {{ prebuilt.created_at.strftime('%d.%m.%Y') }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if prebuilts.pages > 1 %}
+    <nav aria-label="Fertig-PCs Pagination">
+        <ul class="pagination">
+            {% if prebuilts.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('admin_prebuilts', page=prebuilts.prev_num, category=selected_category) }}">Zurück</a>
+            </li>
+            {% endif %}
+            
+            {% for page_num in prebuilts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num != prebuilts.page %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin_prebuilts', page=page_num, category=selected_category) }}">{{ page_num }}</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
+                    {% endif %}
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if prebuilts.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('admin_prebuilts', page=prebuilts.next_num, category=selected_category) }}">Weiter</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-computer text-muted" style="font-size: 4rem;"></i>
+        <h5 class="mt-3 text-muted">Keine Fertig-PCs gefunden</h5>
+        <p class="text-muted">
+            {% if selected_category %}
+            Keine Fertig-PCs in der Kategorie "{{ selected_category }}" vorhanden.
+            {% else %}
+            Noch keine Fertig-PCs erstellt.
+            {% endif %}
+        </p>
+        <a href="{{ url_for('admin_add_prebuilt') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Ersten Fertig-PC hinzufügen
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Fertig-PC löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sind Sie sicher, dass Sie den Fertig-PC <strong id="prebuiltName"></strong> löschen möchten?</p>
+                <p class="text-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Diese Aktion kann nicht rückgängig gemacht werden.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <form method="POST" id="deleteForm" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Löschen
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function deletePrebuilt(prebuiltId, prebuiltName) {
+    document.getElementById('prebuiltName').textContent = prebuiltName;
+    document.getElementById('deleteForm').action = `/admin/prebuilts/${prebuiltId}/delete`;
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

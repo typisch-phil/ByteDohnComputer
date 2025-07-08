@@ -1,0 +1,197 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Statistics Cards -->
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-icon text-primary">
+                <i class="fas fa-microchip"></i>
+            </div>
+            <h3 class="mb-1">{{ stats.components.total }}</h3>
+            <p class="text-muted mb-2">Komponenten</p>
+            <div class="d-flex justify-content-between">
+                <small class="text-success">{{ stats.components.active }} aktiv</small>
+                <small class="text-danger">{{ stats.components.inactive }} inaktiv</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-icon text-warning">
+                <i class="fas fa-computer"></i>
+            </div>
+            <h3 class="mb-1">{{ stats.prebuilts.total }}</h3>
+            <p class="text-muted mb-2">Fertig-PCs</p>
+            <div class="d-flex justify-content-between">
+                <small class="text-success">{{ stats.prebuilts.active }} aktiv</small>
+                <small class="text-danger">{{ stats.prebuilts.inactive }} inaktiv</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-icon text-success">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="mb-1">Online</h3>
+            <p class="text-muted mb-2">System Status</p>
+            <small class="text-success">Alle Services laufen</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-icon text-info">
+                <i class="fas fa-database"></i>
+            </div>
+            <h3 class="mb-1">PostgreSQL</h3>
+            <p class="text-muted mb-2">Datenbank</p>
+            <small class="text-success">Verbunden</small>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="form-section">
+            <h4 class="mb-3">
+                <i class="fas fa-bolt"></i> Schnellzugriff
+            </h4>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin_add_component') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus"></i> Neue Komponente hinzufügen
+                        </a>
+                        <a href="{{ url_for('admin_components') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list"></i> Alle Komponenten verwalten
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin_add_prebuilt') }}" class="btn btn-warning btn-lg">
+                            <i class="fas fa-plus"></i> Neuen Fertig-PC hinzufügen
+                        </a>
+                        <a href="{{ url_for('admin_prebuilts') }}" class="btn btn-outline-warning">
+                            <i class="fas fa-list"></i> Alle Fertig-PCs verwalten
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="form-section">
+            <h5 class="mb-3">
+                <i class="fas fa-clock"></i> Letzte Komponenten
+            </h5>
+            
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Kategorie</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- This would be populated with recent components -->
+                        <tr>
+                            <td colspan="3" class="text-muted text-center">
+                                Keine aktuellen Komponenten
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="form-section">
+            <h5 class="mb-3">
+                <i class="fas fa-info-circle"></i> System Information
+            </h5>
+            
+            <table class="table table-sm">
+                <tr>
+                    <td><strong>Version:</strong></td>
+                    <td>1.0.0</td>
+                </tr>
+                <tr>
+                    <td><strong>Python:</strong></td>
+                    <td>3.11.x</td>
+                </tr>
+                <tr>
+                    <td><strong>Flask:</strong></td>
+                    <td>3.x</td>
+                </tr>
+                <tr>
+                    <td><strong>Datenbank:</strong></td>
+                    <td>PostgreSQL</td>
+                </tr>
+                <tr>
+                    <td><strong>Letzte Aktualisierung:</strong></td>
+                    <td>{{ moment().format('DD.MM.YYYY HH:mm') if moment else 'Unbekannt' }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Component Categories Overview -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="form-section">
+            <h5 class="mb-3">
+                <i class="fas fa-th-large"></i> Komponenten-Kategorien
+            </h5>
+            
+            <div class="row">
+                {% set categories = [
+                    ('cpus', 'CPU (Prozessoren)', 'fas fa-microchip', 'primary'),
+                    ('motherboards', 'Motherboards', 'fas fa-memory', 'success'),
+                    ('ram', 'RAM (Arbeitsspeicher)', 'fas fa-memory', 'info'),
+                    ('gpus', 'GPU (Grafikkarten)', 'fas fa-desktop', 'warning'),
+                    ('ssds', 'SSD (Speicher)', 'fas fa-hdd', 'secondary'),
+                    ('cases', 'Cases (Gehäuse)', 'fas fa-cube', 'dark'),
+                    ('psus', 'PSU (Netzteile)', 'fas fa-bolt', 'danger'),
+                    ('coolers', 'Cooler (Kühler)', 'fas fa-fan', 'light')
+                ] %}
+                
+                {% for category, name, icon, color in categories %}
+                <div class="col-md-3 mb-3">
+                    <div class="card border-{{ color }}">
+                        <div class="card-body text-center">
+                            <i class="{{ icon }} text-{{ color }} mb-2" style="font-size: 2rem;"></i>
+                            <h6 class="card-title">{{ name }}</h6>
+                            <p class="card-text">
+                                <small class="text-muted">0 Komponenten</small>
+                            </p>
+                            <a href="{{ url_for('admin_components', category=category) }}" 
+                               class="btn btn-outline-{{ color }} btn-sm">
+                                Verwalten
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
