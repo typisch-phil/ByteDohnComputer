@@ -18,13 +18,10 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 
 # Configure the database - MySQL only 
-# Import MySQL configuration helper
-from mysql_config import get_mysql_connection_string
-
-# Set MySQL connection string
-mysql_connection = get_mysql_connection_string()
+# Direct MySQL connection configuration
+mysql_connection = "mysql+pymysql://u6560-6636_bytedohm:HeikoCindy-8@45.88.108.231:3306/u6560-6636_bytedohm"
 app.config["SQLALCHEMY_DATABASE_URI"] = mysql_connection
-logging.info(f"Configured MySQL connection: {mysql_connection}")
+logging.info("MySQL connection configured successfully")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
