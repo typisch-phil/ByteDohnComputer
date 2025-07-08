@@ -9,7 +9,13 @@ Die Anwendung ist **vollständig auf MySQL umgestellt**:
 
 ## 🔧 MySQL-Verbindung einrichten
 
-### Option 1: Externe MySQL-Datenbank (Empfohlen)
+### Option 1: Replit Secrets (Empfohlen)
+1. Gehen Sie zu "Secrets" in der Replit-Sidebar
+2. Fügen Sie einen neuen Secret hinzu:
+   - **Key**: `MYSQL_DATABASE_URL` 
+   - **Value**: `mysql+pymysql://username:password@host:port/database`
+
+### Option 2: Umgebungsvariable
 ```bash
 export MYSQL_DATABASE_URL="mysql+pymysql://username:password@host:port/database"
 ```
