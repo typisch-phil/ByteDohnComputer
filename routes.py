@@ -28,35 +28,140 @@ def prebuild():
         {
             "name": "Gaming Beast Pro",
             "price": 1899.99,
+            "image": "https://via.placeholder.com/400x300/1a1a1a/0066cc?text=Gaming+Beast+Pro",
+            "category": "gaming",
             "specs": {
                 "cpu": "AMD Ryzen 7 7800X3D",
                 "gpu": "NVIDIA RTX 4070 Super",
                 "ram": "32GB DDR5-5600",
-                "storage": "1TB NVMe SSD"
+                "storage": "1TB NVMe SSD",
+                "motherboard": "ASUS ROG Strix X670E-E",
+                "cooler": "Corsair H100i RGB Elite",
+                "case": "NZXT H7 Flow",
+                "psu": "Corsair RM850x 850W"
             },
-            "description": "Perfekt für Gaming in 1440p und 4K"
+            "description": "Perfekt für Gaming in 1440p und 4K",
+            "features": [
+                "Optimiert für Gaming-Performance",
+                "RGB-Beleuchtung",
+                "Leise Wasserkühlung",
+                "Zukunftssicher mit DDR5"
+            ]
         },
         {
             "name": "Workstation Elite",
             "price": 2499.99,
+            "image": "https://via.placeholder.com/400x300/2d2d2d/ff6b35?text=Workstation+Elite",
+            "category": "workstation",
             "specs": {
                 "cpu": "Intel Core i9-14900K",
                 "gpu": "NVIDIA RTX 4080",
                 "ram": "64GB DDR5-5600",
-                "storage": "2TB NVMe SSD"
+                "storage": "2TB NVMe SSD",
+                "motherboard": "MSI MPG Z790 Carbon WiFi",
+                "cooler": "Noctua NH-D15",
+                "case": "Fractal Design Define 7",
+                "psu": "Seasonic Focus GX-750 750W"
             },
-            "description": "Ideal für Content Creation und professionelle Anwendungen"
+            "description": "Ideal für Content Creation und professionelle Anwendungen",
+            "features": [
+                "Extreme Multi-Core Performance",
+                "64GB RAM für schwere Workloads",
+                "Premium-Luftkühlung",
+                "Leises Design"
+            ]
         },
         {
             "name": "Budget Gamer",
             "price": 899.99,
+            "image": "https://via.placeholder.com/400x300/343a40/28a745?text=Budget+Gamer",
+            "category": "gaming",
             "specs": {
                 "cpu": "AMD Ryzen 5 7600X",
                 "gpu": "NVIDIA RTX 4060",
                 "ram": "16GB DDR5-5200",
-                "storage": "500GB NVMe SSD"
+                "storage": "500GB NVMe SSD",
+                "motherboard": "ASRock B650M Pro4",
+                "cooler": "Arctic Freezer 34 eSports",
+                "case": "Cooler Master MasterBox Q300L",
+                "psu": "be quiet! Pure Power 11 600W"
             },
-            "description": "Solide Gaming-Performance für Einsteiger"
+            "description": "Solide Gaming-Performance für Einsteiger",
+            "features": [
+                "Beste Preis-Leistung",
+                "1080p Gaming bereit",
+                "Kompaktes Design",
+                "Upgrade-freundlich"
+            ]
+        },
+        {
+            "name": "Content Creator Pro",
+            "price": 1699.99,
+            "image": "https://via.placeholder.com/400x300/6c757d/17a2b8?text=Content+Creator",
+            "category": "workstation",
+            "specs": {
+                "cpu": "AMD Ryzen 7 7800X3D",
+                "gpu": "NVIDIA RTX 4070 Super",
+                "ram": "32GB DDR5-5600",
+                "storage": "1TB NVMe SSD + 2TB HDD",
+                "motherboard": "ASUS ROG Strix X670E-E",
+                "cooler": "Corsair H100i RGB Elite",
+                "case": "NZXT H7 Flow",
+                "psu": "Corsair RM850x 850W"
+            },
+            "description": "Perfekt für Streaming, Video-Editing und Content Creation",
+            "features": [
+                "Streaming-optimiert",
+                "Schnelle Render-Zeiten",
+                "RGB-Beleuchtung",
+                "Viel Speicherplatz"
+            ]
+        },
+        {
+            "name": "Office Professional",
+            "price": 599.99,
+            "image": "https://via.placeholder.com/400x300/f8f9fa/343a40?text=Office+Pro",
+            "category": "office",
+            "specs": {
+                "cpu": "AMD Ryzen 5 7600X",
+                "gpu": "Integrierte Grafik",
+                "ram": "16GB DDR5-5200",
+                "storage": "500GB NVMe SSD",
+                "motherboard": "ASRock B650M Pro4",
+                "cooler": "Arctic Freezer 34 eSports",
+                "case": "Cooler Master MasterBox Q300L",
+                "psu": "be quiet! Pure Power 11 600W"
+            },
+            "description": "Leistungsstarker Office-PC für professionelle Anwendungen",
+            "features": [
+                "Energieeffizient",
+                "Leise im Betrieb",
+                "Schnelle SSD",
+                "Kompakte Bauweise"
+            ]
+        },
+        {
+            "name": "4K Gaming Monster",
+            "price": 3299.99,
+            "image": "https://via.placeholder.com/400x300/1a1a1a/dc3545?text=4K+Gaming+Monster",
+            "category": "gaming",
+            "specs": {
+                "cpu": "Intel Core i9-14900K",
+                "gpu": "NVIDIA RTX 4080",
+                "ram": "64GB DDR5-6000",
+                "storage": "2TB NVMe SSD",
+                "motherboard": "MSI MPG Z790 Carbon WiFi",
+                "cooler": "Corsair H100i RGB Elite",
+                "case": "NZXT H7 Flow",
+                "psu": "Corsair RM850x 850W"
+            },
+            "description": "Ultimative Gaming-Performance für 4K-Gaming ohne Kompromisse",
+            "features": [
+                "4K Gaming bereit",
+                "Ray-Tracing aktiviert",
+                "Extreme Performance",
+                "Premium-Komponenten"
+            ]
         }
     ]
     return render_template('prebuild.html', prebuilts=prebuilts)
