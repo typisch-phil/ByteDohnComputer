@@ -10,8 +10,8 @@ The application follows a traditional web architecture pattern with:
 
 - **Frontend**: HTML templates with Bootstrap for responsive design, vanilla JavaScript for interactive features
 - **Backend**: Flask web framework with Python
-- **Database**: SQLAlchemy ORM with configurable database support (defaults to SQLite for development)
-- **Data Storage**: Component data stored in JSON files, user configurations in database
+- **Database**: SQLAlchemy ORM with MySQL-only support (alle anderen Datenbanken entfernt)
+- **Data Storage**: Alle Daten werden ausschließlich in MySQL gespeichert, JSON-Fallbacks wurden entfernt
 - **Static Assets**: CSS and JavaScript files served directly by Flask
 
 ## Key Components
@@ -81,15 +81,16 @@ The application follows a traditional web architecture pattern with:
 
 ### Development Dependencies
 - **Python 3.x**: Runtime environment
-- **SQLite**: Default database for development (configurable via DATABASE_URL)
+- **MySQL**: Einzige unterstützte Datenbank, konfiguriert über MYSQL_DATABASE_URL
+- **PyMySQL**: MySQL-Connector für Python
 
 ## Deployment Strategy
 
 The application is designed for flexible deployment:
 
-1. **Development**: SQLite database with debug mode enabled
+1. **Development**: MySQL database with debug mode enabled
 2. **Production**: Environment variable configuration for:
-   - `DATABASE_URL`: Production database connection string
+   - `MYSQL_DATABASE_URL`: MySQL database connection string (Required)
    - `SESSION_SECRET`: Secure session key
    - Host and port configuration via Flask's built-in server or WSGI
 
@@ -100,6 +101,7 @@ The application is designed for flexible deployment:
 
 - July 08, 2025: Initial setup
 - July 08, 2025: Vollständige Migration zu MySQL - alle PostgreSQL und SQLite Komponenten entfernt, nur MySQL als Datenquelle
+- July 08, 2025: MySQL-Konfigurationssystem implementiert, automatische Verbindungserkennung, komplette Dokumentation erstellt
 
 ## User Preferences
 
