@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}ByteDohm.de - PC Konfigurator & Gaming-PCs{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="fade-in">ByteDohm.de</h1>
+                <p class="fade-in">Professionelle PC-Konfiguration und High-End Gaming-Systeme</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('configurator') }}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-cogs"></i> PC Konfigurator starten
+                    </a>
+                    <a href="{{ url_for('prebuild') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-computer"></i> Fertig-PCs ansehen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2>Unsere Services</h2>
+                <p class="lead">Alles was Sie für Ihren perfekten PC brauchen</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>PC Konfigurator</h3>
+                    <p>Stellen Sie Ihren individuellen PC zusammen mit unserem intelligenten Konfigurator-Tool. Automatische Kompatibilitätsprüfung für alle Komponenten.</p>
+                    <a href="{{ url_for('configurator') }}" class="btn btn-outline-primary">
+                        Jetzt konfigurieren
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-computer"></i>
+                    </div>
+                    <h3>Fertig-PCs</h3>
+                    <p>Sorgfältig zusammengestellte Gaming- und Workstation-PCs für jeden Bedarf. Sofort lieferbar und vollständig getestet.</p>
+                    <a href="{{ url_for('prebuild') }}" class="btn btn-outline-primary">
+                        PCs ansehen
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3>Montage & Support</h3>
+                    <p>Professionelle Montage und umfassender Support für alle unsere Systeme. Garantie und Wartung aus einer Hand.</p>
+                    <a href="#contact" class="btn btn-outline-primary">
+                        Kontakt aufnehmen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2>Warum ByteDohm.de?</h2>
+                <p class="lead">Ihre Vorteile auf einen Blick</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-start">
+                    <div class="feature-icon me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <h4>Kompatibilitätsgarantie</h4>
+                        <p>Unser intelligenter Konfigurator überprüft automatisch alle Komponenten auf Kompatibilität - CPU-Sockel, Gehäusegröße, Netzteil-Leistung und mehr.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-start">
+                    <div class="feature-icon me-3">
+                        <i class="fas fa-shipping-fast text-primary"></i>
+                    </div>
+                    <div>
+                        <h4>Schnelle Lieferung</h4>
+                        <p>Alle Komponenten auf Lager und sofort lieferbar. Professionelle Montage und Test vor Versand.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-start">
+                    <div class="feature-icon me-3">
+                        <i class="fas fa-award text-warning"></i>
+                    </div>
+                    <div>
+                        <h4>Qualitätsgarantie</h4>
+                        <p>Nur Premium-Komponenten von führenden Herstellern. 3 Jahre Garantie auf alle Systeme.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-start">
+                    <div class="feature-icon me-3">
+                        <i class="fas fa-headset text-info"></i>
+                    </div>
+                    <div>
+                        <h4>Persönlicher Support</h4>
+                        <p>Kompetente Beratung vor und nach dem Kauf. Unser Expertenteam steht Ihnen jederzeit zur Verfügung.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="hero py-5">
+    <div class="container text-center">
+        <h2>Bereit für Ihren Traum-PC?</h2>
+        <p class="lead">Starten Sie jetzt mit unserem intelligenten Konfigurator</p>
+        <a href="{{ url_for('configurator') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-rocket"></i> Jetzt konfigurieren
+        </a>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2>Kontakt</h2>
+                <p class="lead">Haben Sie Fragen? Wir helfen gerne!</p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h4>E-Mail</h4>
+                        <p>info@bytedohm.de</p>
+                    </div>
+                    
+                    <div class="col-md-4 text-center mb-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <h4>Telefon</h4>
+                        <p>+49 (0) 123 456 789</p>
+                    </div>
+                    
+                    <div class="col-md-4 text-center mb-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h4>Öffnungszeiten</h4>
+                        <p>Mo-Fr: 9:00-18:00<br>Sa: 10:00-16:00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Simple animation on scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all feature cards
+    document.querySelectorAll('.feature-card').forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

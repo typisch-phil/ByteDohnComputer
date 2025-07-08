@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Fertig-PCs - ByteDohm.de{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1><i class="fas fa-computer"></i> Fertig-PCs</h1>
+        <p class="lead">Sorgfältig zusammengestellte Gaming- und Workstation-PCs für jeden Bedarf</p>
+    </div>
+
+    <!-- Filter Options -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="bg-light p-3 rounded">
+                <h5>Filter</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Preisbereich</label>
+                        <select class="form-select" id="price-filter">
+                            <option value="">Alle Preise</option>
+                            <option value="0-1000">Bis €1.000</option>
+                            <option value="1000-2000">€1.000 - €2.000</option>
+                            <option value="2000+">Über €2.000</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Verwendungszweck</label>
+                        <select class="form-select" id="usage-filter">
+                            <option value="">Alle Kategorien</option>
+                            <option value="gaming">Gaming</option>
+                            <option value="workstation">Workstation</option>
+                            <option value="office">Office</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Sortierung</label>
+                        <select class="form-select" id="sort-filter">
+                            <option value="name">Name</option>
+                            <option value="price-low">Preis: Niedrig zu Hoch</option>
+                            <option value="price-high">Preis: Hoch zu Niedrig</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button class="btn btn-primary d-block w-100" onclick="applyFilters()">
+                            <i class="fas fa-filter"></i> Filter anwenden
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pre-built PCs -->
+    <div class="row" id="prebuild-grid">
+        {% for pc in prebuilts %}
+        <div class="col-lg-6 col-xl-4 mb-4 prebuild-item" data-price="{{ pc.price }}" data-category="gaming">
+            <div class="prebuild-card">
+                <div class="prebuild-header">
+                    <h3 class="prebuild-name">{{ pc.name }}</h3>
+                    <div class="prebuild-price">€{{ "%.2f"|format(pc.price) }}</div>
+                </div>
+                
+                <div class="prebuild-description">
+                    <p>{{ pc.description }}</p>
+                </div>
+                
+                <div class="prebuild-specifications">
+                    <h5>Spezifikationen</h5>
+                    <ul class="prebuild-specs">
+                        <li><strong>CPU:</strong> {{ pc.specs.cpu }}</li>
+                        <li><strong>GPU:</strong> {{ pc.specs.gpu }}</li>
+                        <li><strong>RAM:</strong> {{ pc.specs.ram }}</li>
+                        <li><strong>Speicher:</strong> {{ pc.specs.storage }}</li>
+                    </ul>
+                </div>
+                
+                <div class="prebuild-actions">
+                    <button class="btn btn-primary w-100 mb-2" onclick="showDetails('{{ pc.name }}')">
+                        <i class="fas fa-info-circle"></i> Details anzeigen
+                    </button>
+                    <button class="btn btn-success w-100 mb-2">
+                        <i class="fas fa-shopping-cart"></i> In den Warenkorb
+                    </button>
+                    <button class="btn btn-outline-secondary w-100" onclick="customizePC('{{ pc.name }}')">
+                        <i class="fas fa-cogs"></i> Anpassen
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="text-center py-5" style="display: none;">
+        <div class="feature-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h3>Keine PCs gefunden</h3>
+        <p>Bitte ändern Sie Ihre Filtereinstellungen oder <a href="{{ url_for('configurator') }}">konfigurieren Sie einen eigenen PC</a>.</p>
+    </div>
+</div>
+
+<!-- PC Details Modal -->
+<div class="modal fade" id="pcDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pcDetailsTitle">PC Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="pcDetailsBody">
+                <!-- Details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary">In den Warenkorb</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="bg-light py-5 mt-5">
+    <div class="container text-center">
+        <h2>Nicht das Richtige dabei?</h2>
+        <p class="lead">Konfigurieren Sie Ihren individuellen PC mit unserem Konfigurator</p>
+        <a href="{{ url_for('configurator') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-cogs"></i> PC Konfigurator starten
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Pre-built PC functionality
+const prebuilts = {{ prebuilts | tojson }};
+
+function showDetails(pcName) {
+    const pc = prebuilts.find(p => p.name === pcName);
+    if (!pc) return;
+    
+    document.getElementById('pcDetailsTitle').textContent = pc.name;
+    
+    const detailsHtml = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Preis</h6>
+                <p class="h4 text-primary">€${pc.price.toFixed(2)}</p>
+                
+                <h6>Beschreibung</h6>
+                <p>${pc.description}</p>
+                
+                <h6>Ideal für</h6>
+                <ul>
+                    <li>Gaming in hoher Auflösung</li>
+                    <li>Streaming und Content Creation</li>
+                    <li>Professionelle Anwendungen</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>Technische Spezifikationen</h6>
+                <table class="table table-sm">
+                    <tr><td><strong>CPU:</strong></td><td>${pc.specs.cpu}</td></tr>
+                    <tr><td><strong>GPU:</strong></td><td>${pc.specs.gpu}</td></tr>
+                    <tr><td><strong>RAM:</strong></td><td>${pc.specs.ram}</td></tr>
+                    <tr><td><strong>Speicher:</strong></td><td>${pc.specs.storage}</td></tr>
+                </table>
+                
+                <h6>Garantie & Support</h6>
+                <ul>
+                    <li>3 Jahre Herstellergarantie</li>
+                    <li>Kostenloser Support</li>
+                    <li>Professionelle Montage</li>
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('pcDetailsBody').innerHTML = detailsHtml;
+    
+    const modal = new bootstrap.Modal(document.getElementById('pcDetailsModal'));
+    modal.show();
+}
+
+function customizePC(pcName) {
+    // Redirect to configurator with pre-selected components
+    alert(`Weiterleitung zum Konfigurator mit ${pcName} als Basis...`);
+    window.location.href = '{{ url_for("configurator") }}?base=' + encodeURIComponent(pcName);
+}
+
+function applyFilters() {
+    const priceFilter = document.getElementById('price-filter').value;
+    const usageFilter = document.getElementById('usage-filter').value;
+    const sortFilter = document.getElementById('sort-filter').value;
+    
+    let items = Array.from(document.querySelectorAll('.prebuild-item'));
+    let visibleItems = 0;
+    
+    // Apply filters
+    items.forEach(item => {
+        let show = true;
+        const price = parseFloat(item.dataset.price);
+        const category = item.dataset.category;
+        
+        // Price filter
+        if (priceFilter) {
+            if (priceFilter === '0-1000' && price > 1000) show = false;
+            if (priceFilter === '1000-2000' && (price < 1000 || price > 2000)) show = false;
+            if (priceFilter === '2000+' && price < 2000) show = false;
+        }
+        
+        // Usage filter
+        if (usageFilter && category !== usageFilter) show = false;
+        
+        item.style.display = show ? 'block' : 'none';
+        if (show) visibleItems++;
+    });
+    
+    // Apply sorting
+    if (sortFilter && visibleItems > 0) {
+        const container = document.getElementById('prebuild-grid');
+        const visibleItems = Array.from(container.querySelectorAll('.prebuild-item')).filter(item => item.style.display !== 'none');
+        
+        visibleItems.sort((a, b) => {
+            const priceA = parseFloat(a.dataset.price);
+            const priceB = parseFloat(b.dataset.price);
+            const nameA = a.querySelector('.prebuild-name').textContent;
+            const nameB = b.querySelector('.prebuild-name').textContent;
+            
+            switch(sortFilter) {
+                case 'price-low': return priceA - priceB;
+                case 'price-high': return priceB - priceA;
+                case 'name': return nameA.localeCompare(nameB);
+                default: return 0;
+            }
+        });
+        
+        visibleItems.forEach(item => container.appendChild(item));
+    }
+    
+    // Show/hide empty state
+    const emptyState = document.getElementById('empty-state');
+    emptyState.style.display = visibleItems === 0 ? 'block' : 'none';
+}
+
+// Initialize filters
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default sorting
+    document.getElementById('sort-filter').value = 'name';
+    applyFilters();
+});
+</script>
+{% endblock %}

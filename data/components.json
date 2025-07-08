@@ -1,0 +1,288 @@
+{
+  "cpus": [
+    {
+      "id": 1,
+      "name": "AMD Ryzen 7 7800X3D",
+      "price": 449.99,
+      "socket": "AM5",
+      "cores": 8,
+      "threads": 16,
+      "base_clock": 4.2,
+      "boost_clock": 5.0,
+      "tdp": 120,
+      "memory_support": "DDR5-5200"
+    },
+    {
+      "id": 2,
+      "name": "Intel Core i9-14900K",
+      "price": 589.99,
+      "socket": "LGA1700",
+      "cores": 24,
+      "threads": 32,
+      "base_clock": 3.2,
+      "boost_clock": 6.0,
+      "tdp": 125,
+      "memory_support": "DDR5-5600"
+    },
+    {
+      "id": 3,
+      "name": "AMD Ryzen 5 7600X",
+      "price": 229.99,
+      "socket": "AM5",
+      "cores": 6,
+      "threads": 12,
+      "base_clock": 4.7,
+      "boost_clock": 5.3,
+      "tdp": 105,
+      "memory_support": "DDR5-5200"
+    }
+  ],
+  "motherboards": [
+    {
+      "id": 1,
+      "name": "ASUS ROG Strix X670E-E Gaming",
+      "price": 489.99,
+      "socket": "AM5",
+      "chipset": "X670E",
+      "ram_slots": 4,
+      "ram_types": ["DDR5"],
+      "max_ram_speed": 6000,
+      "max_ram_capacity": 128,
+      "form_factor": "ATX",
+      "power_consumption": 25
+    },
+    {
+      "id": 2,
+      "name": "MSI MPG Z790 Carbon WiFi",
+      "price": 429.99,
+      "socket": "LGA1700",
+      "chipset": "Z790",
+      "ram_slots": 4,
+      "ram_types": ["DDR5"],
+      "max_ram_speed": 7200,
+      "max_ram_capacity": 128,
+      "form_factor": "ATX",
+      "power_consumption": 30
+    },
+    {
+      "id": 3,
+      "name": "ASRock B650M Pro4",
+      "price": 139.99,
+      "socket": "AM5",
+      "chipset": "B650",
+      "ram_slots": 4,
+      "ram_types": ["DDR5"],
+      "max_ram_speed": 5200,
+      "max_ram_capacity": 128,
+      "form_factor": "Micro-ATX",
+      "power_consumption": 20
+    }
+  ],
+  "ram": [
+    {
+      "id": 1,
+      "name": "G.Skill Trident Z5 32GB DDR5-6000",
+      "price": 189.99,
+      "type": "DDR5",
+      "capacity": 32,
+      "speed": 6000,
+      "modules": 2,
+      "latency": "CL30",
+      "power_consumption": 10
+    },
+    {
+      "id": 2,
+      "name": "Corsair Vengeance LPX 16GB DDR5-5600",
+      "price": 89.99,
+      "type": "DDR5",
+      "capacity": 16,
+      "speed": 5600,
+      "modules": 2,
+      "latency": "CL36",
+      "power_consumption": 8
+    },
+    {
+      "id": 3,
+      "name": "Kingston Fury Beast 64GB DDR5-5200",
+      "price": 299.99,
+      "type": "DDR5",
+      "capacity": 64,
+      "speed": 5200,
+      "modules": 2,
+      "latency": "CL40",
+      "power_consumption": 15
+    }
+  ],
+  "gpus": [
+    {
+      "id": 1,
+      "name": "NVIDIA GeForce RTX 4070 Super",
+      "price": 599.99,
+      "memory": 12,
+      "memory_type": "GDDR6X",
+      "base_clock": 1980,
+      "boost_clock": 2475,
+      "power_consumption": 220,
+      "length": 267,
+      "width": 112,
+      "height": 50
+    },
+    {
+      "id": 2,
+      "name": "NVIDIA GeForce RTX 4080",
+      "price": 1199.99,
+      "memory": 16,
+      "memory_type": "GDDR6X",
+      "base_clock": 2205,
+      "boost_clock": 2505,
+      "power_consumption": 320,
+      "length": 304,
+      "width": 137,
+      "height": 61
+    },
+    {
+      "id": 3,
+      "name": "NVIDIA GeForce RTX 4060",
+      "price": 299.99,
+      "memory": 8,
+      "memory_type": "GDDR6",
+      "base_clock": 1830,
+      "boost_clock": 2460,
+      "power_consumption": 115,
+      "length": 244,
+      "width": 112,
+      "height": 40
+    }
+  ],
+  "ssds": [
+    {
+      "id": 1,
+      "name": "Samsung 980 PRO 1TB NVMe",
+      "price": 89.99,
+      "capacity": 1000,
+      "interface": "NVMe",
+      "form_factor": "M.2 2280",
+      "read_speed": 7000,
+      "write_speed": 5000
+    },
+    {
+      "id": 2,
+      "name": "WD Black SN850X 2TB NVMe",
+      "price": 159.99,
+      "capacity": 2000,
+      "interface": "NVMe",
+      "form_factor": "M.2 2280",
+      "read_speed": 7300,
+      "write_speed": 6600
+    },
+    {
+      "id": 3,
+      "name": "Crucial MX4 500GB SATA",
+      "price": 49.99,
+      "capacity": 500,
+      "interface": "SATA",
+      "form_factor": "2.5\"",
+      "read_speed": 560,
+      "write_speed": 510
+    }
+  ],
+  "cases": [
+    {
+      "id": 1,
+      "name": "Fractal Design Define 7",
+      "price": 169.99,
+      "form_factor": "ATX",
+      "max_gpu_length": 315,
+      "max_cooler_height": 185,
+      "dimensions": {
+        "length": 547,
+        "width": 240,
+        "height": 475
+      }
+    },
+    {
+      "id": 2,
+      "name": "NZXT H7 Flow",
+      "price": 129.99,
+      "form_factor": "ATX",
+      "max_gpu_length": 381,
+      "max_cooler_height": 165,
+      "dimensions": {
+        "length": 494,
+        "width": 230,
+        "height": 460
+      }
+    },
+    {
+      "id": 3,
+      "name": "Cooler Master MasterBox Q300L",
+      "price": 39.99,
+      "form_factor": "Micro-ATX",
+      "max_gpu_length": 210,
+      "max_cooler_height": 158,
+      "dimensions": {
+        "length": 387,
+        "width": 230,
+        "height": 381
+      }
+    }
+  ],
+  "psus": [
+    {
+      "id": 1,
+      "name": "Corsair RM850x",
+      "price": 129.99,
+      "wattage": 850,
+      "efficiency": "80+ Gold",
+      "modular": true,
+      "form_factor": "ATX"
+    },
+    {
+      "id": 2,
+      "name": "Seasonic Focus GX-750",
+      "price": 109.99,
+      "wattage": 750,
+      "efficiency": "80+ Gold",
+      "modular": true,
+      "form_factor": "ATX"
+    },
+    {
+      "id": 3,
+      "name": "be quiet! Pure Power 11 600W",
+      "price": 79.99,
+      "wattage": 600,
+      "efficiency": "80+ Gold",
+      "modular": false,
+      "form_factor": "ATX"
+    }
+  ],
+  "coolers": [
+    {
+      "id": 1,
+      "name": "Noctua NH-D15",
+      "price": 99.99,
+      "type": "Air",
+      "height": 165,
+      "compatible_sockets": ["AM4", "AM5", "LGA1700", "LGA1200"],
+      "tdp_rating": 220
+    },
+    {
+      "id": 2,
+      "name": "Corsair H100i RGB Elite",
+      "price": 149.99,
+      "type": "AIO",
+      "height": 27,
+      "compatible_sockets": ["AM4", "AM5", "LGA1700", "LGA1200"],
+      "tdp_rating": 300
+    },
+    {
+      "id": 3,
+      "name": "Arctic Freezer 34 eSports",
+      "price": 39.99,
+      "type": "Air",
+      "height": 157,
+      "compatible_sockets": ["AM4", "AM5", "LGA1700", "LGA1200"],
+      "tdp_rating": 150
+    }
+  ]
+}

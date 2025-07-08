@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}PC Konfigurator - ByteDohm.de{% endblock %}
+
+{% block content %}
+<div class="configurator">
+    <div class="container">
+        <!-- Header -->
+        <div class="configurator-header">
+            <h1><i class="fas fa-cogs"></i> PC Konfigurator</h1>
+            <p class="lead">Stellen Sie Ihren individuellen PC zusammen mit automatischer Kompatibilitätsprüfung</p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" data-step="1">1</div>
+            <div class="step" data-step="2">2</div>
+            <div class="step" data-step="3">3</div>
+            <div class="step" data-step="4">4</div>
+            <div class="step" data-step="5">5</div>
+            <div class="step" data-step="6">6</div>
+            <div class="step" data-step="7">7</div>
+            <div class="step" data-step="8">8</div>
+        </div>
+
+        <div class="row">
+            <!-- Component Selection -->
+            <div class="col-lg-8">
+                <div id="pc-configurator">
+                    
+                    <!-- CPU Selection -->
+                    <div class="component-section" id="step-1">
+                        <div class="category-header">
+                            <h3><i class="fas fa-microchip"></i> CPU (Prozessor)</h3>
+                        </div>
+                        
+                        <div class="component-selection">
+                            {% for cpu in components.cpus %}
+                            <div class="component-card" data-category="cpu" data-id="{{ cpu.id }}">
+                                <div class="component-name">{{ cpu.name }}</div>
+                                <div class="component-price">€{{ "%.2f"|format(cpu.price) }}</div>
+                                <div class="component-specs">
+                                    {{ cpu.cores }} Kerne, {{ cpu.threads }} Threads • 
+                                    {{ cpu.base_clock }} - {{ cpu.boost_clock }} GHz • 
+                                    {{ cpu.tdp }}W TDP • 
+                                    Socket {{ cpu.socket }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Motherboard Selection -->
+                    <div class="component-section" id="step-2" style="display: none;">
+                        <div class="category-header">
+                            <h3><i class="fas fa-memory"></i> Motherboard (Hauptplatine)</h3>
+                        </div>
+                        
+                        <div class="component-selection">
+                            {% for mb in components.motherboards %}
+                            <div class="component-card" data-category="motherboard" data-id="{{ mb.id }}">
+                                <div class="component-name">{{ mb.name }}</div>
+                                <div class="component-price">€{{ "%.2f"|format(mb.price) }}</div>
+                                <div class="component-specs">
+                                    Socket {{ mb.socket }} • 
+                                    {{ mb.chipset }} • 
+                                    {{ mb.ram_slots }} RAM-Slots • 
+                                    Max. {{ mb.max_ram_speed }}MHz • 
+                                    {{ mb.form_factor }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- RAM Selection -->
+                    <div class="component-section" id="step-3" style="display: none;">
+                        <div class="category-header">
+                            <h3><i class="fas fa-memory"></i> RAM (Arbeitsspeicher)</h3>
+                        </div>
+                        
+                        <div class="component-selection">
+                            {% for ram in components.ram %}
+                            <div class="component-card" data-category="ram" data-id="{{ ram.id }}">
+                                <div class="component-name">{{ ram.name }}</div>
+                                <div class="component-price">€{{ "%.2f"|format(ram.price) }}</div>
+                                <div class="component-specs">
+                                    {{ ram.capacity }}GB {{ ram.type }} • 
+                                    {{ ram.speed }}MHz • 
+                                    {{ ram.modules }} Module • 
+                                    {{ ram.latency }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- GPU Selection -->
+                    <div class="component-section" id="step-4" style="display: none;">
+                        <div class="category-header">
+                            <h3><i class="fas fa-desktop"></i> GPU (Grafikkarte)</h3>
+                        </div>
+                        
+                        <div class="component-selection">
+                            {% for gpu in components.gpus %}
+                            <div class="component-card" data-category="gpu" data-id="{{ gpu.id }}">
+                                <div class="component-name">{{ gpu.name }}</div>
+                                <div class="component-price">€{{ "%.2f"|format(gpu.price) }}</div>
+                                <div class="component-specs">
+                                    {{ gpu.memory }}GB {{ gpu.memory_type }} • 
+                                    {{ gpu.base_clock }}/{{ gpu.boost_clock }}MHz • 
+                                    {{ gpu.power_consumption }}W • 
+                                    {{ gpu.length }}mm lang
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- SSD Selection -->
+                    <div class="component-section" id="step-5" style="display: none;">
+                        <div class="category-header">
+                            <h3><i class="fas fa-hdd"></i> SSD (Speicher)</h3>
+                        </div>
+                        
+                        <div class="component-selection">
+                            {% for ssd in components.ssds %}
+                            <div class="component-card" data-category="ssd" data-id="{{ ssd.id }}">
+                                <div class="component-name">{{ ssd.name }}</div>
+                                <div class="component-price">€{{ "%.2f"|format(ssd.price) }}</div>
+                                <div class="component-specs">
+                                    {{ ssd.capacity }}GB • 
+                                    {{ ssd.interface }} • 
+                                    {{ ssd.form_factor }} • 
+                                    {{ ssd.read_speed }}/{{ ssd.write_speed }} MB/s
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Case Selection -->
+                    <div class="component-section" id="step-6" style="display: none;">
+                        <div class="category-header">
+                            <h3><i class="fas fa-cube"></i> Case (Gehäuse)</h3>
+                        </div>
+                        
+                        <div class="component-selection">
+                            {% for case in components.cases %}
+                            <div class="component-card" data-category="case" data-id="{{ case.id }}">
+                                <div class="component-name">{{ case.name }}</div>
+                                <div class="component-price">€{{ "%.2f"|format(case.price) }}</div>
+                                <div class="component-specs">
+                                    {{ case.form_factor }} • 
+                                    Max. GPU: {{ case.max_gpu_length }}mm • 
+                                    Max. Kühler: {{ case.max_cooler_height }}mm • 
+                                    {{ case.dimensions.length }}×{{ case.dimensions.width }}×{{ case.dimensions.height }}mm
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- PSU Selection -->
+                    <div class="component-section" id="step-7" style="display: none;">
+                        <div class="category-header">
+                            <h3><i class="fas fa-bolt"></i> PSU (Netzteil)</h3>
+                        </div>
+                        
+                        <div class="component-selection">
+                            {% for psu in components.psus %}
+                            <div class="component-card" data-category="psu" data-id="{{ psu.id }}">
+                                <div class="component-name">{{ psu.name }}</div>
+                                <div class="component-price">€{{ "%.2f"|format(psu.price) }}</div>
+                                <div class="component-specs">
+                                    {{ psu.wattage }}W • 
+                                    {{ psu.efficiency }} • 
+                                    {% if psu.modular %}Modular{% else %}Nicht modular{% endif %} • 
+                                    {{ psu.form_factor }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Cooler Selection -->
+                    <div class="component-section" id="step-8" style="display: none;">
+                        <div class="category-header">
+                            <h3><i class="fas fa-fan"></i> Cooler (Kühler)</h3>
+                        </div>
+                        
+                        <div class="component-selection">
+                            {% for cooler in components.coolers %}
+                            <div class="component-card" data-category="cooler" data-id="{{ cooler.id }}">
+                                <div class="component-name">{{ cooler.name }}</div>
+                                <div class="component-price">€{{ "%.2f"|format(cooler.price) }}</div>
+                                <div class="component-specs">
+                                    {{ cooler.type }} • 
+                                    {{ cooler.height }}mm hoch • 
+                                    TDP: {{ cooler.tdp_rating }}W • 
+                                    Kompatibel: {{ cooler.compatible_sockets|join(", ") }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="text-center mt-4">
+                        <button id="prev-step" class="btn btn-secondary me-2" style="display: none;">
+                            <i class="fas fa-arrow-left"></i> Zurück
+                        </button>
+                        <button id="next-step" class="btn btn-primary">
+                            Weiter <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compatibility Status -->
+            <div class="col-lg-4">
+                <div class="compatibility-status" id="compatibility-status">
+                    <h4>Kompatibilitätsstatus</h4>
+                    <p>Wählen Sie Komponenten aus, um die Kompatibilität zu überprüfen.</p>
+                </div>
+
+                <!-- Configuration Actions -->
+                <div class="configuration-actions mt-3">
+                    <button id="save-config" class="btn btn-success w-100 mb-2">
+                        <i class="fas fa-save"></i> Konfiguration speichern
+                    </button>
+                    <button onclick="exportConfiguration()" class="btn btn-outline-secondary w-100 mb-2">
+                        <i class="fas fa-download"></i> Exportieren
+                    </button>
+                    <button onclick="importConfiguration()" class="btn btn-outline-secondary w-100 mb-2">
+                        <i class="fas fa-upload"></i> Importieren
+                    </button>
+                    <button onclick="window.configurator.resetConfiguration()" class="btn btn-outline-danger w-100">
+                        <i class="fas fa-trash"></i> Zurücksetzen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/configurator.js') }}"></script>
+{% endblock %}
