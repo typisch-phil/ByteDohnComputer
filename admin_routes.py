@@ -1,33 +1,12 @@
-from flask import render_template, request, redirect, url_for, flash, jsonify
-from flask_login import login_user, logout_user, login_required, current_user
-from app import app, db
-from models import AdminUser, Component, PrebuiltPC
 import json
+from datetime import datetime
+from flask import request, render_template, redirect, url_for, flash, session
+from flask_login import login_required, login_user, logout_user, UserMixin, current_user
+from werkzeug.security import check_password_hash
+from app import app, db
+from models import Component, PrebuiltPC, AdminUser
 
-@app.route('/admin')
-@login_required
-def admin_dashboard():
-    """Admin dashboard with overview statistics"""
-    component_count = Component.query.count()
-    prebuilt_count = PrebuiltPC.query.count()
-    active_components = Component.query.filter_by(is_active=True).count()
-    active_prebuilts = PrebuiltPC.query.filter_by(is_active=True).count()
-    
-    stats = {
-        'components': {
-            'total': component_count,
-            'active': active_components,
-            'inactive': component_count - active_components
-        },
-        'prebuilts': {
-            'total': prebuilt_count,
-            'active': active_prebuilts,
-            'inactive': prebuilt_count - active_prebuilts
-        }
-    }
-    
-    return render_template('admin/dashboard.html', stats=stats)
-
+# Admin Authentication
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     """Admin login page"""
@@ -37,10 +16,10 @@ def admin_login():
         
         user = AdminUser.query.filter_by(username=username).first()
         
-        if user and user.check_password(password) and user.is_active:
+        if user and user.check_password(password):
             login_user(user)
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('admin_dashboard'))
+            flash('Erfolgreich angemeldet', 'success')
+            return redirect(url_for('admin_dashboard'))
         else:
             flash('Ungültige Anmeldedaten', 'error')
     
@@ -51,8 +30,37 @@ def admin_login():
 def admin_logout():
     """Admin logout"""
     logout_user()
-    flash('Erfolgreich abgemeldet', 'success')
-    return redirect(url_for('index'))
+    flash('Erfolgreich abgemeldet', 'info')
+    return redirect(url_for('admin_login'))
+
+# Dashboard
+@app.route('/admin')
+@app.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+    """Admin dashboard with overview statistics"""
+    component_count = Component.query.count()
+    active_component_count = Component.query.filter_by(is_active=True).count()
+    prebuilt_count = PrebuiltPC.query.count()
+    active_prebuilt_count = PrebuiltPC.query.filter_by(is_active=True).count()
+    
+    # Recent components
+    recent_components = Component.query.order_by(Component.created_at.desc()).limit(5).all()
+    
+    # Recent prebuilt PCs
+    recent_prebuilts = PrebuiltPC.query.order_by(PrebuiltPC.created_at.desc()).limit(5).all()
+    
+    stats = {
+        'component_count': component_count,
+        'active_component_count': active_component_count,
+        'prebuilt_count': prebuilt_count,
+        'active_prebuilt_count': active_prebuilt_count
+    }
+    
+    return render_template('admin/dashboard.html', 
+                         stats=stats, 
+                         recent_components=recent_components,
+                         recent_prebuilts=recent_prebuilts)
 
 # Component Management
 @app.route('/admin/components')
@@ -75,7 +83,7 @@ def admin_components():
     return render_template('admin/components.html', 
                          components=components, 
                          categories=categories,
-                         selected_category=category)
+                         current_category=category)
 
 @app.route('/admin/components/add', methods=['GET', 'POST'])
 @login_required
@@ -83,89 +91,16 @@ def admin_add_component():
     """Add new component"""
     if request.method == 'POST':
         try:
-            # Get basic info
             name = request.form['name']
             category = request.form['category']
             price = float(request.form['price'])
             
-            # Build specifications based on category
-            specs = {}
-            
-            if category == 'cpus':
-                specs = {
-                    'socket': request.form['socket'],
-                    'cores': int(request.form['cores']),
-                    'threads': int(request.form['threads']),
-                    'base_clock': float(request.form['base_clock']),
-                    'boost_clock': float(request.form['boost_clock']),
-                    'tdp': int(request.form['tdp']),
-                    'memory_support': request.form['memory_support']
-                }
-            elif category == 'motherboards':
-                specs = {
-                    'socket': request.form['socket'],
-                    'chipset': request.form['chipset'],
-                    'ram_slots': int(request.form['ram_slots']),
-                    'ram_types': request.form['ram_types'].split(','),
-                    'max_ram_speed': int(request.form['max_ram_speed']),
-                    'max_ram_capacity': int(request.form['max_ram_capacity']),
-                    'form_factor': request.form['form_factor'],
-                    'power_consumption': int(request.form['power_consumption'])
-                }
-            elif category == 'ram':
-                specs = {
-                    'type': request.form['type'],
-                    'capacity': int(request.form['capacity']),
-                    'speed': int(request.form['speed']),
-                    'modules': int(request.form['modules']),
-                    'latency': request.form['latency'],
-                    'power_consumption': int(request.form['power_consumption'])
-                }
-            elif category == 'gpus':
-                specs = {
-                    'memory': int(request.form['memory']),
-                    'memory_type': request.form['memory_type'],
-                    'base_clock': int(request.form['base_clock']),
-                    'boost_clock': int(request.form['boost_clock']),
-                    'power_consumption': int(request.form['power_consumption']),
-                    'length': int(request.form['length']),
-                    'width': int(request.form['width']),
-                    'height': int(request.form['height'])
-                }
-            elif category == 'ssds':
-                specs = {
-                    'capacity': int(request.form['capacity']),
-                    'interface': request.form['interface'],
-                    'form_factor': request.form['form_factor'],
-                    'read_speed': int(request.form['read_speed']),
-                    'write_speed': int(request.form['write_speed'])
-                }
-            elif category == 'cases':
-                specs = {
-                    'form_factor': request.form['form_factor'],
-                    'max_gpu_length': int(request.form['max_gpu_length']),
-                    'max_cooler_height': int(request.form['max_cooler_height']),
-                    'dimensions': {
-                        'length': int(request.form['length']),
-                        'width': int(request.form['width']),
-                        'height': int(request.form['height'])
-                    }
-                }
-            elif category == 'psus':
-                specs = {
-                    'wattage': int(request.form['wattage']),
-                    'efficiency': request.form['efficiency'],
-                    'modular': request.form.get('modular') == 'on',
-                    'form_factor': request.form['form_factor']
-                }
-            elif category == 'coolers':
-                compatible_sockets = request.form['compatible_sockets'].split(',')
-                specs = {
-                    'type': request.form['type'],
-                    'height': int(request.form['height']),
-                    'compatible_sockets': [s.strip() for s in compatible_sockets],
-                    'tdp_rating': int(request.form['tdp_rating'])
-                }
+            # Parse specifications JSON
+            try:
+                specs = json.loads(request.form['specifications'])
+            except json.JSONDecodeError:
+                flash('Ungültiges JSON-Format in den Spezifikationen', 'error')
+                return render_template('admin/add_component.html')
             
             component = Component(
                 name=name,
@@ -195,27 +130,19 @@ def admin_edit_component(component_id):
     if request.method == 'POST':
         try:
             component.name = request.form['name']
+            component.category = request.form['category']
             component.price = float(request.form['price'])
-            component.is_active = request.form.get('is_active') == 'on'
+            component.is_active = bool(int(request.form.get('is_active', 1)))
             
-            # Update specifications based on category
-            specs = component.get_specs()
+            # Parse and validate specifications JSON
+            try:
+                specs = json.loads(request.form['specifications'])
+                component.set_specs(specs)
+            except json.JSONDecodeError:
+                flash('Ungültiges JSON-Format in den Spezifikationen', 'error')
+                return render_template('admin/edit_component.html', component=component)
             
-            if component.category == 'cpus':
-                specs.update({
-                    'socket': request.form['socket'],
-                    'cores': int(request.form['cores']),
-                    'threads': int(request.form['threads']),
-                    'base_clock': float(request.form['base_clock']),
-                    'boost_clock': float(request.form['boost_clock']),
-                    'tdp': int(request.form['tdp']),
-                    'memory_support': request.form['memory_support']
-                })
-            # Add other categories as needed...
-            
-            component.set_specs(specs)
             db.session.commit()
-            
             flash(f'Komponente "{component.name}" erfolgreich aktualisiert', 'success')
             return redirect(url_for('admin_components'))
             
@@ -226,7 +153,7 @@ def admin_edit_component(component_id):
     return render_template('admin/edit_component.html', component=component)
 
 @app.route('/admin/components/<int:component_id>/delete', methods=['POST'])
-@login_required
+@login_required 
 def admin_delete_component(component_id):
     """Delete component"""
     component = Component.query.get_or_404(component_id)
@@ -257,12 +184,12 @@ def admin_prebuilts():
         page=page, per_page=20, error_out=False
     )
     
-    categories = ['gaming', 'workstation', 'office']
+    categories = ['gaming', 'workstation', 'office', 'budget']
     
     return render_template('admin/prebuilts.html', 
-                         prebuilts=prebuilts,
+                         prebuilts=prebuilts, 
                          categories=categories,
-                         selected_category=category)
+                         current_category=category)
 
 @app.route('/admin/prebuilts/add', methods=['GET', 'POST'])
 @login_required
@@ -274,23 +201,23 @@ def admin_add_prebuilt():
             price = float(request.form['price'])
             category = request.form['category']
             description = request.form['description']
-            image_url = request.form['image_url']
+            image_url = request.form.get('image_url')
             
-            # Build specifications
-            specs = {
-                'cpu': request.form['cpu'],
-                'gpu': request.form['gpu'],
-                'ram': request.form['ram'],
-                'storage': request.form['storage'],
-                'motherboard': request.form['motherboard'],
-                'cooler': request.form['cooler'],
-                'case': request.form['case'],
-                'psu': request.form['psu']
-            }
+            # Parse specifications JSON
+            try:
+                specs = json.loads(request.form['specifications'])
+            except json.JSONDecodeError:
+                flash('Ungültiges JSON-Format in den Spezifikationen', 'error')
+                return render_template('admin/add_prebuilt.html')
             
-            # Build features list
-            features_text = request.form['features']
-            features = [f.strip() for f in features_text.split('\n') if f.strip()]
+            # Parse features JSON
+            try:
+                features = json.loads(request.form['features'])
+                if not isinstance(features, list):
+                    raise ValueError('Features müssen als Array definiert werden')
+            except (json.JSONDecodeError, ValueError) as e:
+                flash(f'Ungültiges JSON-Format in den Features: {str(e)}', 'error')
+                return render_template('admin/add_prebuilt.html')
             
             prebuilt = PrebuiltPC(
                 name=name,
@@ -326,26 +253,26 @@ def admin_edit_prebuilt(prebuilt_id):
             prebuilt.price = float(request.form['price'])
             prebuilt.category = request.form['category']
             prebuilt.description = request.form['description']
-            prebuilt.image_url = request.form['image_url'] if request.form['image_url'] else None
-            prebuilt.is_active = request.form.get('is_active') == 'on'
+            prebuilt.image_url = request.form.get('image_url') or None
+            prebuilt.is_active = bool(int(request.form.get('is_active', 1)))
             
-            # Update specifications
-            specs = {
-                'cpu': request.form['cpu'],
-                'gpu': request.form['gpu'],
-                'ram': request.form['ram'],
-                'storage': request.form['storage'],
-                'motherboard': request.form['motherboard'],
-                'cooler': request.form['cooler'],
-                'case': request.form['case'],
-                'psu': request.form['psu']
-            }
-            prebuilt.set_specs(specs)
+            # Parse and validate specifications JSON
+            try:
+                specs = json.loads(request.form['specifications'])
+                prebuilt.set_specs(specs)
+            except json.JSONDecodeError:
+                flash('Ungültiges JSON-Format in den Spezifikationen', 'error')
+                return render_template('admin/edit_prebuilt.html', prebuilt=prebuilt)
             
-            # Update features
-            features_text = request.form['features']
-            features = [f.strip() for f in features_text.split('\n') if f.strip()]
-            prebuilt.set_features(features)
+            # Parse and validate features JSON
+            try:
+                features = json.loads(request.form['features'])
+                if not isinstance(features, list):
+                    raise ValueError('Features müssen als Array definiert werden')
+                prebuilt.set_features(features)
+            except (json.JSONDecodeError, ValueError) as e:
+                flash(f'Ungültiges JSON-Format in den Features: {str(e)}', 'error')
+                return render_template('admin/edit_prebuilt.html', prebuilt=prebuilt)
             
             db.session.commit()
             
@@ -379,29 +306,15 @@ def admin_delete_prebuilt(prebuilt_id):
 @login_required
 def get_component_fields(category):
     """Get form fields for specific component category"""
-    fields = {}
+    fields = {
+        'cpus': ['socket', 'cores', 'threads', 'base_clock', 'boost_clock', 'tdp', 'memory_support'],
+        'motherboards': ['socket', 'chipset', 'form_factor', 'memory_slots', 'max_memory', 'memory_type'],
+        'ram': ['type', 'capacity', 'speed', 'timings', 'voltage'],
+        'gpus': ['memory', 'memory_type', 'core_clock', 'boost_clock', 'power_consumption', 'length'],
+        'ssds': ['capacity', 'interface', 'form_factor', 'read_speed', 'write_speed'],
+        'cases': ['form_factor', 'max_gpu_length', 'max_cpu_cooler_height', 'front_usb'],
+        'psus': ['wattage', 'efficiency', 'modular', 'form_factor'],
+        'coolers': ['type', 'height', 'compatible_sockets', 'tdp_rating']
+    }
     
-    if category == 'cpus':
-        fields = {
-            'socket': {'type': 'text', 'label': 'Socket', 'required': True},
-            'cores': {'type': 'number', 'label': 'Kerne', 'required': True},
-            'threads': {'type': 'number', 'label': 'Threads', 'required': True},
-            'base_clock': {'type': 'number', 'label': 'Basistakt (GHz)', 'step': '0.1', 'required': True},
-            'boost_clock': {'type': 'number', 'label': 'Boost-Takt (GHz)', 'step': '0.1', 'required': True},
-            'tdp': {'type': 'number', 'label': 'TDP (W)', 'required': True},
-            'memory_support': {'type': 'text', 'label': 'Speicher-Unterstützung', 'required': True}
-        }
-    elif category == 'motherboards':
-        fields = {
-            'socket': {'type': 'text', 'label': 'Socket', 'required': True},
-            'chipset': {'type': 'text', 'label': 'Chipsatz', 'required': True},
-            'ram_slots': {'type': 'number', 'label': 'RAM-Slots', 'required': True},
-            'ram_types': {'type': 'text', 'label': 'RAM-Typen (kommagetrennt)', 'required': True},
-            'max_ram_speed': {'type': 'number', 'label': 'Max. RAM-Geschwindigkeit (MHz)', 'required': True},
-            'max_ram_capacity': {'type': 'number', 'label': 'Max. RAM-Kapazität (GB)', 'required': True},
-            'form_factor': {'type': 'text', 'label': 'Formfaktor', 'required': True},
-            'power_consumption': {'type': 'number', 'label': 'Stromverbrauch (W)', 'required': True}
-        }
-    # Add other categories...
-    
-    return jsonify(fields)
+    return {'fields': fields.get(category, [])}

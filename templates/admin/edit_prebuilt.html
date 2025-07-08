@@ -1,0 +1,214 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Fertig-PC bearbeiten{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Fertig-PC bearbeiten</h2>
+    <a href="{{ url_for('admin_prebuilts') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Zurück zur Liste
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ prebuilt.name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="price" class="form-label">Preis (€)</label>
+                                <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ prebuilt.price }}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Kategorie</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="gaming" {{ 'selected' if prebuilt.category == 'gaming' }}>Gaming</option>
+                                    <option value="workstation" {{ 'selected' if prebuilt.category == 'workstation' }}>Workstation</option>
+                                    <option value="office" {{ 'selected' if prebuilt.category == 'office' }}>Office</option>
+                                    <option value="budget" {{ 'selected' if prebuilt.category == 'budget' }}>Budget</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="is_active" class="form-label">Status</label>
+                                <select class="form-select" id="is_active" name="is_active">
+                                    <option value="1" {{ 'selected' if prebuilt.is_active }}>Aktiv</option>
+                                    <option value="0" {{ 'selected' if not prebuilt.is_active }}>Inaktiv</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="image_url" class="form-label">Bild-URL</label>
+                        <input type="url" class="form-control" id="image_url" name="image_url" value="{{ prebuilt.image_url or '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Beschreibung</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required>{{ prebuilt.description }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="specifications" class="form-label">Spezifikationen (JSON)</label>
+                        <textarea class="form-control" id="specifications" name="specifications" rows="8" required>{{ prebuilt.specifications }}</textarea>
+                        <div class="form-text">Geben Sie die Spezifikationen im JSON-Format ein. Beispiel: {"cpu": "AMD Ryzen 7", "gpu": "RTX 4080"}</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="features" class="form-label">Features (JSON Array)</label>
+                        <textarea class="form-control" id="features" name="features" rows="6" required>{{ prebuilt.features }}</textarea>
+                        <div class="form-text">Geben Sie die Features als JSON-Array ein. Beispiel: ["Feature 1", "Feature 2"]</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Speichern
+                        </button>
+                        <a href="{{ url_for('admin_prebuilts') }}" class="btn btn-secondary">Abbrechen</a>
+                        <a href="{{ url_for('admin_delete_prebuilt', prebuilt_id=prebuilt.id) }}" 
+                           class="btn btn-danger ms-auto" 
+                           onclick="return confirm('Sind Sie sicher, dass Sie diesen Fertig-PC löschen möchten?')">
+                            <i class="fas fa-trash"></i> Löschen
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Vorschau</h6>
+            </div>
+            <div class="card-body">
+                {% if prebuilt.image_url %}
+                <img src="{{ prebuilt.image_url }}" class="img-fluid mb-3" alt="{{ prebuilt.name }}" 
+                     onerror="this.src='https://via.placeholder.com/400x300/6c757d/ffffff?text=Kein+Bild'">
+                {% endif %}
+                <h6>{{ prebuilt.name }}</h6>
+                <p class="text-muted">{{ prebuilt.description }}</p>
+                <p class="h5 text-primary">{{ "%.2f"|format(prebuilt.price) }} €</p>
+                <span class="badge bg-{{ 'primary' if prebuilt.category == 'gaming' else 'info' if prebuilt.category == 'workstation' else 'secondary' }}">
+                    {{ prebuilt.category.title() }}
+                </span>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Aktuelle Spezifikationen</h6>
+            </div>
+            <div class="card-body">
+                {% set specs = prebuilt.get_specs() %}
+                {% if specs %}
+                    <ul class="list-group list-group-flush">
+                        {% for key, value in specs.items() %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>{{ key }}:</strong>
+                            <span>{{ value }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">Keine Spezifikationen verfügbar</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Features</h6>
+            </div>
+            <div class="card-body">
+                {% set features = prebuilt.get_features() %}
+                {% if features %}
+                    <ul class="list-group list-group-flush">
+                        {% for feature in features %}
+                        <li class="list-group-item">
+                            <i class="fas fa-check text-success me-2"></i>{{ feature }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">Keine Features verfügbar</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Informationen</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>ID:</strong> {{ prebuilt.id }}</p>
+                <p><strong>Erstellt:</strong> {{ prebuilt.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                <p><strong>Aktualisiert:</strong> {{ prebuilt.updated_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                <p><strong>Status:</strong> 
+                    <span class="badge bg-{{ 'success' if prebuilt.is_active else 'secondary' }}">
+                        {{ 'Aktiv' if prebuilt.is_active else 'Inaktiv' }}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const specsTextarea = document.getElementById('specifications');
+    const featuresTextarea = document.getElementById('features');
+    
+    // JSON-Validierung für Spezifikationen
+    specsTextarea.addEventListener('blur', function() {
+        try {
+            JSON.parse(this.value);
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } catch (e) {
+            this.classList.remove('is-valid');
+            this.classList.add('is-invalid');
+        }
+    });
+    
+    // JSON-Validierung für Features
+    featuresTextarea.addEventListener('blur', function() {
+        try {
+            const parsed = JSON.parse(this.value);
+            if (Array.isArray(parsed)) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                throw new Error('Must be an array');
+            }
+        } catch (e) {
+            this.classList.remove('is-valid');
+            this.classList.add('is-invalid');
+        }
+    });
+    
+    // Bild-Vorschau aktualisieren
+    document.getElementById('image_url').addEventListener('input', function() {
+        const img = document.querySelector('.card img');
+        if (img && this.value) {
+            img.src = this.value;
+        }
+    });
+});
+</script>
+{% endblock %}
