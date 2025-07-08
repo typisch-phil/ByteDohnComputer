@@ -74,7 +74,7 @@ def prebuild():
         # No fallback data - show empty list if database fails
         prebuilt_pcs = []
     
-    return render_template('prebuild.html', prebuilt_pcs=prebuilt_pcs)
+    return render_template('prebuild.html', prebuilts=prebuilt_pcs)
 
 @app.route('/api/validate-compatibility', methods=['POST'])
 def validate_compatibility():
