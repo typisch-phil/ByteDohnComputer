@@ -51,10 +51,16 @@ def admin_dashboard():
     recent_prebuilts = PrebuiltPC.query.order_by(PrebuiltPC.created_at.desc()).limit(5).all()
     
     stats = {
-        'component_count': component_count,
-        'active_component_count': active_component_count,
-        'prebuilt_count': prebuilt_count,
-        'active_prebuilt_count': active_prebuilt_count
+        'components': {
+            'total': component_count,
+            'active': active_component_count,
+            'inactive': component_count - active_component_count
+        },
+        'prebuilts': {
+            'total': prebuilt_count,
+            'active': active_prebuilt_count,
+            'inactive': prebuilt_count - active_prebuilt_count
+        }
     }
     
     return render_template('admin/dashboard.html', 
