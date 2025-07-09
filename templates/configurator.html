@@ -112,22 +112,22 @@
                             
                             <!-- Filter and Search Controls -->
                             <div class="filter-controls">
-                                <div class="row align-items-end g-3">
+                                <div class="row g-2">
                                     <div class="col-md-4">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-search me-1"></i>Suche
+                                        <label class="form-label">
+                                            <i class="fas fa-search"></i>Suche
                                         </label>
                                         <div class="search-box">
                                             <i class="fas fa-search"></i>
-                                            <input type="text" class="form-control" id="search-motherboard" placeholder="Motherboard-Name oder Chipset...">
+                                            <input type="text" class="form-control" id="search-motherboard" placeholder="Motherboard suchen...">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-plug me-1"></i>Socket
+                                        <label class="form-label">
+                                            <i class="fas fa-plug"></i>Socket
                                         </label>
                                         <select class="form-select" id="filter-mb-socket">
-                                            <option value="">Alle Sockel</option>
+                                            <option value="">Alle</option>
                                             <option value="AM5">AM5</option>
                                             <option value="AM4">AM4</option>
                                             <option value="LGA1700">LGA1700</option>
@@ -135,29 +135,30 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-th me-1"></i>Formfaktor
+                                        <label class="form-label">
+                                            <i class="fas fa-th"></i>Formfaktor
                                         </label>
                                         <select class="form-select" id="filter-mb-form-factor">
-                                            <option value="">Alle Formfaktoren</option>
+                                            <option value="">Alle</option>
                                             <option value="ATX">ATX</option>
                                             <option value="Micro-ATX">Micro-ATX</option>
                                             <option value="Mini-ITX">Mini-ITX</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-sort me-1"></i>Sortierung
+                                        <label class="form-label">
+                                            <i class="fas fa-sort"></i>Sortierung
                                         </label>
                                         <select class="form-select" id="sort-motherboard">
-                                            <option value="name">Nach Name</option>
+                                            <option value="name">Name</option>
                                             <option value="price-asc">Preis ↑</option>
                                             <option value="price-desc">Preis ↓</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
+                                        <label class="form-label">&nbsp;</label>
                                         <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('motherboard')">
-                                            <i class="fas fa-times me-1"></i>Zurücksetzen
+                                            <i class="fas fa-times"></i> Reset
                                         </button>
                                     </div>
                                 </div>
@@ -210,61 +211,51 @@
                             
                             <!-- Filter and Search Controls -->
                             <div class="filter-controls">
-                                <div class="row align-items-end g-3">
+                                <div class="row g-2">
                                     <div class="col-md-4">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-search me-1"></i>Suche
+                                        <label class="form-label">
+                                            <i class="fas fa-search"></i>Suche
                                         </label>
                                         <div class="search-box">
                                             <i class="fas fa-search"></i>
-                                            <input type="text" class="form-control" id="search-ram" placeholder="RAM-Name oder Spezifikation...">
+                                            <input type="text" class="form-control" id="search-ram" placeholder="RAM suchen...">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-microchip me-1"></i>Typ
+                                        <label class="form-label">
+                                            <i class="fas fa-microchip"></i>Typ
                                         </label>
                                         <select class="form-select" id="filter-ram-type">
-                                            <option value="">Alle Typen</option>
+                                            <option value="">Alle</option>
                                             <option value="DDR5">DDR5</option>
                                             <option value="DDR4">DDR4</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-database me-1"></i>Kapazität
+                                        <label class="form-label">
+                                            <i class="fas fa-database"></i>Kapazität
                                         </label>
                                         <select class="form-select" id="filter-ram-capacity">
-                                            <option value="">Alle Kapazitäten</option>
+                                            <option value="">Alle</option>
                                             <option value="16">16GB</option>
                                             <option value="32">32GB</option>
                                             <option value="64">64GB</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-tachometer-alt me-1"></i>Geschw.
-                                        </label>
-                                        <select class="form-select" id="filter-ram-speed">
-                                            <option value="">Alle Geschw.</option>
-                                            <option value="3200">3200MHz+</option>
-                                            <option value="5600">5600MHz+</option>
-                                            <option value="6000">6000MHz+</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-sort me-1"></i>Sort
+                                        <label class="form-label">
+                                            <i class="fas fa-sort"></i>Sortierung
                                         </label>
                                         <select class="form-select" id="sort-ram">
                                             <option value="name">Name</option>
-                                            <option value="price-asc">€ ↑</option>
-                                            <option value="price-desc">€ ↓</option>
+                                            <option value="price-asc">Preis ↑</option>
+                                            <option value="price-desc">Preis ↓</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-1">
+                                    <div class="col-md-2">
+                                        <label class="form-label">&nbsp;</label>
                                         <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('ram')">
-                                            <i class="fas fa-times"></i>
+                                            <i class="fas fa-times"></i> Reset
                                         </button>
                                     </div>
                                 </div>
@@ -294,22 +285,22 @@
                             
                             <!-- Filter and Search Controls -->
                             <div class="filter-controls">
-                                <div class="row align-items-end g-3">
+                                <div class="row g-2">
                                     <div class="col-md-4">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-search me-1"></i>Suche
+                                        <label class="form-label">
+                                            <i class="fas fa-search"></i>Suche
                                         </label>
                                         <div class="search-box">
                                             <i class="fas fa-search"></i>
-                                            <input type="text" class="form-control" id="search-gpu" placeholder="GPU-Name oder Modell...">
+                                            <input type="text" class="form-control" id="search-gpu" placeholder="GPU suchen...">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-memory me-1"></i>VRAM
+                                        <label class="form-label">
+                                            <i class="fas fa-memory"></i>VRAM
                                         </label>
                                         <select class="form-select" id="filter-gpu-memory">
-                                            <option value="">Alle VRAM</option>
+                                            <option value="">Alle</option>
                                             <option value="8">8GB+</option>
                                             <option value="12">12GB+</option>
                                             <option value="16">16GB+</option>
@@ -317,29 +308,30 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-tag me-1"></i>Marke
+                                        <label class="form-label">
+                                            <i class="fas fa-tag"></i>Marke
                                         </label>
                                         <select class="form-select" id="filter-gpu-brand">
-                                            <option value="">Alle Marken</option>
+                                            <option value="">Alle</option>
                                             <option value="RTX">NVIDIA RTX</option>
                                             <option value="GTX">NVIDIA GTX</option>
                                             <option value="RX">AMD RX</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label text-muted fw-medium mb-2">
-                                            <i class="fas fa-sort me-1"></i>Sortierung
+                                        <label class="form-label">
+                                            <i class="fas fa-sort"></i>Sortierung
                                         </label>
                                         <select class="form-select" id="sort-gpu">
-                                            <option value="name">Nach Name</option>
+                                            <option value="name">Name</option>
                                             <option value="price-asc">Preis ↑</option>
                                             <option value="price-desc">Preis ↓</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
+                                        <label class="form-label">&nbsp;</label>
                                         <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('gpu')">
-                                            <i class="fas fa-times me-1"></i>Zurücksetzen
+                                            <i class="fas fa-times"></i> Reset
                                         </button>
                                     </div>
                                 </div>
@@ -366,18 +358,70 @@
                     <div class="component-section" id="step-5" style="display: none;">
                         <div class="category-header">
                             <h3><i class="fas fa-hdd"></i> SSD (Speicher)</h3>
+                            
+                            <!-- Filter and Search Controls -->
+                            <div class="filter-controls">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label">
+                                            <i class="fas fa-search"></i>Suche
+                                        </label>
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" class="form-control" id="search-ssd" placeholder="SSD suchen...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-database"></i>Kapazität
+                                        </label>
+                                        <select class="form-select" id="filter-ssd-capacity">
+                                            <option value="">Alle</option>
+                                            <option value="500">500GB+</option>
+                                            <option value="1000">1TB+</option>
+                                            <option value="2000">2TB+</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-plug"></i>Interface
+                                        </label>
+                                        <select class="form-select" id="filter-ssd-interface">
+                                            <option value="">Alle</option>
+                                            <option value="NVMe">NVMe</option>
+                                            <option value="SATA">SATA</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-sort"></i>Sortierung
+                                        </label>
+                                        <select class="form-select" id="sort-ssd">
+                                            <option value="name">Name</option>
+                                            <option value="price-asc">Preis ↑</option>
+                                            <option value="price-desc">Preis ↓</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('ssd')">
+                                            <i class="fas fa-times"></i> Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="component-selection">
+                        <div class="component-selection" id="ssd-list">
                             {% for ssd in components.ssds %}
                             <div class="component-card" data-category="ssd" data-id="{{ ssd.id }}">
                                 <div class="component-name">{{ ssd.name }}</div>
                                 <div class="component-price">€{{ "%.2f"|format(ssd.price) }}</div>
                                 <div class="component-specs">
-                                    {{ ssd.capacity }}GB • 
-                                    {{ ssd.interface }} • 
-                                    {{ ssd.form_factor }} • 
-                                    {{ ssd.read_speed }}/{{ ssd.write_speed }} MB/s
+                                    {{ ssd.capacity or 'N/A' }}GB • 
+                                    {{ ssd.interface or 'N/A' }} • 
+                                    {{ ssd.form_factor or 'N/A' }} • 
+                                    {{ ssd.read_speed or 'N/A' }}MB/s Lesen
                                 </div>
                             </div>
                             {% endfor %}
@@ -388,18 +432,71 @@
                     <div class="component-section" id="step-6" style="display: none;">
                         <div class="category-header">
                             <h3><i class="fas fa-cube"></i> Case (Gehäuse)</h3>
+                            
+                            <!-- Filter and Search Controls -->
+                            <div class="filter-controls">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label">
+                                            <i class="fas fa-search"></i>Suche
+                                        </label>
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" class="form-control" id="search-case" placeholder="Gehäuse suchen...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-th"></i>Formfaktor
+                                        </label>
+                                        <select class="form-select" id="filter-case-form-factor">
+                                            <option value="">Alle</option>
+                                            <option value="ATX">ATX</option>
+                                            <option value="Micro-ATX">Micro-ATX</option>
+                                            <option value="Mini-ITX">Mini-ITX</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-expand"></i>Größe
+                                        </label>
+                                        <select class="form-select" id="filter-case-size">
+                                            <option value="">Alle</option>
+                                            <option value="Mini">Mini</option>
+                                            <option value="Mid">Mid Tower</option>
+                                            <option value="Full">Full Tower</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-sort"></i>Sortierung
+                                        </label>
+                                        <select class="form-select" id="sort-case">
+                                            <option value="name">Name</option>
+                                            <option value="price-asc">Preis ↑</option>
+                                            <option value="price-desc">Preis ↓</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('case')">
+                                            <i class="fas fa-times"></i> Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="component-selection">
+                        <div class="component-selection" id="case-list">
                             {% for case in components.cases %}
                             <div class="component-card" data-category="case" data-id="{{ case.id }}">
                                 <div class="component-name">{{ case.name }}</div>
                                 <div class="component-price">€{{ "%.2f"|format(case.price) }}</div>
                                 <div class="component-specs">
-                                    {{ case.form_factor }} • 
-                                    Max. GPU: {{ case.max_gpu_length }}mm • 
-                                    Max. Kühler: {{ case.max_cooler_height }}mm • 
-                                    {{ case.dimensions.length }}×{{ case.dimensions.width }}×{{ case.dimensions.height }}mm
+                                    {{ case.form_factor or 'N/A' }} • 
+                                    Max. GPU: {{ case.max_gpu_length or 'N/A' }}mm • 
+                                    Max. Kühler: {{ case.max_cooler_height or 'N/A' }}mm • 
+                                    {{ case.size or 'N/A' }}
                                 </div>
                             </div>
                             {% endfor %}
@@ -410,18 +507,72 @@
                     <div class="component-section" id="step-7" style="display: none;">
                         <div class="category-header">
                             <h3><i class="fas fa-bolt"></i> PSU (Netzteil)</h3>
+                            
+                            <!-- Filter and Search Controls -->
+                            <div class="filter-controls">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label">
+                                            <i class="fas fa-search"></i>Suche
+                                        </label>
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" class="form-control" id="search-psu" placeholder="Netzteil suchen...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-bolt"></i>Wattage
+                                        </label>
+                                        <select class="form-select" id="filter-psu-wattage">
+                                            <option value="">Alle</option>
+                                            <option value="500">500W+</option>
+                                            <option value="650">650W+</option>
+                                            <option value="750">750W+</option>
+                                            <option value="850">850W+</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-certificate"></i>Effizienz
+                                        </label>
+                                        <select class="form-select" id="filter-psu-efficiency">
+                                            <option value="">Alle</option>
+                                            <option value="80+ Bronze">80+ Bronze</option>
+                                            <option value="80+ Gold">80+ Gold</option>
+                                            <option value="80+ Platinum">80+ Platinum</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-sort"></i>Sortierung
+                                        </label>
+                                        <select class="form-select" id="sort-psu">
+                                            <option value="name">Name</option>
+                                            <option value="price-asc">Preis ↑</option>
+                                            <option value="price-desc">Preis ↓</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('psu')">
+                                            <i class="fas fa-times"></i> Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="component-selection">
+                        <div class="component-selection" id="psu-list">
                             {% for psu in components.psus %}
                             <div class="component-card" data-category="psu" data-id="{{ psu.id }}">
                                 <div class="component-name">{{ psu.name }}</div>
                                 <div class="component-price">€{{ "%.2f"|format(psu.price) }}</div>
                                 <div class="component-specs">
-                                    {{ psu.wattage }}W • 
-                                    {{ psu.efficiency }} • 
+                                    {{ psu.wattage or 'N/A' }}W • 
+                                    {{ psu.efficiency or 'N/A' }} • 
                                     {% if psu.modular %}Modular{% else %}Nicht modular{% endif %} • 
-                                    {{ psu.form_factor }}
+                                    {{ psu.form_factor or 'N/A' }}
                                 </div>
                             </div>
                             {% endfor %}
@@ -432,18 +583,72 @@
                     <div class="component-section" id="step-8" style="display: none;">
                         <div class="category-header">
                             <h3><i class="fas fa-fan"></i> Cooler (Kühler)</h3>
+                            
+                            <!-- Filter and Search Controls -->
+                            <div class="filter-controls">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label">
+                                            <i class="fas fa-search"></i>Suche
+                                        </label>
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" class="form-control" id="search-cooler" placeholder="Kühler suchen...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-cogs"></i>Typ
+                                        </label>
+                                        <select class="form-select" id="filter-cooler-type">
+                                            <option value="">Alle</option>
+                                            <option value="Luftkühler">Luftkühler</option>
+                                            <option value="AiO">AiO</option>
+                                            <option value="Custom">Custom Loop</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-plug"></i>Socket
+                                        </label>
+                                        <select class="form-select" id="filter-cooler-socket">
+                                            <option value="">Alle</option>
+                                            <option value="AM5">AM5</option>
+                                            <option value="AM4">AM4</option>
+                                            <option value="LGA1700">LGA1700</option>
+                                            <option value="LGA1200">LGA1200</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">
+                                            <i class="fas fa-sort"></i>Sortierung
+                                        </label>
+                                        <select class="form-select" id="sort-cooler">
+                                            <option value="name">Name</option>
+                                            <option value="price-asc">Preis ↑</option>
+                                            <option value="price-desc">Preis ↓</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('cooler')">
+                                            <i class="fas fa-times"></i> Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="component-selection">
+                        <div class="component-selection" id="cooler-list">
                             {% for cooler in components.coolers %}
                             <div class="component-card" data-category="cooler" data-id="{{ cooler.id }}">
                                 <div class="component-name">{{ cooler.name }}</div>
                                 <div class="component-price">€{{ "%.2f"|format(cooler.price) }}</div>
                                 <div class="component-specs">
-                                    {{ cooler.type }} • 
-                                    {{ cooler.height }}mm hoch • 
-                                    TDP: {{ cooler.tdp_rating }}W • 
-                                    Kompatibel: {{ cooler.compatible_sockets|join(", ") }}
+                                    {{ cooler.type or 'N/A' }} • 
+                                    {{ cooler.height or 'N/A' }}mm hoch • 
+                                    TDP: {{ cooler.tdp_rating or 'N/A' }}W • 
+                                    Kompatibel: {{ cooler.compatible_sockets or 'N/A' }}
                                 </div>
                             </div>
                             {% endfor %}
@@ -497,5 +702,37 @@
 document.addEventListener('DOMContentLoaded', function() {
     window.configurator = new PCConfigurator();
 });
+
+function clearFilters(category) {
+    console.log(`Clearing filters for category: ${category}`);
+    
+    // Clear search input
+    const searchInput = document.getElementById(`search-${category}`);
+    if (searchInput) {
+        searchInput.value = '';
+        console.log(`Cleared search input for ${category}`);
+    }
+    
+    // Clear all filter selects
+    const filterSelects = document.querySelectorAll(`[id*="filter-${category}"], [id*="sort-${category}"]`);
+    filterSelects.forEach(select => {
+        select.value = '';
+        console.log(`Cleared filter: ${select.id}`);
+    });
+    
+    // For motherboard, handle special case
+    if (category === 'motherboard') {
+        const mbSocket = document.getElementById('filter-mb-socket');
+        const mbFormFactor = document.getElementById('filter-mb-form-factor');
+        if (mbSocket) mbSocket.value = '';
+        if (mbFormFactor) mbFormFactor.value = '';
+    }
+    
+    // Reapply filters to show all components
+    if (window.configurator) {
+        window.configurator.applyFilters(category);
+        console.log(`Filters cleared and reapplied for ${category}`);
+    }
+}
 </script>
 {% endblock %}

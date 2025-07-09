@@ -100,7 +100,6 @@ class PCConfigurator {
             'search-ram',
             'filter-ram-type',
             'filter-ram-capacity',
-            'filter-ram-speed',
             'sort-ram'
         ]);
         
@@ -110,6 +109,38 @@ class PCConfigurator {
             'filter-gpu-memory',
             'filter-gpu-brand',
             'sort-gpu'
+        ]);
+        
+        // SSD filters
+        this.setupCategoryFilters('ssd', [
+            'search-ssd',
+            'filter-ssd-capacity',
+            'filter-ssd-interface',
+            'sort-ssd'
+        ]);
+        
+        // Case filters
+        this.setupCategoryFilters('case', [
+            'search-case',
+            'filter-case-form-factor',
+            'filter-case-size',
+            'sort-case'
+        ]);
+        
+        // PSU filters
+        this.setupCategoryFilters('psu', [
+            'search-psu',
+            'filter-psu-wattage',
+            'filter-psu-efficiency',
+            'sort-psu'
+        ]);
+        
+        // Cooler filters
+        this.setupCategoryFilters('cooler', [
+            'search-cooler',
+            'filter-cooler-type',
+            'filter-cooler-socket',
+            'sort-cooler'
         ]);
     }
     
@@ -246,6 +277,70 @@ class PCConfigurator {
                 }
                 
                 if (brand && !name.includes(brand)) return false;
+                
+                return true;
+            });
+        }
+        
+        if (category === 'ssd') {
+            const capacity = this.getFilterValue('filter-ssd-capacity');
+            const interface = this.getFilterValue('filter-ssd-interface');
+            
+            return cards.filter(card => {
+                const specs = card.querySelector('.component-specs').textContent;
+                
+                if (capacity) {
+                    const capacityMatch = specs.match(/(\d+)GB/);
+                    if (capacityMatch && parseInt(capacityMatch[1]) < parseInt(capacity)) return false;
+                }
+                
+                if (interface && !specs.includes(interface)) return false;
+                
+                return true;
+            });
+        }
+        
+        if (category === 'case') {
+            const formFactor = this.getFilterValue('filter-case-form-factor');
+            const size = this.getFilterValue('filter-case-size');
+            
+            return cards.filter(card => {
+                const specs = card.querySelector('.component-specs').textContent;
+                
+                if (formFactor && !specs.includes(formFactor)) return false;
+                if (size && !specs.includes(size)) return false;
+                
+                return true;
+            });
+        }
+        
+        if (category === 'psu') {
+            const wattage = this.getFilterValue('filter-psu-wattage');
+            const efficiency = this.getFilterValue('filter-psu-efficiency');
+            
+            return cards.filter(card => {
+                const specs = card.querySelector('.component-specs').textContent;
+                
+                if (wattage) {
+                    const wattageMatch = specs.match(/(\d+)W/);
+                    if (wattageMatch && parseInt(wattageMatch[1]) < parseInt(wattage)) return false;
+                }
+                
+                if (efficiency && !specs.includes(efficiency)) return false;
+                
+                return true;
+            });
+        }
+        
+        if (category === 'cooler') {
+            const type = this.getFilterValue('filter-cooler-type');
+            const socket = this.getFilterValue('filter-cooler-socket');
+            
+            return cards.filter(card => {
+                const specs = card.querySelector('.component-specs').textContent;
+                
+                if (type && !specs.includes(type)) return false;
+                if (socket && !specs.includes(socket)) return false;
                 
                 return true;
             });
