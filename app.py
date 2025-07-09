@@ -12,12 +12,8 @@ try:
 except ImportError:
     pass
 
-# Set DHL credentials directly if not in environment
-if not os.environ.get('DHL_USERNAME'):
-    os.environ['DHL_USERNAME'] = 'dohmeyersystems'
-    os.environ['DHL_PASSWORD'] = 'HeikoCindy!2003'
-    os.environ['DHL_EKP_NUMBER'] = '6384798605'
-    os.environ['DHL_LIVE'] = 'true'
+# DHL API Configuration - Use live API with provided credentials
+os.environ['DHL_LIVE'] = 'true'
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

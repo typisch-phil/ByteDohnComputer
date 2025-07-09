@@ -183,13 +183,28 @@
                         </div>
                         <div class="card-body">
                             {% if order.tracking_number %}
-                            <div class="alert alert-success">
-                                <h6><i class="fas fa-check"></i> Versandetikett erstellt</h6>
-                                <p class="mb-2"><strong>Tracking-Nummer:</strong></p>
+                            <div class="alert {% if order.status == 'shipped' %}alert-success{% else %}alert-warning{% endif %}">
+                                <h6><i class="fas fa-{% if order.status == 'shipped' %}check{% else %}exclamation-triangle{% endif %}"></i> 
+                                {% if order.status == 'shipped' %}Versandetikett erstellt{% else %}DHL Portal-Anweisungen{% endif %}</h6>
+                                <p class="mb-2"><strong>{% if order.status == 'shipped' %}Tracking-Nummer:{% else %}Temp. Tracking:{% endif %}</strong></p>
                                 <p><code>{{ order.tracking_number }}</code></p>
+                                
+                                {% if order.status != 'shipped' %}
+                                <div class="alert alert-info mt-2">
+                                    <small><i class="fas fa-info-circle"></i> 
+                                    <strong>Für echte DHL Versandmarken:</strong><br>
+                                    1. Kontaktieren Sie DHL unter 0228 4333112<br>
+                                    2. Beantragen Sie API-Zugang für Ihr Geschäftskonto<br>
+                                    3. Geben Sie Ihre EKP-Nummer an: {{ order.tracking_number.split('E')[1][:10] if 'E' in order.tracking_number else 'Nicht verfügbar' }}<br>
+                                    4. Nach Freischaltung werden automatisch echte Marken erstellt
+                                    </small>
+                                </div>
+                                {% endif %}
+                                
                                 {% if order.shipping_label_url %}
                                 <a href="{{ order.shipping_label_url }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
-                                    <i class="fas fa-download"></i> Etikett herunterladen
+                                    <i class="fas fa-{% if order.status == 'shipped' %}download{% else %}external-link-alt{% endif %}"></i> 
+                                    {% if order.status == 'shipped' %}Etikett herunterladen{% else %}DHL Portal öffnen{% endif %}
                                 </a>
                                 {% endif %}
                                 <a href="{{ url_for('admin_track_shipment', order_id=order.id) }}" class="btn btn-sm btn-outline-info">

@@ -31,6 +31,9 @@ class DHLShippingAPI:
         self.shipping_url = f"{self.base_url}/post-de/shipping/v2/orders"
         self.track_api_url = f"{self.base_url}/track/shipments"
         
+        # Alternative: DHL Business Customer Portal Authentication
+        self.business_auth_url = f"{self.base_url}/post-de/auth/v1/token"
+        
         # OAuth Token
         self.access_token = None
         self.token_expires_at = None
@@ -52,7 +55,7 @@ class DHLShippingAPI:
         }
         
     def authenticate(self):
-        """OAuth 2.0 Authentifizierung für DHL Geschäftskunden"""
+        """OAuth 2.0 Authentifizierung für DHL Geschäftskunden mit mehreren Methoden"""
         try:
             if not self.username or not self.password:
                 return {'success': False, 'error': 'DHL Zugangsdaten nicht konfiguriert'}
@@ -61,6 +64,7 @@ class DHLShippingAPI:
             if self.access_token and self.token_expires_at and datetime.now() < self.token_expires_at:
                 return {'success': True}
             
+            # Methode 1: Standard OAuth2 Authentication
             auth_data = {
                 'username': self.username,
                 'password': self.password
@@ -78,10 +82,30 @@ class DHLShippingAPI:
                 
                 logging.info("DHL OAuth Authentifizierung erfolgreich")
                 return {'success': True}
-            else:
-                error_msg = f"DHL Authentifizierung fehlgeschlagen: {response.status_code}"
-                logging.error(f"{error_msg} - {response.text}")
-                return {'success': False, 'error': error_msg}
+            
+            # Methode 2: Basic Authentication für Geschäftskunden
+            logging.info("Versuche Basic Authentication für DHL Business Customer")
+            basic_auth = base64.b64encode(f"{self.username}:{self.password}".encode()).decode()
+            headers_basic = {
+                'Authorization': f'Basic {basic_auth}',
+                'Content-Type': 'application/json'
+            }
+            
+            response_basic = requests.post(self.business_auth_url, headers=headers_basic, timeout=30)
+            
+            if response_basic.status_code == 200:
+                token_data = response_basic.json()
+                self.access_token = token_data.get('access_token')
+                expires_in = token_data.get('expires_in', 3600)
+                self.token_expires_at = datetime.now() + timedelta(seconds=expires_in - 300)
+                
+                logging.info("DHL Basic Authentication erfolgreich")
+                return {'success': True}
+            
+            # Wenn beide Methoden fehlschlagen
+            error_msg = f"DHL Authentifizierung fehlgeschlagen: {response.status_code}"
+            logging.error(f"{error_msg} - OAuth: {response.text} - Basic: {response_basic.text}")
+            return {'success': False, 'error': error_msg}
                 
         except Exception as e:
             error_msg = f"DHL Authentifizierung Fehler: {str(e)}"
@@ -141,27 +165,70 @@ class DHLShippingAPI:
                         'order_id': order_data.get('orderId')
                     }
             
-            # Fallback: Erstelle Demo-Tracking-Nummer für Entwicklung
-            logging.warning("DHL API nicht verfügbar, erstelle Demo-Tracking-Nummer")
-            demo_tracking = f"DHLDE{order_id:08d}{datetime.now().strftime('%H%M')}"
+            # Fallback: Erstelle detaillierte DHL Portal-Anweisungen für echte Versandmarken
+            logging.warning("DHL API Konfiguration erforderlich - erstelle Portal-Anweisungen")
             
-            # Speichere Demo-Tracking in der Bestellung
-            order.tracking_number = demo_tracking
-            order.shipping_label_url = f"https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?idc={demo_tracking}"
-            order.status = 'shipped'
+            # Erstelle strukturierte Versandanweisungen für DHL Geschäftskunden Portal
+            portal_instructions = self._create_portal_shipping_instructions(order, customer)
+            
+            # Generiere vorläufige Tracking-Nummer (wird durch echte ersetzt)
+            temp_tracking = f"DHLDE{order_id:08d}{datetime.now().strftime('%H%M')}"
+            
+            # Speichere Versandanweisungen in der Bestellung
+            order.tracking_number = temp_tracking
+            order.shipping_label_url = portal_instructions['portal_url']
+            order.status = 'processing'  # Nicht auf 'shipped' setzen bis echte Marke erstellt
             order.updated_at = datetime.utcnow()
             db.session.commit()
             
             return {
                 'success': True,
-                'tracking_number': demo_tracking,
-                'label_url': order.shipping_label_url,
-                'message': 'Demo-Tracking erstellt (DHL API Konfiguration erforderlich für Live-Betrieb)'
+                'tracking_number': temp_tracking,
+                'label_url': portal_instructions['portal_url'],
+                'portal_instructions': portal_instructions,
+                'message': 'DHL Portal-Anweisungen erstellt - Bitte API-Zugang bei DHL freischalten lassen'
             }
                 
         except Exception as e:
             logging.error(f"DHL Label Creation Error: {e}")
             return {'success': False, 'error': f'Fehler beim Erstellen des Labels: {str(e)}'}
+    
+    def _create_portal_shipping_instructions(self, order, customer):
+        """Erstelle detaillierte Anweisungen für DHL Geschäftskunden Portal"""
+        
+        # Kundendaten formatieren
+        customer_address = {
+            'name': customer.get_full_name(),
+            'street': customer.address.split('\n')[0] if customer.address else 'Adresse nicht verfügbar',
+            'city': customer.address.split('\n')[1] if customer.address and len(customer.address.split('\n')) > 1 else 'Stadt nicht verfügbar',
+            'postal_code': customer.address.split('\n')[2] if customer.address and len(customer.address.split('\n')) > 2 else 'PLZ nicht verfügbar',
+            'phone': customer.phone or 'Telefon nicht verfügbar',
+            'email': customer.email
+        }
+        
+        # Paketdetails basierend auf Bestellwert
+        package_details = self._determine_package_size(order.total_amount)
+        
+        portal_data = {
+            'portal_url': 'https://www.dhl.de/de/geschaeftskunden/paket/kunde-werden/angebot-dhl-geschaeftskunden-online.html',
+            'ekp_number': self.ekp_number,
+            'sender_details': self.sender_details,
+            'recipient_details': customer_address,
+            'package_details': package_details,
+            'order_reference': order.order_number,
+            'instructions': [
+                f"1. Loggen Sie sich in das DHL Geschäftskunden Portal ein (EKP: {self.ekp_number})",
+                f"2. Wählen Sie 'Paket versenden' -> 'Einzelversand'",
+                f"3. Empfänger: {customer_address['name']}, {customer_address['street']}, {customer_address['postal_code']} {customer_address['city']}",
+                f"4. Paket: {package_details['size']} ({package_details['weight']}kg)",
+                f"5. Referenz: {order.order_number}",
+                f"6. Versandart: DHL Paket",
+                f"7. Etikett erstellen und drucken",
+                f"8. Tracking-Nummer in System eingeben"
+            ]
+        }
+        
+        return portal_data
     
     def _prepare_shipment_data_v2(self, order, customer):
         """Vorbereiten der DHL Sendungsdaten für DHL Paket DE API v2"""

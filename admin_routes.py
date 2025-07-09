@@ -435,11 +435,20 @@ def admin_create_shipping_label(order_id):
             order = Order.query.get(order_id)
             order.tracking_number = result['tracking_number']
             order.shipping_label_url = result.get('label_url')
-            order.status = 'shipped'
+            
+            # Prüfe ob echte API-Verbindung oder Portal-Anweisungen
+            if 'portal_instructions' in result:
+                # Portal-Anweisungen - Status bleibt auf 'processing'
+                order.status = 'processing'
+                flash(f'DHL Portal-Anweisungen erstellt! Temp. Tracking: {result["tracking_number"]}', 'info')
+                flash('Hinweis: Für echte Versandmarken muss der DHL API-Zugang freigeschaltet werden.', 'warning')
+            else:
+                # Echte API-Verbindung - Status auf 'shipped'
+                order.status = 'shipped'
+                flash(f'Versandetikett erfolgreich erstellt! Tracking: {result["tracking_number"]}', 'success')
+            
             order.updated_at = datetime.utcnow()
             db.session.commit()
-            
-            flash(f'Versandetikett erfolgreich erstellt! Tracking: {result["tracking_number"]}', 'success')
             logging.info(f"Successfully created DHL label for order {order_id}: {result['tracking_number']}")
         else:
             flash(f'Fehler beim Erstellen des Versandetiketts: {result["error"]}', 'error')
