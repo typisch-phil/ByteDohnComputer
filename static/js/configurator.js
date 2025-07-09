@@ -58,6 +58,218 @@ class PCConfigurator {
         if (saveBtn) {
             saveBtn.addEventListener('click', () => this.saveConfiguration());
         }
+        
+        // Filter and search listeners
+        this.setupFilterListeners();
+    }
+    
+    setupFilterListeners() {
+        // CPU filters
+        this.setupCategoryFilters('cpu', [
+            'search-cpu',
+            'filter-cpu-socket', 
+            'filter-cpu-cores',
+            'sort-cpu'
+        ]);
+        
+        // Motherboard filters
+        this.setupCategoryFilters('motherboard', [
+            'search-motherboard',
+            'filter-mb-socket',
+            'filter-mb-form-factor',
+            'sort-motherboard'
+        ]);
+        
+        // RAM filters
+        this.setupCategoryFilters('ram', [
+            'search-ram',
+            'filter-ram-type',
+            'filter-ram-capacity',
+            'filter-ram-speed',
+            'sort-ram'
+        ]);
+        
+        // GPU filters
+        this.setupCategoryFilters('gpu', [
+            'search-gpu',
+            'filter-gpu-memory',
+            'filter-gpu-brand',
+            'sort-gpu'
+        ]);
+    }
+    
+    setupCategoryFilters(category, filterIds) {
+        filterIds.forEach(filterId => {
+            const element = document.getElementById(filterId);
+            if (element) {
+                const eventType = filterId.startsWith('search-') ? 'input' : 'change';
+                element.addEventListener(eventType, () => {
+                    this.applyFilters(category);
+                });
+            }
+        });
+    }
+    
+    applyFilters(category) {
+        const cards = document.querySelectorAll(`.component-card[data-category="${category}"]`);
+        const searchTerm = this.getFilterValue(`search-${category}`);
+        
+        let filteredCards = Array.from(cards);
+        
+        // Apply search filter
+        if (searchTerm) {
+            filteredCards = filteredCards.filter(card => {
+                const name = card.querySelector('.component-name').textContent.toLowerCase();
+                const specs = card.querySelector('.component-specs').textContent.toLowerCase();
+                return name.includes(searchTerm.toLowerCase()) || specs.includes(searchTerm.toLowerCase());
+            });
+        }
+        
+        // Apply category-specific filters
+        filteredCards = this.applyCategoryFilters(category, filteredCards);
+        
+        // Apply sorting
+        filteredCards = this.applySorting(category, filteredCards);
+        
+        // Show/hide cards
+        cards.forEach(card => card.classList.add('hidden'));
+        filteredCards.forEach(card => card.classList.remove('hidden'));
+        
+        // Show no results message if needed
+        this.showNoResultsMessage(category, filteredCards.length === 0);
+    }
+    
+    applyCategoryFilters(category, cards) {
+        if (category === 'cpu') {
+            const socket = this.getFilterValue('filter-cpu-socket');
+            const cores = this.getFilterValue('filter-cpu-cores');
+            
+            return cards.filter(card => {
+                const specs = card.querySelector('.component-specs').textContent;
+                
+                if (socket && !specs.includes(`Socket ${socket}`)) return false;
+                
+                if (cores) {
+                    const coresMatch = specs.match(/(\d+) Kerne/);
+                    if (coresMatch) {
+                        const cardCores = parseInt(coresMatch[1]);
+                        if (cores === '12' && cardCores < 12) return false;
+                        if (cores !== '12' && cardCores !== parseInt(cores)) return false;
+                    }
+                }
+                
+                return true;
+            });
+        }
+        
+        if (category === 'motherboard') {
+            const socket = this.getFilterValue('filter-mb-socket');
+            const formFactor = this.getFilterValue('filter-mb-form-factor');
+            
+            return cards.filter(card => {
+                const specs = card.querySelector('.component-specs').textContent;
+                
+                if (socket && !specs.includes(`Socket ${socket}`)) return false;
+                if (formFactor && !specs.includes(formFactor)) return false;
+                
+                return true;
+            });
+        }
+        
+        if (category === 'ram') {
+            const type = this.getFilterValue('filter-ram-type');
+            const capacity = this.getFilterValue('filter-ram-capacity');
+            const speed = this.getFilterValue('filter-ram-speed');
+            
+            return cards.filter(card => {
+                const specs = card.querySelector('.component-specs').textContent;
+                
+                if (type && !specs.includes(type)) return false;
+                
+                if (capacity) {
+                    const capacityMatch = specs.match(/(\d+)GB/);
+                    if (capacityMatch && parseInt(capacityMatch[1]) !== parseInt(capacity)) return false;
+                }
+                
+                if (speed) {
+                    const speedMatch = specs.match(/(\d+)MHz/);
+                    if (speedMatch && parseInt(speedMatch[1]) < parseInt(speed)) return false;
+                }
+                
+                return true;
+            });
+        }
+        
+        if (category === 'gpu') {
+            const memory = this.getFilterValue('filter-gpu-memory');
+            const brand = this.getFilterValue('filter-gpu-brand');
+            
+            return cards.filter(card => {
+                const name = card.querySelector('.component-name').textContent;
+                const specs = card.querySelector('.component-specs').textContent;
+                
+                if (memory) {
+                    const memoryMatch = specs.match(/(\d+)GB/);
+                    if (memoryMatch && parseInt(memoryMatch[1]) < parseInt(memory)) return false;
+                }
+                
+                if (brand && !name.includes(brand)) return false;
+                
+                return true;
+            });
+        }
+        
+        return cards;
+    }
+    
+    applySorting(category, cards) {
+        const sortValue = this.getFilterValue(`sort-${category}`);
+        
+        return cards.sort((a, b) => {
+            if (sortValue === 'name') {
+                const nameA = a.querySelector('.component-name').textContent;
+                const nameB = b.querySelector('.component-name').textContent;
+                return nameA.localeCompare(nameB);
+            }
+            
+            if (sortValue === 'price-asc' || sortValue === 'price-desc') {
+                const priceA = this.extractPrice(a.querySelector('.component-price').textContent);
+                const priceB = this.extractPrice(b.querySelector('.component-price').textContent);
+                return sortValue === 'price-asc' ? priceA - priceB : priceB - priceA;
+            }
+            
+            return 0;
+        });
+    }
+    
+    getFilterValue(filterId) {
+        const element = document.getElementById(filterId);
+        return element ? element.value.trim() : '';
+    }
+    
+    extractPrice(priceText) {
+        const match = priceText.match(/€([\d,\.]+)/);
+        return match ? parseFloat(match[1].replace(',', '.')) : 0;
+    }
+    
+    showNoResultsMessage(category, show) {
+        const container = document.querySelector(`#${category}-list`) || 
+                        document.querySelector(`.component-section[id*="${category}"] .component-selection`);
+        
+        let noResultsDiv = container?.querySelector('.no-results');
+        
+        if (show && !noResultsDiv) {
+            noResultsDiv = document.createElement('div');
+            noResultsDiv.className = 'no-results';
+            noResultsDiv.innerHTML = `
+                <i class="fas fa-search"></i>
+                <h5>Keine Komponenten gefunden</h5>
+                <p>Versuchen Sie andere Suchbegriffe oder Filter.</p>
+            `;
+            container?.appendChild(noResultsDiv);
+        } else if (!show && noResultsDiv) {
+            noResultsDiv.remove();
+        }
     }
     
     selectComponent(card) {

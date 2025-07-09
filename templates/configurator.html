@@ -32,18 +32,55 @@
                     <div class="component-section" id="step-1">
                         <div class="category-header">
                             <h3><i class="fas fa-microchip"></i> CPU (Prozessor)</h3>
+                            
+                            <!-- Filter and Search Controls -->
+                            <div class="filter-controls">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" class="form-control" id="search-cpu" placeholder="CPU suchen...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="filter-cpu-socket">
+                                            <option value="">Alle Sockel</option>
+                                            <option value="AM5">AM5</option>
+                                            <option value="AM4">AM4</option>
+                                            <option value="LGA1700">LGA1700</option>
+                                            <option value="LGA1200">LGA1200</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="filter-cpu-cores">
+                                            <option value="">Alle Kerne</option>
+                                            <option value="4">4 Kerne</option>
+                                            <option value="6">6 Kerne</option>
+                                            <option value="8">8 Kerne</option>
+                                            <option value="12">12+ Kerne</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-select" id="sort-cpu">
+                                            <option value="name">Name</option>
+                                            <option value="price-asc">Preis ↑</option>
+                                            <option value="price-desc">Preis ↓</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="component-selection">
+                        <div class="component-selection" id="cpu-list">
                             {% for cpu in components.cpus %}
                             <div class="component-card" data-category="cpu" data-id="{{ cpu.id }}">
                                 <div class="component-name">{{ cpu.name }}</div>
                                 <div class="component-price">€{{ "%.2f"|format(cpu.price) }}</div>
                                 <div class="component-specs">
-                                    {{ cpu.cores }} Kerne, {{ cpu.threads }} Threads • 
-                                    {{ cpu.base_clock }} - {{ cpu.boost_clock }} GHz • 
-                                    {{ cpu.tdp }}W TDP • 
-                                    Socket {{ cpu.socket }}
+                                    {{ cpu.cores or 'N/A' }} Kerne, {{ cpu.threads or 'N/A' }} Threads • 
+                                    {{ cpu.base_clock or 'N/A' }} - {{ cpu.boost_clock or 'N/A' }} GHz • 
+                                    {{ cpu.tdp or 'N/A' }}W TDP • 
+                                    Socket {{ cpu.socket or 'N/A' }}
                                 </div>
                             </div>
                             {% endfor %}
@@ -54,19 +91,55 @@
                     <div class="component-section" id="step-2" style="display: none;">
                         <div class="category-header">
                             <h3><i class="fas fa-memory"></i> Motherboard (Hauptplatine)</h3>
+                            
+                            <!-- Filter and Search Controls -->
+                            <div class="filter-controls">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" class="form-control" id="search-motherboard" placeholder="Motherboard suchen...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="filter-mb-socket">
+                                            <option value="">Alle Sockel</option>
+                                            <option value="AM5">AM5</option>
+                                            <option value="AM4">AM4</option>
+                                            <option value="LGA1700">LGA1700</option>
+                                            <option value="LGA1200">LGA1200</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="filter-mb-form-factor">
+                                            <option value="">Alle Formfaktoren</option>
+                                            <option value="ATX">ATX</option>
+                                            <option value="Micro-ATX">Micro-ATX</option>
+                                            <option value="Mini-ITX">Mini-ITX</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-select" id="sort-motherboard">
+                                            <option value="name">Name</option>
+                                            <option value="price-asc">Preis ↑</option>
+                                            <option value="price-desc">Preis ↓</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="component-selection">
+                        <div class="component-selection" id="motherboard-list">
                             {% for mb in components.motherboards %}
                             <div class="component-card" data-category="motherboard" data-id="{{ mb.id }}">
                                 <div class="component-name">{{ mb.name }}</div>
                                 <div class="component-price">€{{ "%.2f"|format(mb.price) }}</div>
                                 <div class="component-specs">
-                                    Socket {{ mb.socket }} • 
-                                    {{ mb.chipset }} • 
-                                    {{ mb.ram_slots }} RAM-Slots • 
-                                    Max. {{ mb.max_ram_speed }}MHz • 
-                                    {{ mb.form_factor }}
+                                    Socket {{ mb.socket or 'N/A' }} • 
+                                    {{ mb.chipset or 'N/A' }} • 
+                                    {{ mb.ram_slots or 'N/A' }} RAM-Slots • 
+                                    Max. {{ mb.max_ram_speed or 'N/A' }}MHz • 
+                                    {{ mb.form_factor or 'N/A' }}
                                 </div>
                             </div>
                             {% endfor %}
@@ -95,22 +168,122 @@
                         </div>
                     </div>
 
+                    <!-- RAM Selection -->
+                    <div class="component-section" id="step-3" style="display: none;">
+                        <div class="category-header">
+                            <h3><i class="fas fa-memory"></i> RAM (Arbeitsspeicher)</h3>
+                            
+                            <!-- Filter and Search Controls -->
+                            <div class="filter-controls">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" class="form-control" id="search-ram" placeholder="RAM suchen...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-select" id="filter-ram-type">
+                                            <option value="">Alle Typen</option>
+                                            <option value="DDR5">DDR5</option>
+                                            <option value="DDR4">DDR4</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-select" id="filter-ram-capacity">
+                                            <option value="">Alle Kapazitäten</option>
+                                            <option value="16">16GB</option>
+                                            <option value="32">32GB</option>
+                                            <option value="64">64GB</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-select" id="filter-ram-speed">
+                                            <option value="">Alle Geschw.</option>
+                                            <option value="3200">3200MHz+</option>
+                                            <option value="5600">5600MHz+</option>
+                                            <option value="6000">6000MHz+</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-select" id="sort-ram">
+                                            <option value="name">Name</option>
+                                            <option value="price-asc">Preis ↑</option>
+                                            <option value="price-desc">Preis ↓</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="component-selection" id="ram-list">
+                            {% for ram in components.ram %}
+                            <div class="component-card" data-category="ram" data-id="{{ ram.id }}">
+                                <div class="component-name">{{ ram.name }}</div>
+                                <div class="component-price">€{{ "%.2f"|format(ram.price) }}</div>
+                                <div class="component-specs">
+                                    {{ ram.capacity or 'N/A' }}GB {{ ram.type or 'N/A' }} • 
+                                    {{ ram.speed or 'N/A' }}MHz • 
+                                    {{ ram.modules or 'N/A' }} Module • 
+                                    {{ ram.latency or 'N/A' }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
                     <!-- GPU Selection -->
                     <div class="component-section" id="step-4" style="display: none;">
                         <div class="category-header">
                             <h3><i class="fas fa-desktop"></i> GPU (Grafikkarte)</h3>
+                            
+                            <!-- Filter and Search Controls -->
+                            <div class="filter-controls">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" class="form-control" id="search-gpu" placeholder="GPU suchen...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="filter-gpu-memory">
+                                            <option value="">Alle VRAM</option>
+                                            <option value="8">8GB+</option>
+                                            <option value="12">12GB+</option>
+                                            <option value="16">16GB+</option>
+                                            <option value="24">24GB+</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="filter-gpu-brand">
+                                            <option value="">Alle Marken</option>
+                                            <option value="RTX">NVIDIA RTX</option>
+                                            <option value="GTX">NVIDIA GTX</option>
+                                            <option value="RX">AMD RX</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-select" id="sort-gpu">
+                                            <option value="name">Name</option>
+                                            <option value="price-asc">Preis ↑</option>
+                                            <option value="price-desc">Preis ↓</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="component-selection">
+                        <div class="component-selection" id="gpu-list">
                             {% for gpu in components.gpus %}
                             <div class="component-card" data-category="gpu" data-id="{{ gpu.id }}">
                                 <div class="component-name">{{ gpu.name }}</div>
                                 <div class="component-price">€{{ "%.2f"|format(gpu.price) }}</div>
                                 <div class="component-specs">
-                                    {{ gpu.memory }}GB {{ gpu.memory_type }} • 
-                                    {{ gpu.base_clock }}/{{ gpu.boost_clock }}MHz • 
-                                    {{ gpu.power_consumption }}W • 
-                                    {{ gpu.length }}mm lang
+                                    {{ gpu.memory or 'N/A' }}GB {{ gpu.memory_type or 'N/A' }} • 
+                                    {{ gpu.base_clock or 'N/A' }}/{{ gpu.boost_clock or 'N/A' }}MHz • 
+                                    {{ gpu.power_consumption or 'N/A' }}W • 
+                                    {{ gpu.length or 'N/A' }}mm lang
                                 </div>
                             </div>
                             {% endfor %}

@@ -159,6 +159,80 @@ body {
     background: var(--success-color);
 }
 
+/* Filter Controls */
+.filter-controls {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    z-index: 2;
+}
+
+.search-box input {
+    padding-left: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-color);
+}
+
+.search-box input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(51, 122, 183, 0.15);
+}
+
+.form-select {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(51, 122, 183, 0.15);
+}
+
+/* Component Cards with Filter Support */
+.component-card.hidden {
+    display: none !important;
+}
+
+.component-card.highlighted {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3) !important;
+}
+
+/* No Results Message */
+.no-results {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin: 1rem 0;
+}
+
+.no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
 .component-selection {
     margin-bottom: 2rem;
 }
