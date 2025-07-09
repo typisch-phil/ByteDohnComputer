@@ -45,6 +45,18 @@ class PCConfigurator {
                 console.log(`✓ Found element: ${id}, type: ${element.tagName}, value: "${element.value}"`);
                 console.log(`  - Events: ${element.onclick ? 'onclick' : 'no onclick'}`);
                 console.log(`  - Style: display=${getComputedStyle(element).display}, pointer-events=${getComputedStyle(element).pointerEvents}`);
+                
+                // Test manual event trigger
+                element.addEventListener('click', () => {
+                    console.log(`MANUAL CLICK TEST: ${id} clicked!`);
+                });
+                
+                // For search fields, also test input event
+                if (id.startsWith('search-')) {
+                    element.addEventListener('input', () => {
+                        console.log(`MANUAL INPUT TEST: ${id} input changed to "${element.value}"`);
+                    });
+                }
             } else {
                 console.log(`✗ Missing element: ${id}`);
             }
@@ -156,9 +168,9 @@ class PCConfigurator {
             const element = document.getElementById(filterId);
             if (element) {
                 const eventType = filterId.startsWith('search-') ? 'input' : 'change';
-                element.addEventListener(eventType, () => {
-                    console.log(`Filter triggered: ${filterId} = "${element.value}" for category ${category}`);
-                    setTimeout(() => this.applyFilters(category), 10);
+                element.addEventListener(eventType, (event) => {
+                    console.log(`Filter triggered: ${filterId} = "${element.value}" for category ${category}`, event);
+                    this.applyFilters(category);
                 });
                 console.log(`Added event listener for ${filterId}`);
             } else {
