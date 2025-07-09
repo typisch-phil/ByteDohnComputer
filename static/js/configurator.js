@@ -812,9 +812,19 @@ class PCConfigurator {
         return names[category] || category;
     }
     
-    saveConfiguration() {
+    async saveConfiguration() {
+        const configName = await Input.show(
+            'Geben Sie einen Namen für Ihre PC-Konfiguration ein:',
+            'Meine PC-Konfiguration',
+            'Konfiguration speichern',
+            'Konfigurationsname',
+            'Wird zur späteren Identifikation verwendet'
+        );
+        
+        if (!configName) return;
+        
         const configData = {
-            name: prompt('Name für die Konfiguration:') || 'Meine PC-Konfiguration',
+            name: configName,
             components: this.selectedComponents,
             total_price: this.calculateTotalPrice()
         };
@@ -829,30 +839,31 @@ class PCConfigurator {
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                alert('Konfiguration erfolgreich gespeichert!');
+                Toast.show('Konfiguration wurde erfolgreich gespeichert!', 'success');
             } else {
-                alert('Fehler beim Speichern der Konfiguration.');
+                Toast.show('Fehler beim Speichern der Konfiguration: ' + (result.error || 'Unbekannter Fehler'), 'error');
             }
         })
         .catch(error => {
             console.error('Save error:', error);
-            alert('Fehler beim Speichern der Konfiguration.');
+            Toast.show('Verbindungsfehler beim Speichern der Konfiguration', 'error');
         });
     }
     
-    addToCart() {
+    async addToCart() {
         // Validate that configuration is complete
         const requiredComponents = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
         const missingComponents = requiredComponents.filter(comp => !this.selectedComponents[comp]);
         
         if (missingComponents.length > 0) {
-            alert('Bitte vervollständigen Sie Ihre Konfiguration, bevor Sie sie zum Warenkorb hinzufügen.');
+            const missingNames = missingComponents.map(comp => this.getCategoryDisplayName(comp)).join(', ');
+            Toast.show(`Bitte vervollständigen Sie Ihre Konfiguration. Fehlende Komponenten: ${missingNames}`, 'warning');
             return;
         }
         
         // Check for compatibility errors
         if (this.hasCompatibilityErrors) {
-            alert('Bitte beheben Sie die Kompatibilitätsprobleme, bevor Sie die Konfiguration zum Warenkorb hinzufügen.');
+            Toast.show('Bitte beheben Sie die Kompatibilitätsprobleme, bevor Sie die Konfiguration zum Warenkorb hinzufügen.', 'error');
             return;
         }
         
@@ -887,8 +898,16 @@ class PCConfigurator {
             updateCartBadge();
         }
         
-        // Show success message and redirect to cart
-        if (confirm('Konfiguration wurde zum Warenkorb hinzugefügt! Möchten Sie zum Warenkorb gehen?')) {
+        // Show success message and ask about redirect
+        Toast.show('Konfiguration wurde zum Warenkorb hinzugefügt!', 'success');
+        
+        const goToCart = await Confirm.show(
+            'Ihre PC-Konfiguration wurde erfolgreich hinzugefügt. Möchten Sie zum Warenkorb gehen?',
+            'Zum Warenkorb gehen?',
+            'info'
+        );
+        
+        if (goToCart) {
             window.location.href = '/warenkorb';
         }
     }

@@ -88,6 +88,58 @@ body {
     box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
 }
 
+/* Modern Modal and Toast Styles */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.modal-footer {
+    background: #f8f9fa;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+.form-floating .form-control {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-floating .form-control:focus {
+    border-color: var(--tech-blue);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+.toast {
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    backdrop-filter: blur(10px);
+}
+
+.toast.text-bg-success {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+}
+
+.toast.text-bg-danger {
+    background: linear-gradient(135deg, #dc3545, #e74c3c) !important;
+}
+
+.toast.text-bg-warning {
+    background: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+}
+
+.toast.text-bg-primary {
+    background: linear-gradient(135deg, var(--tech-blue), #007bff) !important;
+}
+
 /* Features Section */
 .features {
     padding: 80px 0;

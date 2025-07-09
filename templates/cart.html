@@ -318,15 +318,21 @@ document.addEventListener('DOMContentLoaded', function() {
     cart = new Cart();
 });
 
-function proceedToCheckout() {
+async function proceedToCheckout() {
     if (cart.items.length === 0) {
-        alert('Ihr Warenkorb ist leer.');
+        Toast.show('Ihr Warenkorb ist leer', 'warning');
         return;
     }
     
     // Get configuration name from user
-    const configName = prompt('Geben Sie einen Namen für Ihre Bestellung ein:', 
-                             `PC-Bestellung ${new Date().toLocaleDateString()}`);
+    const configName = await Input.show(
+        'Geben Sie einen Namen für Ihre Bestellung ein:',
+        `PC-Bestellung ${new Date().toLocaleDateString()}`,
+        'Zur Kasse gehen',
+        'Bestellname',
+        'Wird für die Bestellverfolgung verwendet'
+    );
+    
     if (!configName) return;
     
     // Prepare checkout data
@@ -357,7 +363,7 @@ function proceedToCheckout() {
             // Redirect to Stripe checkout
             window.location.href = data.checkout_url;
         } else {
-            alert('Fehler beim Erstellen der Checkout-Session: ' + (data.error || 'Unbekannter Fehler'));
+            Toast.show('Fehler beim Erstellen der Checkout-Session: ' + (data.error || 'Unbekannter Fehler'), 'error');
             // Reset button state
             checkoutBtn.disabled = false;
             checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Zur Kasse';
@@ -365,20 +371,27 @@ function proceedToCheckout() {
     })
     .catch(error => {
         console.error('Error creating checkout session:', error);
-        alert('Fehler beim Erstellen der Checkout-Session');
+        Toast.show('Verbindungsfehler beim Erstellen der Checkout-Session', 'error');
         // Reset button state
         checkoutBtn.disabled = false;
         checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Zur Kasse';
     });
 }
 
-function saveCurrentCart() {
+async function saveCurrentCart() {
     if (cart.items.length === 0) {
-        alert('Warenkorb ist leer.');
+        Toast.show('Warenkorb ist leer', 'warning');
         return;
     }
     
-    const configName = prompt('Name für die Konfiguration:', 'Meine PC-Konfiguration');
+    const configName = await Input.show(
+        'Geben Sie einen aussagekräftigen Namen für Ihre Konfiguration ein:',
+        'Meine PC-Konfiguration',
+        'Konfiguration speichern',
+        'Name der Konfiguration',
+        'Der Name wird zur späteren Identifikation verwendet'
+    );
+    
     if (!configName) return;
     
     // Convert cart items to component format
@@ -403,41 +416,31 @@ function saveCurrentCart() {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            alert('Konfiguration erfolgreich gespeichert!');
+            Toast.show('Konfiguration wurde erfolgreich gespeichert!', 'success');
         } else {
-            alert('Fehler beim Speichern der Konfiguration.');
+            Toast.show('Fehler beim Speichern der Konfiguration: ' + (result.error || 'Unbekannter Fehler'), 'error');
         }
     })
     .catch(error => {
         console.error('Save error:', error);
-        alert('Fehler beim Speichern der Konfiguration.');
+        Toast.show('Verbindungsfehler beim Speichern der Konfiguration', 'error');
     });
 }
 
-function clearCartConfirm() {
+async function clearCartConfirm() {
     if (cart.items.length === 0) {
         return;
     }
     
-    if (confirm('Sind Sie sicher, dass Sie den gesamten Warenkorb leeren möchten?\n\nAlle Artikel werden entfernt.')) {
+    const confirmed = await Confirm.show(
+        'Alle Artikel werden dauerhaft aus dem Warenkorb entfernt. Diese Aktion kann nicht rückgängig gemacht werden.',
+        'Warenkorb leeren?',
+        'danger'
+    );
+    
+    if (confirmed) {
         cart.clearCart();
-        
-        // Show success message
-        const toast = document.createElement('div');
-        toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
-        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        toast.innerHTML = `
-            <i class="fas fa-check-circle"></i> Warenkorb wurde geleert
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.body.appendChild(toast);
-        
-        // Auto-remove toast after 3 seconds
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
-            }
-        }, 3000);
+        Toast.show('Warenkorb wurde erfolgreich geleert', 'success');
     }
 }
 </script>
