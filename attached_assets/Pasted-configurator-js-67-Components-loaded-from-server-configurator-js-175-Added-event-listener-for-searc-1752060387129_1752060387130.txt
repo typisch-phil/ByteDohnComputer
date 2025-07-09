@@ -1,0 +1,49 @@
+configurator.js:67 Components loaded from server
+configurator.js:175 Added event listener for search-cpu
+configurator.js:175 Added event listener for filter-cpu-socket
+configurator.js:175 Added event listener for filter-cpu-cores
+configurator.js:175 Added event listener for sort-cpu
+configurator.js:175 Added event listener for search-motherboard
+configurator.js:175 Added event listener for filter-mb-socket
+configurator.js:175 Added event listener for filter-mb-form-factor
+configurator.js:175 Added event listener for sort-motherboard
+configurator.js:175 Added event listener for search-ram
+configurator.js:175 Added event listener for filter-ram-type
+configurator.js:175 Added event listener for filter-ram-capacity
+configurator.js:175 Added event listener for sort-ram
+configurator.js:175 Added event listener for search-gpu
+configurator.js:175 Added event listener for filter-gpu-memory
+configurator.js:175 Added event listener for filter-gpu-brand
+configurator.js:175 Added event listener for sort-gpu
+configurator.js:175 Added event listener for search-ssd
+configurator.js:175 Added event listener for filter-ssd-capacity
+configurator.js:175 Added event listener for filter-ssd-interface
+configurator.js:175 Added event listener for sort-ssd
+configurator.js:175 Added event listener for search-case
+configurator.js:175 Added event listener for filter-case-form-factor
+configurator.js:175 Added event listener for filter-case-size
+configurator.js:175 Added event listener for sort-case
+configurator.js:175 Added event listener for search-psu
+configurator.js:175 Added event listener for filter-psu-wattage
+configurator.js:175 Added event listener for filter-psu-efficiency
+configurator.js:175 Added event listener for sort-psu
+configurator.js:175 Added event listener for search-cooler
+configurator.js:175 Added event listener for filter-cooler-type
+configurator.js:175 Added event listener for filter-cooler-socket
+configurator.js:175 Added event listener for sort-cooler
+configurator.js:36 === TESTING ALL INPUTS ===
+configurator.js:45 ✓ Found element: search-cpu, type: INPUT, value: ""
+configurator.js:46   - Events: no onclick
+configurator.js:47   - Style: display=block, pointer-events=auto
+configurator.js:45 ✓ Found element: filter-cpu-socket, type: SELECT, value: ""
+configurator.js:46   - Events: no onclick
+configurator.js:47   - Style: display=block, pointer-events=auto
+configurator.js:45 ✓ Found element: filter-cpu-cores, type: SELECT, value: ""
+configurator.js:46   - Events: no onclick
+configurator.js:47   - Style: display=block, pointer-events=auto
+configurator.js:45 ✓ Found element: search-motherboard, type: INPUT, value: ""
+configurator.js:46   - Events: no onclick
+configurator.js:47   - Style: display=block, pointer-events=auto
+configurator.js:45 ✓ Found element: filter-mb-socket, type: SELECT, value: ""
+configurator.js:46   - Events: no onclick
+configurator.js:47   - Style: display=block, pointer-events=auto

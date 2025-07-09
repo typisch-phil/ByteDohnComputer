@@ -51,10 +51,24 @@ class PCConfigurator {
                     console.log(`MANUAL CLICK TEST: ${id} clicked!`);
                 });
                 
+                element.addEventListener('focus', () => {
+                    console.log(`MANUAL FOCUS TEST: ${id} focused!`);
+                });
+                
                 // For search fields, also test input event
                 if (id.startsWith('search-')) {
                     element.addEventListener('input', () => {
                         console.log(`MANUAL INPUT TEST: ${id} input changed to "${element.value}"`);
+                    });
+                    element.addEventListener('keyup', () => {
+                        console.log(`MANUAL KEYUP TEST: ${id} keyup with value "${element.value}"`);
+                    });
+                }
+                
+                // For select fields, test change event
+                if (element.tagName === 'SELECT') {
+                    element.addEventListener('change', () => {
+                        console.log(`MANUAL CHANGE TEST: ${id} changed to "${element.value}"`);
                     });
                 }
             } else {

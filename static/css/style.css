@@ -167,6 +167,8 @@ body {
     padding: 1.25rem;
     margin: 1rem 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 10;
 }
 
 .search-box {
@@ -190,6 +192,8 @@ body {
     background: #fff;
     font-size: 14px;
     width: 100%;
+    position: relative;
+    z-index: 5;
 }
 
 .search-box input:focus {
@@ -207,6 +211,8 @@ body {
     font-size: 14px;
     cursor: pointer;
     width: 100%;
+    position: relative;
+    z-index: 5;
 }
 
 .form-select:focus {
