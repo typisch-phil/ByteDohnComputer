@@ -1,0 +1,293 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Statistiken - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Statistiken & Berichte</h1>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Drucken
+                    </button>
+                    <button class="btn btn-outline-success" onclick="exportStats()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Revenue Summary -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Gesamtumsatz</h4>
+                                    <h2 class="mb-0">{{ "%.2f"|format(stats.total_sales) }} €</h2>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-euro-sign fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Monatsumsatz</h4>
+                                    <h2 class="mb-0">{{ "%.2f"|format(stats.monthly_sales) }} €</h2>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-calendar-month fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Bestellstatus Übersicht</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Status</th>
+                                            <th>Anzahl</th>
+                                            <th>Anteil</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% set total_orders = stats.order_stats.values() | sum %}
+                                        {% for status, count in stats.order_stats.items() %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge {% if status == 'pending' %}bg-warning{% elif status == 'processing' %}bg-info{% elif status == 'shipped' %}bg-primary{% elif status == 'delivered' %}bg-success{% else %}bg-danger{% endif %}">
+                                                    {% if status == 'pending' %}Ausstehend
+                                                    {% elif status == 'processing' %}In Bearbeitung
+                                                    {% elif status == 'shipped' %}Versandt
+                                                    {% elif status == 'delivered' %}Geliefert
+                                                    {% else %}Storniert
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+                                            <td>{{ count }}</td>
+                                            <td>{{ "%.1f"|format((count / total_orders * 100) if total_orders > 0 else 0) }}%</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Zahlungsübersicht</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Status</th>
+                                            <th>Anzahl</th>
+                                            <th>Betrag</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payment_stat in stats.payment_stats %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge {% if payment_stat.payment_status == 'paid' %}bg-success{% elif payment_stat.payment_status == 'pending' %}bg-warning{% elif payment_stat.payment_status == 'failed' %}bg-danger{% else %}bg-info{% endif %}">
+                                                    {% if payment_stat.payment_status == 'paid' %}Bezahlt
+                                                    {% elif payment_stat.payment_status == 'pending' %}Ausstehend
+                                                    {% elif payment_stat.payment_status == 'failed' %}Fehlgeschlagen
+                                                    {% else %}Erstattet
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+                                            <td>{{ payment_stat.count }}</td>
+                                            <td>{{ "%.2f"|format(payment_stat.total or 0) }} €</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Customers -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Top Kunden</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Kunde</th>
+                                            <th>E-Mail</th>
+                                            <th>Bestellungen</th>
+                                            <th>Gesamtumsatz</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for customer in stats.top_customers %}
+                                        <tr>
+                                            <td>{{ customer.first_name or '' }} {{ customer.last_name or '' }}</td>
+                                            <td>{{ customer.email }}</td>
+                                            <td>{{ customer.order_count }}</td>
+                                            <td>{{ "%.2f"|format(customer.total_spent) }} €</td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">Noch keine Kunden vorhanden</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Products -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Beliebteste Komponenten</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Komponente</th>
+                                            <th>Bestellungen</th>
+                                            <th>Gesamtumsatz</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for component in stats.popular_components %}
+                                        <tr>
+                                            <td>{{ component.item_name }}</td>
+                                            <td>{{ component.order_count }}</td>
+                                            <td>{{ "%.2f"|format(component.total_revenue) }} €</td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Noch keine Komponentenverkäufe</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Revenue Chart -->
+            {% if stats.monthly_revenue %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Monatlicher Umsatzverlauf</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="revenueChart" width="400" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Revenue Chart
+{% if stats.monthly_revenue %}
+const ctx = document.getElementById('revenueChart').getContext('2d');
+const revenueChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [
+            {% for month_data in stats.monthly_revenue %}
+            '{{ month_data.month }}/2025',
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Umsatz (€)',
+            data: [
+                {% for month_data in stats.monthly_revenue %}
+                {{ month_data.revenue }},
+                {% endfor %}
+            ],
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value + ' €';
+                    }
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+// Export function
+function exportStats() {
+    const data = {
+        total_sales: {{ stats.total_sales }},
+        monthly_sales: {{ stats.monthly_sales }},
+        order_stats: {{ stats.order_stats | tojson }},
+        payment_stats: {{ stats.payment_stats | tojson }},
+        top_customers: {{ stats.top_customers | tojson }},
+        popular_components: {{ stats.popular_components | tojson }},
+        generated_at: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'statistics_' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

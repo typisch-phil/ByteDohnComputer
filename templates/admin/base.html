@@ -150,6 +150,34 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {% if 'order' in request.endpoint %}active{% endif %}" 
+                               href="{{ url_for('admin_orders') }}">
+                                <i class="fas fa-shopping-cart"></i>
+                                Bestellungen
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'customer' in request.endpoint %}active{% endif %}" 
+                               href="{{ url_for('admin_customers') }}">
+                                <i class="fas fa-users"></i>
+                                Kunden
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'invoice' in request.endpoint %}active{% endif %}" 
+                               href="{{ url_for('admin_invoices') }}">
+                                <i class="fas fa-file-invoice"></i>
+                                Rechnungen
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'statistics' in request.endpoint %}active{% endif %}" 
+                               href="{{ url_for('admin_statistics') }}">
+                                <i class="fas fa-chart-bar"></i>
+                                Statistiken
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('index') }}" target="_blank">
                                 <i class="fas fa-external-link-alt"></i>
                                 Website ansehen

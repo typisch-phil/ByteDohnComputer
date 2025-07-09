@@ -1,0 +1,144 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Bestellungen - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Bestellungen</h1>
+                <div class="d-flex gap-2">
+                    <form method="GET" class="d-flex gap-2">
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">Alle Status</option>
+                            <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Ausstehend</option>
+                            <option value="processing" {% if current_status == 'processing' %}selected{% endif %}>In Bearbeitung</option>
+                            <option value="shipped" {% if current_status == 'shipped' %}selected{% endif %}>Versandt</option>
+                            <option value="delivered" {% if current_status == 'delivered' %}selected{% endif %}>Geliefert</option>
+                            <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>Storniert</option>
+                        </select>
+                        <select name="payment_status" class="form-select" onchange="this.form.submit()">
+                            <option value="">Alle Zahlungen</option>
+                            <option value="pending" {% if current_payment_status == 'pending' %}selected{% endif %}>Ausstehend</option>
+                            <option value="paid" {% if current_payment_status == 'paid' %}selected{% endif %}>Bezahlt</option>
+                            <option value="failed" {% if current_payment_status == 'failed' %}selected{% endif %}>Fehlgeschlagen</option>
+                            <option value="refunded" {% if current_payment_status == 'refunded' %}selected{% endif %}>Erstattet</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Bestellnummer</th>
+                                    <th>Kunde</th>
+                                    <th>Typ</th>
+                                    <th>Betrag</th>
+                                    <th>Status</th>
+                                    <th>Zahlung</th>
+                                    <th>Datum</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders.items %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" class="text-decoration-none">
+                                            {{ order.order_number }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ order.customer.first_name or '' }} {{ order.customer.last_name or '' }}</strong><br>
+                                            <small class="text-muted">{{ order.customer.email }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if order.order_type == 'custom' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                            {% if order.order_type == 'custom' %}Konfigurator{% else %}Fertig-PC{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ "%.2f"|format(order.total_amount) }} €</td>
+                                    <td>
+                                        <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'processing' %}bg-info{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'delivered' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if order.status == 'pending' %}Ausstehend
+                                            {% elif order.status == 'processing' %}In Bearbeitung
+                                            {% elif order.status == 'shipped' %}Versandt
+                                            {% elif order.status == 'delivered' %}Geliefert
+                                            {% else %}Storniert
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if order.payment_status == 'paid' %}bg-success{% elif order.payment_status == 'pending' %}bg-warning{% elif order.payment_status == 'failed' %}bg-danger{% else %}bg-info{% endif %}">
+                                            {% if order.payment_status == 'paid' %}Bezahlt
+                                            {% elif order.payment_status == 'pending' %}Ausstehend
+                                            {% elif order.payment_status == 'failed' %}Fehlgeschlagen
+                                            {% else %}Erstattet
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Keine Bestellungen gefunden</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if orders.pages > 1 %}
+                    <nav aria-label="Pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if orders.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin_orders', page=orders.prev_num, status=current_status, payment_status=current_payment_status) }}">Zurück</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in orders.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                                {% if page_num %}
+                                    {% if page_num != orders.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin_orders', page=page_num, status=current_status, payment_status=current_payment_status) }}">{{ page_num }}</a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if orders.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin_orders', page=orders.next_num, status=current_status, payment_status=current_payment_status) }}">Weiter</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

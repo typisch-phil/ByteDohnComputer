@@ -105,6 +105,7 @@ The application is designed for flexible deployment:
 - July 09, 2025: Preisberechnung Bug behoben - Komponenten-Datenübertragung vom Backend zu Frontend implementiert, RAM-Kategorie-Mapping korrigiert
 - July 09, 2025: Modernes UI-System implementiert - Toast-Benachrichtigungen, Modal-Dialoge, Eingabefelder mit Validierung für bessere Benutzererfahrung
 - July 09, 2025: Import/Export-System verbessert - Komponenten-Validierung beim Import, moderne Dialoge, Fehlerbehandlung mit Toast-Nachrichten
+- July 09, 2025: Admin-Dashboard erweitert - Vollständige Bestellverwaltung, Kundendatenbank, Rechnungssystem und detaillierte Statistiken implementiert
 
 ## User Preferences
 

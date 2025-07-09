@@ -1,0 +1,118 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Rechnungen - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Rechnungen</h1>
+                <form method="GET">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">Alle Status</option>
+                        <option value="draft" {% if current_status == 'draft' %}selected{% endif %}>Entwurf</option>
+                        <option value="sent" {% if current_status == 'sent' %}selected{% endif %}>Versendet</option>
+                        <option value="paid" {% if current_status == 'paid' %}selected{% endif %}>Bezahlt</option>
+                        <option value="overdue" {% if current_status == 'overdue' %}selected{% endif %}>Überfällig</option>
+                        <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>Storniert</option>
+                    </select>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Rechnungsnummer</th>
+                                    <th>Bestellung</th>
+                                    <th>Kunde</th>
+                                    <th>Betrag</th>
+                                    <th>Status</th>
+                                    <th>Erstellt</th>
+                                    <th>Fällig</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in invoices.items %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('admin_invoice_detail', invoice_id=invoice.id) }}" class="text-decoration-none">
+                                            {{ invoice.invoice_number }}
+                                        </a>
+                                    </td>
+                                    <td>{{ invoice.order.order_number }}</td>
+                                    <td>{{ invoice.order.customer.email }}</td>
+                                    <td>{{ "%.2f"|format(invoice.total_amount) }} €</td>
+                                    <td>
+                                        <span class="badge {% if invoice.status == 'draft' %}bg-secondary{% elif invoice.status == 'sent' %}bg-info{% elif invoice.status == 'paid' %}bg-success{% elif invoice.status == 'overdue' %}bg-danger{% else %}bg-warning{% endif %}">
+                                            {% if invoice.status == 'draft' %}Entwurf
+                                            {% elif invoice.status == 'sent' %}Versendet
+                                            {% elif invoice.status == 'paid' %}Bezahlt
+                                            {% elif invoice.status == 'overdue' %}Überfällig
+                                            {% else %}Storniert
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ invoice.issue_date.strftime('%d.%m.%Y') }}</td>
+                                    <td>{{ invoice.due_date.strftime('%d.%m.%Y') if invoice.due_date else '-' }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_invoice_detail', invoice_id=invoice.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Keine Rechnungen gefunden</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if invoices.pages > 1 %}
+                    <nav aria-label="Pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if invoices.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin_invoices', page=invoices.prev_num, status=current_status) }}">Zurück</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in invoices.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                                {% if page_num %}
+                                    {% if page_num != invoices.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin_invoices', page=page_num, status=current_status) }}">{{ page_num }}</a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if invoices.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin_invoices', page=invoices.next_num, status=current_status) }}">Weiter</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,7 +4,7 @@ from flask import request, render_template, redirect, url_for, flash, session
 from flask_login import login_required, login_user, logout_user, UserMixin, current_user
 from werkzeug.security import check_password_hash
 from app import app, db
-from models import Component, PrebuiltPC, AdminUser
+from models import Component, PrebuiltPC, AdminUser, Order, OrderItem, Customer, Invoice
 
 # Admin Authentication
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -39,16 +39,29 @@ def admin_logout():
 @login_required
 def admin_dashboard():
     """Admin dashboard with overview statistics"""
+    from sqlalchemy import func
+    
+    # Component and prebuilt stats
     component_count = Component.query.count()
     active_component_count = Component.query.filter_by(is_active=True).count()
     prebuilt_count = PrebuiltPC.query.count()
     active_prebuilt_count = PrebuiltPC.query.filter_by(is_active=True).count()
     
-    # Recent components
-    recent_components = Component.query.order_by(Component.created_at.desc()).limit(5).all()
+    # Order and customer stats
+    total_orders = Order.query.count()
+    pending_orders = Order.query.filter_by(status='pending').count()
+    processing_orders = Order.query.filter_by(status='processing').count()
+    completed_orders = Order.query.filter_by(status='delivered').count()
+    total_customers = Customer.query.count()
     
-    # Recent prebuilt PCs
+    # Revenue stats
+    total_revenue = db.session.query(func.sum(Order.total_amount)).filter_by(payment_status='paid').scalar() or 0
+    pending_revenue = db.session.query(func.sum(Order.total_amount)).filter_by(payment_status='pending').scalar() or 0
+    
+    # Recent data
+    recent_components = Component.query.order_by(Component.created_at.desc()).limit(5).all()
     recent_prebuilts = PrebuiltPC.query.order_by(PrebuiltPC.created_at.desc()).limit(5).all()
+    recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
     
     stats = {
         'components': {
@@ -60,13 +73,27 @@ def admin_dashboard():
             'total': prebuilt_count,
             'active': active_prebuilt_count,
             'inactive': prebuilt_count - active_prebuilt_count
+        },
+        'orders': {
+            'total': total_orders,
+            'pending': pending_orders,
+            'processing': processing_orders,
+            'completed': completed_orders
+        },
+        'customers': {
+            'total': total_customers
+        },
+        'revenue': {
+            'total': total_revenue,
+            'pending': pending_revenue
         }
     }
     
     return render_template('admin/dashboard.html', 
                          stats=stats, 
                          recent_components=recent_components,
-                         recent_prebuilts=recent_prebuilts)
+                         recent_prebuilts=recent_prebuilts,
+                         recent_orders=recent_orders)
 
 # Component Management
 @app.route('/admin/components')
@@ -347,3 +374,213 @@ def get_component_fields(category):
     }
     
     return {'fields': fields.get(category, [])}
+
+# Order Management
+@app.route('/admin/orders')
+@login_required
+def admin_orders():
+    """List all orders"""
+    page = request.args.get('page', 1, type=int)
+    status = request.args.get('status', '')
+    payment_status = request.args.get('payment_status', '')
+    
+    query = Order.query
+    if status:
+        query = query.filter_by(status=status)
+    if payment_status:
+        query = query.filter_by(payment_status=payment_status)
+    
+    orders = query.order_by(Order.created_at.desc()).paginate(
+        page=page, per_page=20, error_out=False
+    )
+    
+    return render_template('admin/orders.html', 
+                         orders=orders, 
+                         current_status=status,
+                         current_payment_status=payment_status)
+
+@app.route('/admin/orders/<int:order_id>')
+@login_required
+def admin_order_detail(order_id):
+    """View order details"""
+    order = Order.query.get_or_404(order_id)
+    return render_template('admin/order_detail.html', order=order)
+
+@app.route('/admin/orders/<int:order_id>/update-status', methods=['POST'])
+@login_required
+def admin_update_order_status(order_id):
+    """Update order status"""
+    order = Order.query.get_or_404(order_id)
+    
+    new_status = request.form.get('status')
+    payment_status = request.form.get('payment_status')
+    
+    if new_status and new_status in ['pending', 'processing', 'shipped', 'delivered', 'cancelled']:
+        order.status = new_status
+        
+    if payment_status and payment_status in ['pending', 'paid', 'failed', 'refunded']:
+        order.payment_status = payment_status
+    
+    try:
+        db.session.commit()
+        flash(f'Bestellung {order.order_number} Status aktualisiert', 'success')
+    except Exception as e:
+        flash(f'Fehler beim Aktualisieren des Status: {str(e)}', 'error')
+        db.session.rollback()
+    
+    return redirect(url_for('admin_order_detail', order_id=order_id))
+
+# Customer Management
+@app.route('/admin/customers')
+@login_required
+def admin_customers():
+    """List all customers"""
+    page = request.args.get('page', 1, type=int)
+    search = request.args.get('search', '')
+    
+    query = Customer.query
+    if search:
+        query = query.filter(
+            Customer.email.contains(search) | 
+            Customer.first_name.contains(search) | 
+            Customer.last_name.contains(search)
+        )
+    
+    customers = query.order_by(Customer.created_at.desc()).paginate(
+        page=page, per_page=20, error_out=False
+    )
+    
+    return render_template('admin/customers.html', 
+                         customers=customers, 
+                         search=search)
+
+@app.route('/admin/customers/<int:customer_id>')
+@login_required
+def admin_customer_detail(customer_id):
+    """View customer details"""
+    customer = Customer.query.get_or_404(customer_id)
+    orders = Order.query.filter_by(customer_id=customer_id).order_by(Order.created_at.desc()).all()
+    
+    return render_template('admin/customer_detail.html', 
+                         customer=customer, 
+                         orders=orders)
+
+# Invoice Management
+@app.route('/admin/invoices')
+@login_required
+def admin_invoices():
+    """List all invoices"""
+    page = request.args.get('page', 1, type=int)
+    status = request.args.get('status', '')
+    
+    query = Invoice.query
+    if status:
+        query = query.filter_by(status=status)
+    
+    invoices = query.order_by(Invoice.issue_date.desc()).paginate(
+        page=page, per_page=20, error_out=False
+    )
+    
+    return render_template('admin/invoices.html', 
+                         invoices=invoices, 
+                         current_status=status)
+
+@app.route('/admin/invoices/<int:invoice_id>')
+@login_required
+def admin_invoice_detail(invoice_id):
+    """View invoice details"""
+    invoice = Invoice.query.get_or_404(invoice_id)
+    return render_template('admin/invoice_detail.html', invoice=invoice)
+
+@app.route('/admin/invoices/<int:invoice_id>/update-status', methods=['POST'])
+@login_required
+def admin_update_invoice_status(invoice_id):
+    """Update invoice status"""
+    invoice = Invoice.query.get_or_404(invoice_id)
+    
+    new_status = request.form.get('status')
+    
+    if new_status and new_status in ['draft', 'sent', 'paid', 'overdue', 'cancelled']:
+        invoice.status = new_status
+        
+        try:
+            db.session.commit()
+            flash(f'Rechnung {invoice.invoice_number} Status aktualisiert', 'success')
+        except Exception as e:
+            flash(f'Fehler beim Aktualisieren des Status: {str(e)}', 'error')
+            db.session.rollback()
+    
+    return redirect(url_for('admin_invoice_detail', invoice_id=invoice_id))
+
+# Statistics and Reports
+@app.route('/admin/statistics')
+@login_required
+def admin_statistics():
+    """Advanced statistics and reports"""
+    from sqlalchemy import func, extract
+    from datetime import datetime, timedelta
+    
+    # Date range for statistics
+    end_date = datetime.utcnow()
+    start_date = end_date - timedelta(days=30)
+    
+    # Sales statistics
+    total_sales = db.session.query(func.sum(Order.total_amount)).filter_by(payment_status='paid').scalar() or 0
+    monthly_sales = db.session.query(func.sum(Order.total_amount)).filter(
+        Order.payment_status == 'paid',
+        Order.created_at >= start_date
+    ).scalar() or 0
+    
+    # Order statistics by status
+    order_stats = db.session.query(
+        Order.status,
+        func.count(Order.id).label('count')
+    ).group_by(Order.status).all()
+    
+    # Payment statistics
+    payment_stats = db.session.query(
+        Order.payment_status,
+        func.count(Order.id).label('count'),
+        func.sum(Order.total_amount).label('total')
+    ).group_by(Order.payment_status).all()
+    
+    # Monthly revenue trend
+    monthly_revenue = db.session.query(
+        extract('month', Order.created_at).label('month'),
+        func.sum(Order.total_amount).label('revenue')
+    ).filter(
+        Order.payment_status == 'paid',
+        Order.created_at >= start_date
+    ).group_by(extract('month', Order.created_at)).all()
+    
+    # Top customers
+    top_customers = db.session.query(
+        Customer.email,
+        Customer.first_name,
+        Customer.last_name,
+        func.count(Order.id).label('order_count'),
+        func.sum(Order.total_amount).label('total_spent')
+    ).join(Order).filter(
+        Order.payment_status == 'paid'
+    ).group_by(Customer.id).order_by(func.sum(Order.total_amount).desc()).limit(10).all()
+    
+    # Product statistics
+    popular_components = db.session.query(
+        OrderItem.item_name,
+        func.count(OrderItem.id).label('order_count'),
+        func.sum(OrderItem.total_price).label('total_revenue')
+    ).filter(
+        OrderItem.item_type == 'component'
+    ).group_by(OrderItem.item_name).order_by(func.count(OrderItem.id).desc()).limit(10).all()
+    
+    stats = {
+        'total_sales': total_sales,
+        'monthly_sales': monthly_sales,
+        'order_stats': dict(order_stats),
+        'payment_stats': payment_stats,
+        'monthly_revenue': monthly_revenue,
+        'top_customers': top_customers,
+        'popular_components': popular_components
+    }
+    
+    return render_template('admin/statistics.html', stats=stats)
