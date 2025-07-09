@@ -87,6 +87,9 @@
         <div id="spec-fields">
             <p class="text-muted">Wählen Sie zuerst eine Kategorie aus, um die entsprechenden Spezifikations-Felder anzuzeigen.</p>
         </div>
+        
+        <!-- Hidden field for specifications JSON -->
+        <input type="hidden" id="specifications" name="specifications" value="{}">
     </div>
 
     <!-- Submit Button -->
@@ -227,13 +230,46 @@ function updateSpecFields() {
     container.innerHTML = html;
 }
 
-// Form validation
+// Collect specification data on form submit
+function collectSpecificationData() {
+    const category = document.getElementById('category').value;
+    if (!category || !specFields[category]) {
+        return {};
+    }
+    
+    const specs = {};
+    const fields = specFields[category];
+    
+    fields.forEach(field => {
+        const element = document.getElementById(field.name);
+        if (element) {
+            if (field.type === 'checkbox') {
+                specs[field.name] = element.checked;
+            } else if (field.type === 'number') {
+                specs[field.name] = parseFloat(element.value) || 0;
+            } else if (field.name === 'compatible_sockets' || field.name === 'ram_types') {
+                // Split comma-separated values into arrays
+                specs[field.name] = element.value.split(',').map(s => s.trim()).filter(s => s);
+            } else {
+                specs[field.name] = element.value;
+            }
+        }
+    });
+    
+    return specs;
+}
+
+// Form validation and spec collection
 (function() {
     'use strict';
     window.addEventListener('load', function() {
         const forms = document.getElementsByClassName('needs-validation');
         Array.prototype.filter.call(forms, function(form) {
             form.addEventListener('submit', function(event) {
+                // Collect specification data and update hidden field
+                const specs = collectSpecificationData();
+                document.getElementById('specifications').value = JSON.stringify(specs);
+                
                 if (form.checkValidity() === false) {
                     event.preventDefault();
                     event.stopPropagation();

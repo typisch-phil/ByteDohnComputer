@@ -97,13 +97,24 @@ def admin_add_component():
     """Add new component"""
     if request.method == 'POST':
         try:
-            name = request.form['name']
-            category = request.form['category']
-            price = float(request.form['price'])
+            name = request.form.get('name', '').strip()
+            category = request.form.get('category', '').strip()
+            price_str = request.form.get('price', '0')
+            
+            if not name or not category:
+                flash('Name und Kategorie sind erforderlich', 'error')
+                return render_template('admin/add_component.html')
+            
+            try:
+                price = float(price_str)
+            except ValueError:
+                flash('Ungültiger Preis', 'error')
+                return render_template('admin/add_component.html')
             
             # Parse specifications JSON
+            specs_json = request.form.get('specifications', '{}')
             try:
-                specs = json.loads(request.form['specifications'])
+                specs = json.loads(specs_json)
             except json.JSONDecodeError:
                 flash('Ungültiges JSON-Format in den Spezifikationen', 'error')
                 return render_template('admin/add_component.html')
