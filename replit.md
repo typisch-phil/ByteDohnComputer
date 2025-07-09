@@ -114,6 +114,7 @@ The application is designed for flexible deployment:
 - July 09, 2025: Alternative DHL Tracking-Systeme implementiert - Weiterleitung zu DHL.de, 17track.net, ParcelsApp.com als Fallback-Optionen ohne API-Schlüssel
 - July 09, 2025: Kundendashboard auf traditionelles Design umgestellt - Behält alle modernen Funktionen (Bestellungen, Rechnungen, Konfigurationen, Tracking) aber mit klassischem Layout
 - July 09, 2025: Dashboard auf ursprüngliches, ganz einfaches Design zurückgesetzt - Minimaler Header, einfache Navigation, grundlegende Card-Layouts ohne komplexe Styling-Effekte
+- July 09, 2025: Rechnungsanzeige im Kundendashboard behoben - Doppelte Routen entfernt, Template-Fehler korrigiert, Rechnungen werden nun korrekt angezeigt mit Pagination und vollständigen Informationen
 
 ## User Preferences
 

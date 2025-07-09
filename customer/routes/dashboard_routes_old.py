@@ -114,7 +114,16 @@ def profile():
         customer.first_name = request.form.get('first_name', '').strip()
         customer.last_name = request.form.get('last_name', '').strip()
         customer.phone = request.form.get('phone', '').strip() or None
-        customer.address = request.form.get('address', '').strip() or None
+        
+        # Address information
+        customer.street = request.form.get('street', '').strip() or None
+        customer.house_number = request.form.get('house_number', '').strip() or None
+        customer.postal_code = request.form.get('postal_code', '').strip() or None
+        customer.city = request.form.get('city', '').strip() or None
+        customer.country = request.form.get('country', 'Deutschland').strip()
+        
+        # Newsletter subscription
+        customer.newsletter_subscription = bool(request.form.get('newsletter'))
         
         try:
             db.session.commit()
@@ -157,37 +166,7 @@ def change_password():
     return render_template('customer/dashboard/change_password.html')
 
 
-@customer_dashboard.route('/rechnungen')
-@customer_login_required  
-def invoices():
-    """Customer invoices page"""
-    # Get pagination parameters
-    page = request.args.get('page', 1, type=int)
-    per_page = 10
-    
-    # Get invoices for customer's orders with pagination
-    invoices = db.session.query(Invoice).join(Order).filter(
-        Order.customer_id == current_user.id
-    ).order_by(Invoice.issue_date.desc()).paginate(
-        page=page, 
-        per_page=per_page, 
-        error_out=False
-    )
-    
-    return render_template('customer/dashboard/invoices.html', invoices=invoices)
 
-
-@customer_dashboard.route('/rechnung/<int:invoice_id>')
-@customer_login_required
-def invoice_detail(invoice_id):
-    """Customer invoice detail page"""
-    # Ensure invoice belongs to current customer
-    invoice = db.session.query(Invoice).join(Order).filter(
-        Invoice.id == invoice_id,
-        Order.customer_id == current_user.id
-    ).first_or_404()
-    
-    return render_template('customer/dashboard/invoice_detail.html', invoice=invoice)
 
 
 @customer_dashboard.route('/api/quick-stats')
@@ -213,6 +192,30 @@ def settings():
     customer = current_user
     
     return render_template('customer/dashboard/settings.html', customer=customer)
+
+
+@customer_dashboard.route('/rechnungen')
+@customer_login_required  
+def invoices():
+    """Customer invoices page"""
+    # Get all invoices for customer's orders
+    invoices = db.session.query(Invoice).join(Order).filter(
+        Order.customer_id == current_user.id
+    ).order_by(Invoice.issue_date.desc()).all()
+    
+    return render_template('customer/dashboard/invoices.html', invoices=invoices)
+
+@customer_dashboard.route('/rechnung/<int:invoice_id>')
+@customer_login_required
+def invoice_detail(invoice_id):
+    """Customer invoice detail page"""
+    # Ensure invoice belongs to current customer
+    invoice = db.session.query(Invoice).join(Order).filter(
+        Invoice.id == invoice_id,
+        Order.customer_id == current_user.id
+    ).first_or_404()
+    
+    return render_template('customer/dashboard/invoice_detail.html', invoice=invoice)
 
 
 @customer_dashboard.route('/konto-loeschen', methods=['GET', 'POST'])
