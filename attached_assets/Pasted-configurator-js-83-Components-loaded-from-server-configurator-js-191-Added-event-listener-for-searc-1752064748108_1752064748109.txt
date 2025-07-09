@@ -1,0 +1,78 @@
+configurator.js:83 Components loaded from server
+configurator.js:191 Added event listener for search-cpu
+configurator.js:191 Added event listener for filter-cpu-socket
+configurator.js:191 Added event listener for filter-cpu-cores
+configurator.js:191 Added event listener for sort-cpu
+configurator.js:191 Added event listener for search-motherboard
+configurator.js:191 Added event listener for filter-mb-socket
+configurator.js:191 Added event listener for filter-mb-form-factor
+configurator.js:191 Added event listener for sort-motherboard
+configurator.js:191 Added event listener for search-ram
+configurator.js:191 Added event listener for filter-ram-type
+configurator.js:191 Added event listener for filter-ram-capacity
+configurator.js:191 Added event listener for sort-ram
+configurator.js:191 Added event listener for search-gpu
+configurator.js:191 Added event listener for filter-gpu-memory
+configurator.js:191 Added event listener for filter-gpu-brand
+configurator.js:191 Added event listener for sort-gpu
+configurator.js:191 Added event listener for search-ssd
+configurator.js:191 Added event listener for filter-ssd-capacity
+configurator.js:191 Added event listener for filter-ssd-interface
+configurator.js:191 Added event listener for sort-ssd
+configurator.js:191 Added event listener for search-case
+configurator.js:191 Added event listener for filter-case-form-factor
+configurator.js:191 Added event listener for filter-case-size
+configurator.js:191 Added event listener for sort-case
+configurator.js:191 Added event listener for search-psu
+configurator.js:191 Added event listener for filter-psu-wattage
+configurator.js:191 Added event listener for filter-psu-efficiency
+configurator.js:191 Added event listener for sort-psu
+configurator.js:191 Added event listener for search-cooler
+configurator.js:191 Added event listener for filter-cooler-type
+configurator.js:191 Added event listener for filter-cooler-socket
+configurator.js:191 Added event listener for sort-cooler
+configurator.js:883 Calculating total price. Selected components: {cpu: null, motherboard: null, ram: null, gpu: null, ssd: null, …}
+configurator.js:884 Available components data: []
+configurator.js:901 Total calculated price: 0
+configurator.js:907 Updating total price: 0
+configurator.js:911 Total price element updated: 0,00 €
+configurator.js:38 === TESTING ALL INPUTS ===
+configurator.js:47 ✓ Found element: search-cpu, type: INPUT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: filter-cpu-socket, type: SELECT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: filter-cpu-cores, type: SELECT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: search-motherboard, type: INPUT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: filter-mb-socket, type: SELECT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:553 Selected cpu component 1
+configurator.js:883 Calculating total price. Selected components: {cpu: 1, motherboard: null, ram: null, gpu: null, ssd: null, …}
+configurator.js:884 Available components data: []
+configurator.js:897 No components data for category: cpus
+calculateTotalPrice @ configurator.js:897
+updateTotalPrice @ configurator.js:906
+clearSubsequentSelections @ configurator.js:591
+selectComponent @ configurator.js:556
+(anonymous) @ configurator.js:90
+configurator.js:901 Total calculated price: 0
+configurator.js:907 Updating total price: 0
+configurator.js:911 Total price element updated: 0,00 €
+configurator.js:601 Sending compatibility check with: {cpu: 1, motherboard: null, ram: null, gpu: null, ssd: null, …}
+configurator.js:883 Calculating total price. Selected components: {cpu: 1, motherboard: null, ram: null, gpu: null, ssd: null, …}
+configurator.js:884 Available components data: []
+configurator.js:897 No components data for category: cpus
+calculateTotalPrice @ configurator.js:897
+updateTotalPrice @ configurator.js:906
+selectComponent @ configurator.js:564
+(anonymous) @ configurator.js:90
+configurator.js:901 Total calculated price: 0
+configurator.js:907 Updating total price: 0
+configurator.js:911 Total price element updated: 0,00 €
+configurator.js:616 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}

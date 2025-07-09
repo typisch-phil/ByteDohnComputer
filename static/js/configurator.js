@@ -81,6 +81,16 @@ class PCConfigurator {
     
     loadComponents() {
         console.log('Components loaded from server');
+        
+        // Load components data from global window variable
+        if (window.componentsData) {
+            this.components = window.componentsData;
+            console.log('Components data loaded:', Object.keys(this.components));
+            console.log('Total components:', Object.values(this.components).reduce((sum, arr) => sum + arr.length, 0));
+        } else {
+            console.error('No components data found in window.componentsData');
+            this.components = {};
+        }
     }
     
     setupEventListeners() {
