@@ -517,7 +517,28 @@ class PCConfigurator {
         const category = card.dataset.category;
         const componentId = parseInt(card.dataset.id);
         
-        // Remove previous selection
+        // Check if this component is already selected (toggle functionality)
+        if (card.classList.contains('selected')) {
+            console.log(`Deselecting ${category} component ${componentId}`);
+            
+            // Deselect this component
+            card.classList.remove('selected');
+            this.selectedComponents[category] = null;
+            
+            // Clear all subsequent selections (reset dependent components)
+            this.clearSubsequentSelections(category);
+            
+            // Validate compatibility
+            this.validateCompatibility();
+            
+            // Update step indicator and navigation
+            this.updateStepIndicator();
+            this.updateNavigationButtons();
+            
+            return;
+        }
+        
+        // Remove previous selection in this category
         const previousSelected = document.querySelector(`.component-card[data-category="${category}"].selected`);
         if (previousSelected) {
             previousSelected.classList.remove('selected');
@@ -526,6 +547,10 @@ class PCConfigurator {
         // Add new selection
         card.classList.add('selected');
         this.selectedComponents[category] = componentId;
+        console.log(`Selected ${category} component ${componentId}`);
+        
+        // Clear all subsequent selections when changing a component
+        this.clearSubsequentSelections(category);
         
         // Validate compatibility
         this.validateCompatibility();
@@ -533,6 +558,30 @@ class PCConfigurator {
         // Update step indicator and navigation
         this.updateStepIndicator();
         this.updateNavigationButtons();
+    }
+    
+    clearSubsequentSelections(changedCategory) {
+        const categoryOrder = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
+        const changedIndex = categoryOrder.indexOf(changedCategory);
+        
+        if (changedIndex === -1) return;
+        
+        // Clear all selections after the changed category
+        for (let i = changedIndex + 1; i < categoryOrder.length; i++) {
+            const subsequentCategory = categoryOrder[i];
+            
+            // Clear from selectedComponents
+            if (this.selectedComponents[subsequentCategory]) {
+                console.log(`Clearing subsequent selection: ${subsequentCategory}`);
+                this.selectedComponents[subsequentCategory] = null;
+                
+                // Remove visual selection
+                const selectedCard = document.querySelector(`.component-card[data-category="${subsequentCategory}"].selected`);
+                if (selectedCard) {
+                    selectedCard.classList.remove('selected');
+                }
+            }
+        }
     }
     
     async validateCompatibility() {
@@ -599,13 +648,35 @@ class PCConfigurator {
     }
     
     updateStepIndicator() {
-        for (let i = 1; i <= this.totalSteps; i++) {
-            const indicator = document.querySelector(`.step-indicator .step:nth-child(${i})`);
-            if (indicator) {
-                indicator.classList.toggle('active', i === this.currentStep);
-                indicator.classList.toggle('completed', i < this.currentStep);
+        const steps = document.querySelectorAll('.step');
+        steps.forEach(step => {
+            const stepNumber = parseInt(step.dataset.step);
+            const category = this.getStepCategory(stepNumber);
+            
+            // Mark as completed if component is selected
+            if (this.selectedComponents[category]) {
+                step.classList.add('completed');
+            } else {
+                step.classList.remove('completed');
             }
-        }
+            
+            // Mark as active if it's the current step
+            step.classList.toggle('active', stepNumber === this.currentStep);
+        });
+    }
+    
+    getStepCategory(stepNumber) {
+        const stepCategories = {
+            1: 'cpu',
+            2: 'motherboard', 
+            3: 'ram',
+            4: 'gpu',
+            5: 'ssd',
+            6: 'case',
+            7: 'psu',
+            8: 'cooler'
+        };
+        return stepCategories[stepNumber];
     }
     
     nextStep() {
