@@ -24,6 +24,7 @@ class PCConfigurator {
         this.loadComponents();
         this.setupEventListeners();
         this.updateStepIndicator();
+        this.updateNavigationButtons(); // Initialize navigation buttons state
     }
     
     loadComponents() {
@@ -76,8 +77,9 @@ class PCConfigurator {
         // Validate compatibility
         this.validateCompatibility();
         
-        // Update step indicator
+        // Update step indicator and navigation
         this.updateStepIndicator();
+        this.updateNavigationButtons();
     }
     
     async validateCompatibility() {
@@ -164,6 +166,15 @@ class PCConfigurator {
     }
     
     nextStep() {
+        // Check if current step has a selection before proceeding
+        const componentCategories = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
+        const currentCategory = componentCategories[this.currentStep - 1];
+        
+        if (!this.selectedComponents[currentCategory]) {
+            alert(`Bitte wählen Sie eine ${this.getCategoryDisplayName(currentCategory)} aus, bevor Sie fortfahren.`);
+            return;
+        }
+        
         if (this.currentStep < this.totalSteps) {
             this.currentStep++;
             this.showStep(this.currentStep);
@@ -204,6 +215,13 @@ class PCConfigurator {
         }
         
         if (nextBtn) {
+            const componentCategories = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
+            const currentCategory = componentCategories[this.currentStep - 1];
+            const hasSelection = this.selectedComponents[currentCategory] !== null;
+            
+            // Enable/disable next button based on selection
+            nextBtn.disabled = !hasSelection;
+            
             if (this.currentStep === this.totalSteps) {
                 nextBtn.textContent = 'Konfiguration abschließen';
                 nextBtn.classList.remove('btn-primary');
@@ -213,9 +231,32 @@ class PCConfigurator {
                 nextBtn.classList.remove('btn-success');
                 nextBtn.classList.add('btn-primary');
             }
+            
+            // Visual feedback for disabled state
+            if (!hasSelection) {
+                nextBtn.style.opacity = '0.5';
+                nextBtn.style.cursor = 'not-allowed';
+            } else {
+                nextBtn.style.opacity = '1';
+                nextBtn.style.cursor = 'pointer';
+            }
         }
     }
     
+    getCategoryDisplayName(category) {
+        const displayNames = {
+            'cpu': 'CPU',
+            'motherboard': 'Motherboard',
+            'ram': 'RAM',
+            'gpu': 'Grafikkarte',
+            'ssd': 'SSD',
+            'case': 'Gehäuse',
+            'psu': 'Netzteil',
+            'cooler': 'Kühler'
+        };
+        return displayNames[category] || category;
+    }
+
     saveConfiguration() {
         const selectedCount = Object.values(this.selectedComponents).filter(c => c !== null).length;
         

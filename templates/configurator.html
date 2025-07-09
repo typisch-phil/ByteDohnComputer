@@ -247,4 +247,10 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/configurator.js') }}"></script>
+<script>
+// Initialize configurator when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    window.configurator = new PCConfigurator();
+});
+</script>
 {% endblock %}
