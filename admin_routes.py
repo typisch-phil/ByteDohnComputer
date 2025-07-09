@@ -5,6 +5,7 @@ from flask_login import login_required, login_user, logout_user, UserMixin, curr
 from werkzeug.security import check_password_hash
 from app import app, db
 from models import Component, PrebuiltPC, AdminUser, Order, OrderItem, Customer, Invoice
+from dhl_integration import create_shipping_label_for_order, track_order_shipment
 
 # Admin Authentication
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -417,6 +418,55 @@ def admin_order_detail(order_id):
     """View order details"""
     order = Order.query.get_or_404(order_id)
     return render_template('admin/order_detail.html', order=order)
+
+@app.route('/admin/orders/<int:order_id>/create-shipping-label', methods=['POST'])
+@login_required
+def admin_create_shipping_label(order_id):
+    """Erstelle DHL Versandetikett für Bestellung"""
+    try:
+        result = create_shipping_label_for_order(order_id)
+        
+        if result['success']:
+            # Update order with shipping info
+            order = Order.query.get(order_id)
+            order.tracking_number = result['tracking_number']
+            order.shipping_label_url = result.get('label_url')
+            order.status = 'shipped'
+            order.updated_at = datetime.utcnow()
+            db.session.commit()
+            
+            flash(f'Versandetikett erfolgreich erstellt! Tracking: {result["tracking_number"]}', 'success')
+        else:
+            flash(f'Fehler beim Erstellen des Versandetiketts: {result["error"]}', 'error')
+            
+    except Exception as e:
+        flash(f'Unerwarteter Fehler: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_order_detail', order_id=order_id))
+
+@app.route('/admin/orders/<int:order_id>/track-shipment')
+@login_required
+def admin_track_shipment(order_id):
+    """Verfolge DHL Sendung"""
+    order = Order.query.get_or_404(order_id)
+    
+    if not order.tracking_number:
+        flash('Keine Tracking-Nummer verfügbar', 'warning')
+        return redirect(url_for('admin_order_detail', order_id=order_id))
+    
+    try:
+        result = track_order_shipment(order.tracking_number)
+        
+        if result['success']:
+            tracking_data = result['data']
+            flash('Tracking-Informationen erfolgreich abgerufen', 'success')
+        else:
+            flash(f'Fehler beim Tracking: {result["error"]}', 'error')
+            
+    except Exception as e:
+        flash(f'Tracking-Fehler: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_order_detail', order_id=order_id))
 
 @app.route('/admin/orders/<int:order_id>/update-status', methods=['POST'])
 @login_required

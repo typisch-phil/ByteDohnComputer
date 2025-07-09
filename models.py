@@ -160,6 +160,8 @@ class Order(db.Model):
     status = db.Column(db.String(20), default='pending')  # pending, processing, shipped, delivered, cancelled
     payment_status = db.Column(db.String(20), default='pending')  # pending, paid, failed, refunded
     stripe_session_id = db.Column(db.String(200), nullable=True)
+    tracking_number = db.Column(db.String(100), nullable=True)  # DHL Tracking Number
+    shipping_label_url = db.Column(db.String(500), nullable=True)  # DHL Label URL
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

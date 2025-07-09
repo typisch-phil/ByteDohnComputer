@@ -55,6 +55,7 @@ def from_json_filter(value):
 # Import routes after app creation to avoid circular imports
 from routes import *
 from admin_routes import *
+from dhl_routes import *
 
 # Register customer blueprints
 from customer.routes.auth_routes import customer_auth

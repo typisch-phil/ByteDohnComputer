@@ -110,6 +110,7 @@ The application is designed for flexible deployment:
 - July 09, 2025: Vollständige Stripe-Integration - Automatische Kunden- und Bestellerstellung, Webhook-System, Rechnungsautomation, erweiterte Dashboard-Statistiken
 - July 09, 2025: Kundensystem vollständig implementiert - Registrierung, Login, Dashboard mit MySQL-Backend, sichere Passwort-Hashing, separate customer/ Ordnerstruktur
 - July 09, 2025: Konfigurationsspeicherung behoben - customer_id-Spalte hinzugefügt, Konfigurationen werden korrekt mit eingeloggten Benutzern verknüpft, Dashboard zeigt gespeicherte Konfigurationen an
+- July 09, 2025: DHL API-Integration vollständig implementiert - Automatische Versandetiketten-Erstellung, Sendungsverfolgung, Admin-Panel Integration mit tracking_number und shipping_label_url Feldern, öffentliche Tracking-Seite unter /sendungsverfolgung
 
 ## User Preferences
 
