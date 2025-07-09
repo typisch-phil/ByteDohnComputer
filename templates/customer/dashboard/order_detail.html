@@ -157,10 +157,10 @@
                     </div>
                     {% endif %}
                     
-                    {% if order.invoice %}
+                    {% if order.invoice and order.invoice|length > 0 %}
                     <hr>
                     <div class="d-grid">
-                        <a href="{{ url_for('customer_dashboard.invoice_detail', invoice_id=order.invoice.id) }}" 
+                        <a href="{{ url_for('customer_dashboard.invoice_detail', invoice_id=order.invoice[0].id) }}" 
                            class="btn btn-outline-primary">
                             <i class="fas fa-file-invoice"></i> Rechnung ansehen
                         </a>
