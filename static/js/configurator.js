@@ -25,6 +25,30 @@ class PCConfigurator {
         this.setupEventListeners();
         this.updateStepIndicator();
         this.updateNavigationButtons();
+        
+        // Test all search inputs after page load
+        setTimeout(() => {
+            this.testInputs();
+        }, 1000);
+    }
+    
+    testInputs() {
+        console.log('=== TESTING ALL INPUTS ===');
+        const testInputs = [
+            'search-cpu', 'filter-cpu-socket', 'filter-cpu-cores',
+            'search-motherboard', 'filter-mb-socket'
+        ];
+        
+        testInputs.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                console.log(`✓ Found element: ${id}, type: ${element.tagName}, value: "${element.value}"`);
+                console.log(`  - Events: ${element.onclick ? 'onclick' : 'no onclick'}`);
+                console.log(`  - Style: display=${getComputedStyle(element).display}, pointer-events=${getComputedStyle(element).pointerEvents}`);
+            } else {
+                console.log(`✗ Missing element: ${id}`);
+            }
+        });
     }
     
     loadComponents() {
