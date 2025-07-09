@@ -52,6 +52,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('cart') }}">
+                            <i class="fas fa-shopping-cart"></i> Warenkorb
+                            <span id="cart-badge" class="badge bg-primary ms-1" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#contact">
                             <i class="fas fa-envelope"></i> Kontakt
                         </a>
@@ -92,6 +98,31 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Cart Badge Update Script -->
+    <script>
+    function updateCartBadge() {
+        const cartItems = JSON.parse(localStorage.getItem('cart_items') || '[]');
+        const badge = document.getElementById('cart-badge');
+        
+        if (cartItems.length > 0) {
+            badge.textContent = cartItems.length;
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    
+    // Update cart badge when page loads
+    document.addEventListener('DOMContentLoaded', updateCartBadge);
+    
+    // Update cart badge when localStorage changes (cross-tab)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'cart_items') {
+            updateCartBadge();
+        }
+    });
+    </script>
     
     <!-- Custom JS -->
     {% block scripts %}{% endblock %}

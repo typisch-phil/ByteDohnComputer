@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Warenkorb - ByteDohm{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-shopping-cart"></i> Warenkorb</h3>
+                </div>
+                <div class="card-body">
+                    <div id="cart-items">
+                        <!-- Cart items will be loaded here via JavaScript -->
+                    </div>
+                    
+                    <div id="empty-cart" style="display: none;">
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-5x text-muted mb-3"></i>
+                            <h4>Ihr Warenkorb ist leer</h4>
+                            <p class="text-muted">Fügen Sie Komponenten über den PC-Konfigurator hinzu.</p>
+                            <a href="{{ url_for('configurator') }}" class="btn btn-primary">
+                                <i class="fas fa-cog"></i> Zum Konfigurator
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Bestellübersicht</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Zwischensumme:</span>
+                        <span id="subtotal">€0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Versand:</span>
+                        <span class="text-success">Kostenlos</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Gesamtsumme:</strong>
+                        <strong id="total-price" class="text-primary">€0.00</strong>
+                    </div>
+                    
+                    <button id="checkout-btn" class="btn btn-primary w-100 mb-2" onclick="proceedToCheckout()" disabled>
+                        <i class="fas fa-credit-card"></i> Zur Kasse
+                    </button>
+                    
+                    <a href="{{ url_for('configurator') }}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-cog"></i> Weiter konfigurieren
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Configuration Info -->
+            <div class="card mt-3" id="config-info" style="display: none;">
+                <div class="card-header">
+                    <h6>Konfiguration</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <strong>Name:</strong>
+                        <span id="config-name">-</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Erstellt:</strong>
+                        <span id="config-date">-</span>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="saveCurrentCart()">
+                        <i class="fas fa-save"></i> Konfiguration speichern
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+class Cart {
+    constructor() {
+        this.items = JSON.parse(localStorage.getItem('cart_items') || '[]');
+        this.components = {};
+        this.loadComponents();
+        this.renderCart();
+    }
+    
+    async loadComponents() {
+        try {
+            // Load all component categories
+            const categories = ['cpus', 'motherboards', 'ram', 'gpus', 'ssds', 'cases', 'psus', 'coolers'];
+            for (const category of categories) {
+                const response = await fetch(`/api/components/${category}`);
+                if (response.ok) {
+                    this.components[category] = await response.json();
+                }
+            }
+            this.renderCart();
+        } catch (error) {
+            console.error('Error loading components:', error);
+        }
+    }
+    
+    addItem(componentId, category) {
+        // Check if item already exists
+        const existingIndex = this.items.findIndex(item => 
+            item.componentId === componentId && item.category === category
+        );
+        
+        if (existingIndex >= 0) {
+            // Update quantity
+            this.items[existingIndex].quantity += 1;
+        } else {
+            // Add new item
+            this.items.push({
+                componentId: componentId,
+                category: category,
+                quantity: 1,
+                addedAt: new Date().toISOString()
+            });
+        }
+        
+        this.saveCart();
+        this.renderCart();
+    }
+    
+    removeItem(componentId, category) {
+        this.items = this.items.filter(item => 
+            !(item.componentId === componentId && item.category === category)
+        );
+        this.saveCart();
+        this.renderCart();
+    }
+    
+    updateQuantity(componentId, category, quantity) {
+        const item = this.items.find(item => 
+            item.componentId === componentId && item.category === category
+        );
+        
+        if (item) {
+            if (quantity <= 0) {
+                this.removeItem(componentId, category);
+            } else {
+                item.quantity = quantity;
+                this.saveCart();
+                this.renderCart();
+            }
+        }
+    }
+    
+    clearCart() {
+        this.items = [];
+        this.saveCart();
+        this.renderCart();
+    }
+    
+    saveCart() {
+        localStorage.setItem('cart_items', JSON.stringify(this.items));
+        // Update cart badge in navigation
+        if (typeof updateCartBadge === 'function') {
+            updateCartBadge();
+        }
+    }
+    
+    getComponent(componentId, category) {
+        if (this.components[category]) {
+            return this.components[category].find(comp => comp.id === componentId);
+        }
+        return null;
+    }
+    
+    calculateTotal() {
+        return this.items.reduce((total, item) => {
+            const component = this.getComponent(item.componentId, item.category);
+            return total + (component ? component.price * item.quantity : 0);
+        }, 0);
+    }
+    
+    renderCart() {
+        const cartContainer = document.getElementById('cart-items');
+        const emptyCart = document.getElementById('empty-cart');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const configInfo = document.getElementById('config-info');
+        
+        if (this.items.length === 0) {
+            cartContainer.style.display = 'none';
+            emptyCart.style.display = 'block';
+            checkoutBtn.disabled = true;
+            configInfo.style.display = 'none';
+        } else {
+            cartContainer.style.display = 'block';
+            emptyCart.style.display = 'none';
+            checkoutBtn.disabled = false;
+            configInfo.style.display = 'block';
+            
+            cartContainer.innerHTML = this.items.map(item => {
+                const component = this.getComponent(item.componentId, item.category);
+                if (!component) return '';
+                
+                return `
+                    <div class="cart-item border-bottom py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h6 class="mb-1">${component.name}</h6>
+                                <small class="text-muted">${item.category.toUpperCase()}</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group input-group-sm">
+                                    <button class="btn btn-outline-secondary" onclick="cart.updateQuantity(${item.componentId}, '${item.category}', ${item.quantity - 1})">-</button>
+                                    <input type="number" class="form-control text-center" value="${item.quantity}" min="1" 
+                                           onchange="cart.updateQuantity(${item.componentId}, '${item.category}', parseInt(this.value))">
+                                    <button class="btn btn-outline-secondary" onclick="cart.updateQuantity(${item.componentId}, '${item.category}', ${item.quantity + 1})">+</button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <strong>€${(component.price * item.quantity).toFixed(2)}</strong>
+                            </div>
+                            <div class="col-md-1 text-end">
+                                <button class="btn btn-outline-danger btn-sm" onclick="cart.removeItem(${item.componentId}, '${item.category}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Update totals
+        const total = this.calculateTotal();
+        document.getElementById('subtotal').textContent = `€${total.toFixed(2)}`;
+        document.getElementById('total-price').textContent = `€${total.toFixed(2)}`;
+    }
+}
+
+// Global cart instance
+let cart;
+
+// Initialize cart when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    cart = new Cart();
+});
+
+function proceedToCheckout() {
+    if (cart.items.length === 0) {
+        alert('Ihr Warenkorb ist leer.');
+        return;
+    }
+    
+    // Get configuration name from user
+    const configName = prompt('Geben Sie einen Namen für Ihre Bestellung ein:', 
+                             `PC-Bestellung ${new Date().toLocaleDateString()}`);
+    if (!configName) return;
+    
+    // Prepare checkout data
+    const checkoutData = {
+        cart_items: cart.items,
+        total_price: cart.calculateTotal(),
+        config_name: configName
+    };
+    
+    console.log('Proceeding to checkout with:', checkoutData);
+    
+    // Show loading state
+    const checkoutBtn = document.getElementById('checkout-btn');
+    checkoutBtn.disabled = true;
+    checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wird verarbeitet...';
+    
+    // Create Stripe checkout session
+    fetch('/api/create-checkout-session-from-cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(checkoutData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Redirect to Stripe checkout
+            window.location.href = data.checkout_url;
+        } else {
+            alert('Fehler beim Erstellen der Checkout-Session: ' + (data.error || 'Unbekannter Fehler'));
+            // Reset button state
+            checkoutBtn.disabled = false;
+            checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Zur Kasse';
+        }
+    })
+    .catch(error => {
+        console.error('Error creating checkout session:', error);
+        alert('Fehler beim Erstellen der Checkout-Session');
+        // Reset button state
+        checkoutBtn.disabled = false;
+        checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Zur Kasse';
+    });
+}
+
+function saveCurrentCart() {
+    if (cart.items.length === 0) {
+        alert('Warenkorb ist leer.');
+        return;
+    }
+    
+    const configName = prompt('Name für die Konfiguration:', 'Meine PC-Konfiguration');
+    if (!configName) return;
+    
+    // Convert cart items to component format
+    const components = {};
+    cart.items.forEach(item => {
+        components[item.category.slice(0, -1)] = item.componentId; // Remove 's' from category
+    });
+    
+    const configData = {
+        name: configName,
+        components: components,
+        total_price: cart.calculateTotal()
+    };
+    
+    fetch('/api/save-configuration', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(configData)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Konfiguration erfolgreich gespeichert!');
+        } else {
+            alert('Fehler beim Speichern der Konfiguration.');
+        }
+    })
+    .catch(error => {
+        console.error('Save error:', error);
+        alert('Fehler beim Speichern der Konfiguration.');
+    });
+}
+</script>
+{% endblock %}

@@ -348,3 +348,97 @@ def checkout_cancel():
     config = Configuration.query.get(config_id) if config_id else None
     
     return render_template('checkout_cancel.html', config=config)
+
+@app.route('/warenkorb')
+def cart():
+    """Shopping cart page"""
+    return render_template('cart.html')
+
+@app.route('/api/create-checkout-session-from-cart', methods=['POST'])
+def create_checkout_session_from_cart():
+    """Create Stripe checkout session from cart items"""
+    try:
+        data = request.get_json()
+        
+        # Validate required data
+        if not data.get('cart_items') or not data.get('total_price'):
+            return jsonify({'error': 'Warenkorb-Daten und Gesamtpreis sind erforderlich'}), 400
+        
+        # Get domain for redirect URLs
+        domain = os.environ.get('REPLIT_DEV_DOMAIN') if os.environ.get('REPLIT_DEPLOYMENT') != 'true' else os.environ.get('REPLIT_DOMAINS', '').split(',')[0]
+        
+        if not domain:
+            return jsonify({'error': 'Domain nicht konfiguriert'}), 500
+        
+        # Create line items from cart
+        line_items = []
+        
+        # Load components to get details
+        components = load_components()
+        
+        for cart_item in data['cart_items']:
+            component_id = cart_item['componentId']
+            category = cart_item['category']
+            quantity = cart_item.get('quantity', 1)
+            
+            # Find component in loaded data
+            if category in components:
+                component = next((comp for comp in components[category] if comp['id'] == component_id), None)
+                if component:
+                    line_items.append({
+                        'price_data': {
+                            'currency': 'eur',
+                            'product_data': {
+                                'name': f"{component['name']} ({category.upper()})",
+                                'description': f"PC-Komponente: {component['name']}",
+                            },
+                            'unit_amount': int(component['price'] * 100),  # Convert to cents
+                        },
+                        'quantity': quantity,
+                    })
+        
+        if not line_items:
+            return jsonify({'error': 'Keine gültigen Komponenten im Warenkorb gefunden'}), 400
+        
+        # Convert cart items to configuration format for saving
+        config_components = {}
+        for cart_item in data['cart_items']:
+            category_key = cart_item['category'].rstrip('s')  # Remove 's' from category
+            config_components[category_key] = cart_item['componentId']
+        
+        # Save configuration before checkout
+        config_name = data.get('config_name', f"PC-Bestellung {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+        config = Configuration(
+            name=config_name,
+            components=json.dumps(config_components),
+            total_price=data['total_price'],
+            created_at=datetime.utcnow()
+        )
+        
+        db.session.add(config)
+        db.session.commit()
+        
+        # Create Stripe checkout session
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url=f'https://{domain}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}&config_id={config.id}',
+            cancel_url=f'https://{domain}/warenkorb',
+            metadata={
+                'config_id': str(config.id),
+                'config_name': config_name,
+                'source': 'cart'
+            }
+        )
+        
+        return jsonify({
+            'success': True,
+            'checkout_url': checkout_session.url,
+            'session_id': checkout_session.id
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error creating checkout session from cart: {e}")
+        return jsonify({'error': f'Fehler beim Erstellen der Checkout-Session: {str(e)}'}), 500

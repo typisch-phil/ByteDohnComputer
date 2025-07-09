@@ -826,73 +826,51 @@ class PCConfigurator {
         });
     }
     
-    proceedToCheckout() {
+    addToCart() {
         // Validate that configuration is complete
         const requiredComponents = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
         const missingComponents = requiredComponents.filter(comp => !this.selectedComponents[comp]);
         
         if (missingComponents.length > 0) {
-            alert('Bitte vervollständigen Sie Ihre Konfiguration, bevor Sie zum Checkout gehen.');
+            alert('Bitte vervollständigen Sie Ihre Konfiguration, bevor Sie sie zum Warenkorb hinzufügen.');
             return;
         }
         
         // Check for compatibility errors
         if (this.hasCompatibilityErrors) {
-            alert('Bitte beheben Sie die Kompatibilitätsprobleme, bevor Sie zum Checkout gehen.');
+            alert('Bitte beheben Sie die Kompatibilitätsprobleme, bevor Sie die Konfiguration zum Warenkorb hinzufügen.');
             return;
         }
         
-        // Get configuration name from user
-        const configName = prompt('Geben Sie einen Namen für Ihre Konfiguration ein:', 
-                                 `PC-Konfiguration ${new Date().toLocaleDateString()}`);
-        if (!configName) return;
+        // Add components to cart
+        const cart = JSON.parse(localStorage.getItem('cart_items') || '[]');
         
-        const checkoutData = {
-            components: this.selectedComponents,
-            total_price: this.calculateTotalPrice(),
-            config_name: configName
-        };
+        // Clear existing cart (or optionally merge)
+        const newCart = [];
         
-        console.log('Proceeding to checkout with:', checkoutData);
-        
-        // Show loading state
-        const checkoutBtn = document.getElementById('checkout-btn');
-        if (checkoutBtn) {
-            checkoutBtn.disabled = true;
-            checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wird verarbeitet...';
+        for (const [category, componentId] of Object.entries(this.selectedComponents)) {
+            if (componentId) {
+                newCart.push({
+                    componentId: componentId,
+                    category: category + 's', // Add 's' for API consistency
+                    quantity: 1,
+                    addedAt: new Date().toISOString()
+                });
+            }
         }
         
-        // Create Stripe checkout session
-        fetch('/api/create-checkout-session', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(checkoutData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Redirect to Stripe checkout
-                window.location.href = data.checkout_url;
-            } else {
-                alert('Fehler beim Erstellen der Checkout-Session: ' + (data.error || 'Unbekannter Fehler'));
-                // Reset button state
-                if (checkoutBtn) {
-                    checkoutBtn.disabled = false;
-                    checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Jetzt kaufen';
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error creating checkout session:', error);
-            alert('Fehler beim Erstellen der Checkout-Session');
-            // Reset button state
-            if (checkoutBtn) {
-                checkoutBtn.disabled = false;
-                checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Jetzt kaufen';
-            }
-        });
+        // Save to localStorage
+        localStorage.setItem('cart_items', JSON.stringify(newCart));
+        
+        // Update cart badge in navigation
+        if (typeof updateCartBadge === 'function') {
+            updateCartBadge();
+        }
+        
+        // Show success message and redirect to cart
+        if (confirm('Konfiguration wurde zum Warenkorb hinzugefügt! Möchten Sie zum Warenkorb gehen?')) {
+            window.location.href = '/warenkorb';
+        }
     }
     
     calculateTotalPrice() {
