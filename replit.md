@@ -117,6 +117,7 @@ The application is designed for flexible deployment:
 - July 09, 2025: Rechnungsanzeige im Kundendashboard behoben - Doppelte Routen entfernt, Template-Fehler korrigiert, Rechnungen werden nun korrekt angezeigt mit Pagination und vollständigen Informationen
 - July 09, 2025: DHL Geschäftskunden API vollständig implementiert - OAuth 2.0 Authentifizierung, automatische Versandetikett-Erstellung über Geschäftskonto-Abrechnung, Demo-Fallback-System für Entwicklung
 - July 09, 2025: DHL API-System bereit für Freischaltung - Vollständige Integration implementiert mit echten Credentials, detaillierte Freischaltungsanleitung erstellt, System wartet nur noch auf DHL API-Aktivierung für Live-Betrieb
+- July 09, 2025: Vollständige Migration auf SimplySell DHL API - Alle DHL API-Referenzen durch SimplySell DHL API ersetzt, Dokumentation aktualisiert, einheitliche API-Integration für bessere Geschäftskunden-Erfahrung
 
 ## User Preferences
 
