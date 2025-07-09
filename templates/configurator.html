@@ -35,14 +35,20 @@
                             
                             <!-- Filter and Search Controls -->
                             <div class="filter-controls">
-                                <div class="row align-items-center">
+                                <div class="row align-items-end g-3">
                                     <div class="col-md-4">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-search me-1"></i>Suche
+                                        </label>
                                         <div class="search-box">
                                             <i class="fas fa-search"></i>
-                                            <input type="text" class="form-control" id="search-cpu" placeholder="CPU suchen...">
+                                            <input type="text" class="form-control" id="search-cpu" placeholder="CPU-Name oder Spezifikation...">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-plug me-1"></i>Socket
+                                        </label>
                                         <select class="form-select" id="filter-cpu-socket">
                                             <option value="">Alle Sockel</option>
                                             <option value="AM5">AM5</option>
@@ -51,7 +57,10 @@
                                             <option value="LGA1200">LGA1200</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-cog me-1"></i>Kerne
+                                        </label>
                                         <select class="form-select" id="filter-cpu-cores">
                                             <option value="">Alle Kerne</option>
                                             <option value="4">4 Kerne</option>
@@ -61,11 +70,19 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-sort me-1"></i>Sortierung
+                                        </label>
                                         <select class="form-select" id="sort-cpu">
-                                            <option value="name">Name</option>
+                                            <option value="name">Nach Name</option>
                                             <option value="price-asc">Preis ↑</option>
                                             <option value="price-desc">Preis ↓</option>
                                         </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('cpu')">
+                                            <i class="fas fa-times me-1"></i>Zurücksetzen
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -94,14 +111,20 @@
                             
                             <!-- Filter and Search Controls -->
                             <div class="filter-controls">
-                                <div class="row align-items-center">
+                                <div class="row align-items-end g-3">
                                     <div class="col-md-4">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-search me-1"></i>Suche
+                                        </label>
                                         <div class="search-box">
                                             <i class="fas fa-search"></i>
-                                            <input type="text" class="form-control" id="search-motherboard" placeholder="Motherboard suchen...">
+                                            <input type="text" class="form-control" id="search-motherboard" placeholder="Motherboard-Name oder Chipset...">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-plug me-1"></i>Socket
+                                        </label>
                                         <select class="form-select" id="filter-mb-socket">
                                             <option value="">Alle Sockel</option>
                                             <option value="AM5">AM5</option>
@@ -110,7 +133,10 @@
                                             <option value="LGA1200">LGA1200</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-th me-1"></i>Formfaktor
+                                        </label>
                                         <select class="form-select" id="filter-mb-form-factor">
                                             <option value="">Alle Formfaktoren</option>
                                             <option value="ATX">ATX</option>
@@ -119,11 +145,19 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-sort me-1"></i>Sortierung
+                                        </label>
                                         <select class="form-select" id="sort-motherboard">
-                                            <option value="name">Name</option>
+                                            <option value="name">Nach Name</option>
                                             <option value="price-asc">Preis ↑</option>
                                             <option value="price-desc">Preis ↓</option>
                                         </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('motherboard')">
+                                            <i class="fas fa-times me-1"></i>Zurücksetzen
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -175,14 +209,20 @@
                             
                             <!-- Filter and Search Controls -->
                             <div class="filter-controls">
-                                <div class="row align-items-center">
+                                <div class="row align-items-end g-3">
                                     <div class="col-md-4">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-search me-1"></i>Suche
+                                        </label>
                                         <div class="search-box">
                                             <i class="fas fa-search"></i>
-                                            <input type="text" class="form-control" id="search-ram" placeholder="RAM suchen...">
+                                            <input type="text" class="form-control" id="search-ram" placeholder="RAM-Name oder Spezifikation...">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-microchip me-1"></i>Typ
+                                        </label>
                                         <select class="form-select" id="filter-ram-type">
                                             <option value="">Alle Typen</option>
                                             <option value="DDR5">DDR5</option>
@@ -190,6 +230,9 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-database me-1"></i>Kapazität
+                                        </label>
                                         <select class="form-select" id="filter-ram-capacity">
                                             <option value="">Alle Kapazitäten</option>
                                             <option value="16">16GB</option>
@@ -198,6 +241,9 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-tachometer-alt me-1"></i>Geschw.
+                                        </label>
                                         <select class="form-select" id="filter-ram-speed">
                                             <option value="">Alle Geschw.</option>
                                             <option value="3200">3200MHz+</option>
@@ -205,12 +251,20 @@
                                             <option value="6000">6000MHz+</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-1">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-sort me-1"></i>Sort
+                                        </label>
                                         <select class="form-select" id="sort-ram">
                                             <option value="name">Name</option>
-                                            <option value="price-asc">Preis ↑</option>
-                                            <option value="price-desc">Preis ↓</option>
+                                            <option value="price-asc">€ ↑</option>
+                                            <option value="price-desc">€ ↓</option>
                                         </select>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('ram')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -239,14 +293,20 @@
                             
                             <!-- Filter and Search Controls -->
                             <div class="filter-controls">
-                                <div class="row align-items-center">
+                                <div class="row align-items-end g-3">
                                     <div class="col-md-4">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-search me-1"></i>Suche
+                                        </label>
                                         <div class="search-box">
                                             <i class="fas fa-search"></i>
-                                            <input type="text" class="form-control" id="search-gpu" placeholder="GPU suchen...">
+                                            <input type="text" class="form-control" id="search-gpu" placeholder="GPU-Name oder Modell...">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-memory me-1"></i>VRAM
+                                        </label>
                                         <select class="form-select" id="filter-gpu-memory">
                                             <option value="">Alle VRAM</option>
                                             <option value="8">8GB+</option>
@@ -255,7 +315,10 @@
                                             <option value="24">24GB+</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-tag me-1"></i>Marke
+                                        </label>
                                         <select class="form-select" id="filter-gpu-brand">
                                             <option value="">Alle Marken</option>
                                             <option value="RTX">NVIDIA RTX</option>
@@ -264,11 +327,19 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
+                                        <label class="form-label text-muted fw-medium mb-2">
+                                            <i class="fas fa-sort me-1"></i>Sortierung
+                                        </label>
                                         <select class="form-select" id="sort-gpu">
-                                            <option value="name">Name</option>
+                                            <option value="name">Nach Name</option>
                                             <option value="price-asc">Preis ↑</option>
                                             <option value="price-desc">Preis ↓</option>
                                         </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters('gpu')">
+                                            <i class="fas fa-times me-1"></i>Zurücksetzen
+                                        </button>
                                     </div>
                                 </div>
                             </div>

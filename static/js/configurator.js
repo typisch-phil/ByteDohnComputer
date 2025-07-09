@@ -61,6 +61,20 @@ class PCConfigurator {
         
         // Filter and search listeners
         this.setupFilterListeners();
+        
+        // Global clear filters function
+        window.clearFilters = (category) => {
+            // Reset search
+            const searchInput = document.getElementById(`search-${category}`);
+            if (searchInput) searchInput.value = '';
+            
+            // Reset all selects for this category
+            const selects = document.querySelectorAll(`select[id*="filter-${category}"], select[id*="sort-${category}"]`);
+            selects.forEach(select => select.value = '');
+            
+            // Reapply filters (which will show all items)
+            this.applyFilters(category);
+        };
     }
     
     setupFilterListeners() {
@@ -264,7 +278,7 @@ class PCConfigurator {
             noResultsDiv.innerHTML = `
                 <i class="fas fa-search"></i>
                 <h5>Keine Komponenten gefunden</h5>
-                <p>Versuchen Sie andere Suchbegriffe oder Filter.</p>
+                <p>Versuchen Sie andere Suchbegriffe oder Filter, oder setzen Sie die Filter zurück.</p>
             `;
             container?.appendChild(noResultsDiv);
         } else if (!show && noResultsDiv) {
