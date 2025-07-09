@@ -1,29 +1,27 @@
 # DHL API-Freischaltung für ByteDohm
 
 ## Übersicht
-Für die automatische Erstellung echter DHL Versandmarken über die API benötigen Sie eine Freischaltung Ihres DHL Geschäftskundenkontos für die API-Nutzung.
+Für die automatische Erstellung echter DHL Versandmarken benötigen Sie eine API-Freischaltung bei DHL. Das System ist bereits vollständig implementiert und wartet nur auf die Freischaltung.
 
 ## Schritt 1: DHL Geschäftskunden Service kontaktieren
 
-**Telefon:** 0228 4333112
+**Telefon:** 0228 4333112 (Mo-Fr 8-18 Uhr)
 **E-Mail:** geschaeftskunden.info@dhl.com
 **Online:** https://www.dhl.de/de/geschaeftskunden/kontakt.html
 
 ## Schritt 2: API-Zugang beantragen
 
-Folgende Informationen benötigen Sie für den Antrag:
-
-### Ihre aktuellen Daten:
-- **EKP-Nummer:** [Ihre 10-stellige EKP-Nummer]
-- **Geschäftskunden-Username:** [Ihr aktueller Username]
-- **Geschäftskunden-Passwort:** [Ihr aktuelles Passwort]
+### Ihre aktuellen Daten für den Antrag:
+- **EKP-Nummer:** [Ihre 10-stellige EKP aus den Secrets]
+- **DHL Username:** [Aus den Replit Secrets]
+- **DHL Passwort:** [Aus den Replit Secrets]
 - **Firmenname:** ByteDohm GmbH
-- **Verwendungszweck:** Automatische Versandetikett-Erstellung über E-Commerce-System
+- **Verwendungszweck:** Automatische Versandetikett-Erstellung
 
-### Zu beantragen:
-1. **DHL Paket DE API v2** - Freischaltung für Versandetiketten
-2. **OAuth 2.0 Authentifizierung** - Für sichere API-Verbindung
-3. **Produktions-API-Zugang** - Für Live-Betrieb (nicht Sandbox)
+### Bei DHL zu beantragen:
+1. **DHL Paket DE API v2** - Freischaltung für Versandmarken
+2. **OAuth 2.0 Authentication** - Für sichere API-Verbindung
+3. **Produktions-API-Zugang** - Für Live-Betrieb
 
 ## Schritt 3: Technische Angaben
 

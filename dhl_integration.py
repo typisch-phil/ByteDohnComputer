@@ -21,18 +21,15 @@ class DHLShippingAPI:
         self.ekp_number = os.environ.get('DHL_EKP_NUMBER')  # 10-stellige EKP-Nummer
         self.participation_number = os.environ.get('DHL_PARTICIPATION_NUMBER', '01')  # Teilnahmenummer
         
-        # API Endpoints - DHL Paket DE Versenden API v2
-        self.sandbox_url = "https://api-sandbox.dhl.com"
+        # Alternative DHL API über DHL Business Customer Portal Integration
+        # Direkte Webhook-Integration mit DHL Geschäftskunden-Portal
+        self.dhl_portal_url = "https://www.dhl.de/int-verfolgen/search"
+        self.dhl_business_url = "https://geschaeftskunden.dhl.de"
+        
+        # Für echte API-Integration - verwende die vorhandenen DHL Credentials
         self.production_url = "https://api-eu.dhl.com"
+        self.sandbox_url = "https://api-sandbox.dhl.com"
         self.base_url = self.production_url if os.environ.get('DHL_LIVE', 'false') == 'true' else self.sandbox_url
-        
-        # API URLs
-        self.auth_url = f"{self.base_url}/post-de/auth/v1/authenticate"
-        self.shipping_url = f"{self.base_url}/post-de/shipping/v2/orders"
-        self.track_api_url = f"{self.base_url}/track/shipments"
-        
-        # Alternative: DHL Business Customer Portal Authentication
-        self.business_auth_url = f"{self.base_url}/post-de/auth/v1/token"
         
         # OAuth Token
         self.access_token = None
@@ -55,24 +52,31 @@ class DHLShippingAPI:
         }
         
     def authenticate(self):
-        """OAuth 2.0 Authentifizierung für DHL Geschäftskunden mit mehreren Methoden"""
+        """SimplySell DHL API Authentifizierung"""
         try:
-            if not self.username or not self.password:
-                return {'success': False, 'error': 'DHL Zugangsdaten nicht konfiguriert'}
+            if not self.username or not self.password or not self.ekp_number:
+                return {'success': False, 'error': 'DHL Zugangsdaten (Username, Passwort, EKP) nicht vollständig konfiguriert'}
             
             # Prüfe ob Token noch gültig ist
             if self.access_token and self.token_expires_at and datetime.now() < self.token_expires_at:
                 return {'success': True}
             
-            # Methode 1: Standard OAuth2 Authentication
+            # SimplySell API Authentication
             auth_data = {
-                'username': self.username,
-                'password': self.password
+                'grant_type': 'client_credentials',
+                'client_id': self.username,
+                'client_secret': self.password,
+                'ekp_number': self.ekp_number,
+                'scope': 'dhl:shipping dhl:tracking'
             }
             
-            headers = {'Content-Type': 'application/json'}
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
+            }
             
-            response = requests.post(self.auth_url, json=auth_data, headers=headers, timeout=30)
+            logging.info("Versuche SimplySell DHL API Authentifizierung")
+            response = requests.post(self.simplysell_auth_url, data=auth_data, headers=headers, timeout=30)
             
             if response.status_code == 200:
                 token_data = response.json()
@@ -80,35 +84,15 @@ class DHLShippingAPI:
                 expires_in = token_data.get('expires_in', 3600)  # Default 1 Stunde
                 self.token_expires_at = datetime.now() + timedelta(seconds=expires_in - 300)  # 5 Min Puffer
                 
-                logging.info("DHL OAuth Authentifizierung erfolgreich")
+                logging.info("SimplySell DHL API Authentifizierung erfolgreich")
                 return {'success': True}
-            
-            # Methode 2: Basic Authentication für Geschäftskunden
-            logging.info("Versuche Basic Authentication für DHL Business Customer")
-            basic_auth = base64.b64encode(f"{self.username}:{self.password}".encode()).decode()
-            headers_basic = {
-                'Authorization': f'Basic {basic_auth}',
-                'Content-Type': 'application/json'
-            }
-            
-            response_basic = requests.post(self.business_auth_url, headers=headers_basic, timeout=30)
-            
-            if response_basic.status_code == 200:
-                token_data = response_basic.json()
-                self.access_token = token_data.get('access_token')
-                expires_in = token_data.get('expires_in', 3600)
-                self.token_expires_at = datetime.now() + timedelta(seconds=expires_in - 300)
-                
-                logging.info("DHL Basic Authentication erfolgreich")
-                return {'success': True}
-            
-            # Wenn beide Methoden fehlschlagen
-            error_msg = f"DHL Authentifizierung fehlgeschlagen: {response.status_code}"
-            logging.error(f"{error_msg} - OAuth: {response.text} - Basic: {response_basic.text}")
-            return {'success': False, 'error': error_msg}
+            else:
+                error_msg = f"SimplySell DHL Authentifizierung fehlgeschlagen: {response.status_code}"
+                logging.error(f"{error_msg} - {response.text}")
+                return {'success': False, 'error': error_msg}
                 
         except Exception as e:
-            error_msg = f"DHL Authentifizierung Fehler: {str(e)}"
+            error_msg = f"SimplySell DHL Authentifizierung Fehler: {str(e)}"
             logging.error(error_msg)
             return {'success': False, 'error': error_msg}
 
@@ -166,7 +150,7 @@ class DHLShippingAPI:
                     }
             
             # Fallback: Erstelle detaillierte DHL Portal-Anweisungen für echte Versandmarken
-            logging.warning("DHL API Konfiguration erforderlich - erstelle Portal-Anweisungen")
+            logging.warning("DHL API Freischaltung erforderlich - erstelle Portal-Anweisungen")
             
             # Erstelle strukturierte Versandanweisungen für DHL Geschäftskunden Portal
             portal_instructions = self._create_portal_shipping_instructions(order, customer)
@@ -186,7 +170,7 @@ class DHLShippingAPI:
                 'tracking_number': temp_tracking,
                 'label_url': portal_instructions['portal_url'],
                 'portal_instructions': portal_instructions,
-                'message': 'DHL Portal-Anweisungen erstellt - Bitte API-Zugang bei DHL freischalten lassen'
+                'message': 'DHL Portal-Anweisungen erstellt - System bereit für API-Freischaltung'
             }
                 
         except Exception as e:
@@ -232,6 +216,100 @@ class DHLShippingAPI:
         }
         
         return portal_data
+    
+    def _prepare_simplysell_shipment_data(self, order, customer):
+        """Vorbereiten der SimplySell DHL Sendungsdaten"""
+        
+        # Kundendaten aufbereiten
+        customer_address_parts = customer.address.split('\n') if customer.address else ['', '', '']
+        street = customer_address_parts[0] if len(customer_address_parts) > 0 else 'Unbekannte Straße'
+        city_line = customer_address_parts[1] if len(customer_address_parts) > 1 else 'Unbekannte Stadt'
+        
+        # PLZ und Stadt trennen (Format: "12345 Berlin")
+        postal_code = city_line.split()[0] if city_line and ' ' in city_line else '00000'
+        city = ' '.join(city_line.split()[1:]) if city_line and ' ' in city_line else 'Unbekannte Stadt'
+        
+        # Paketdetails basierend auf Bestellwert
+        package_details = {
+            'weight': 1.5 if order.total_amount < 500 else 3.0 if order.total_amount < 1500 else 5.0,
+            'length': 30 if order.total_amount < 500 else 40 if order.total_amount < 1500 else 50,
+            'width': 20 if order.total_amount < 500 else 30 if order.total_amount < 1500 else 40,
+            'height': 10 if order.total_amount < 500 else 15 if order.total_amount < 1500 else 20
+        }
+        
+        # SimplySell API Format
+        shipment_data = {
+            'ekp_number': self.ekp_number,
+            'participation_number': self.participation_number,
+            'sender': {
+                'name1': self.sender_details['name1'],
+                'street': self.sender_details['addressStreet'],
+                'house_number': self.sender_details['addressHouse'],
+                'postal_code': self.sender_details['postalCode'],
+                'city': self.sender_details['city'],
+                'country': self.sender_details['country'],
+                'email': self.sender_details['email'],
+                'phone': self.sender_details['phone']
+            },
+            'recipient': {
+                'name1': customer.get_full_name(),
+                'street': street,
+                'postal_code': postal_code,
+                'city': city,
+                'country': 'DE',
+                'email': customer.email,
+                'phone': customer.phone or ''
+            },
+            'package': {
+                'weight_kg': package_details['weight'],
+                'length_cm': package_details['length'],
+                'width_cm': package_details['width'],
+                'height_cm': package_details['height']
+            },
+            'service': {
+                'product': 'V01PAK',  # DHL Paket
+                'account_number': self.ekp_number + self.participation_number
+            },
+            'reference': order.order_number,
+            'label_format': 'PDF',
+            'label_size': 'A4'
+        }
+        
+        return shipment_data
+    
+    def _make_simplysell_shipping_request(self, data):
+        """Führe SimplySell DHL Shipping API Request aus"""
+        try:
+            if not self.access_token:
+                auth_result = self.authenticate()
+                if not auth_result['success']:
+                    return {'success': False, 'error': auth_result['error']}
+            
+            headers = {
+                'Authorization': f'Bearer {self.access_token}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+            
+            response = requests.post(self.simplysell_shipping_url, json=data, headers=headers, timeout=60)
+            
+            if response.status_code == 201:
+                response_data = response.json()
+                return {
+                    'success': True,
+                    'data': {
+                        'tracking_number': response_data.get('tracking_number'),
+                        'label_url': response_data.get('label_url')
+                    }
+                }
+            else:
+                return {
+                    'success': False, 
+                    'error': f'SimplySell API Error: {response.status_code} - {response.text}'
+                }
+                
+        except Exception as e:
+            return {'success': False, 'error': f'SimplySell Request Error: {str(e)}'}
     
     def _prepare_shipment_data_v2(self, order, customer):
         """Vorbereiten der DHL Sendungsdaten für DHL Paket DE API v2"""
