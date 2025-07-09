@@ -448,6 +448,8 @@ class PCConfigurator {
         statusDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Überprüfe Kompatibilität...</div>';
         
         try {
+            console.log('Sending compatibility check with:', this.selectedComponents);
+            
             const response = await fetch('/api/validate-compatibility', {
                 method: 'POST',
                 headers: {
@@ -456,11 +458,22 @@ class PCConfigurator {
                 body: JSON.stringify(this.selectedComponents)
             });
             
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const result = await response.json();
+            console.log('Compatibility result:', result);
             this.displayCompatibilityResults(result);
         } catch (error) {
             console.error('Compatibility check failed:', error);
-            statusDiv.innerHTML = '<div class="alert alert-warning">Kompatibilitätsprüfung nicht verfügbar</div>';
+            statusDiv.innerHTML = `
+                <h4>Kompatibilitätsstatus</h4>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Kompatibilitätsprüfung temporär nicht verfügbar
+                </div>
+            `;
         }
     }
     
@@ -474,8 +487,17 @@ class PCConfigurator {
             html += '<div class="alert alert-success"><i class="fas fa-check"></i> Alle Komponenten sind kompatibel!</div>';
         } else {
             html += '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Kompatibilitätsprobleme gefunden:</div>';
-            result.issues.forEach(issue => {
-                html += `<div class="alert alert-warning">${issue}</div>`;
+            if (result.errors && result.errors.length > 0) {
+                result.errors.forEach(error => {
+                    html += `<div class="alert alert-warning mb-2">${error}</div>`;
+                });
+            }
+        }
+        
+        // Show warnings if any
+        if (result.warnings && result.warnings.length > 0) {
+            result.warnings.forEach(warning => {
+                html += `<div class="alert alert-info mb-2"><i class="fas fa-info-circle"></i> ${warning}</div>`;
             });
         }
         

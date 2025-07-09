@@ -86,14 +86,46 @@ def validate_compatibility():
         errors = []
         warnings = []
         
-        # Get selected components - safely handle missing categories
-        selected_cpu = next((cpu for cpu in components.get('cpus', []) if cpu['id'] == data.get('cpu')), None)
-        selected_mb = next((mb for mb in components.get('motherboards', []) if mb['id'] == data.get('motherboard')), None)
-        selected_ram = next((ram for ram in components.get('ram', []) if ram['id'] == data.get('ram')), None)
-        selected_gpu = next((gpu for gpu in components.get('gpus', []) if gpu['id'] == data.get('gpu')), None)
-        selected_cooler = next((cooler for cooler in components.get('coolers', []) if cooler['id'] == data.get('cooler')), None)
-        selected_case = next((case for case in components.get('cases', []) if case['id'] == data.get('case')), None)
-        selected_psu = next((psu for psu in components.get('psus', []) if psu['id'] == data.get('psu')), None)
+        # Get selected components - safely handle missing categories  
+        # Map database categories to component types
+        category_mapping = {
+            'cpu': 'cpus',
+            'motherboard': 'motherboards', 
+            'ram': 'ram',
+            'gpu': 'gpus',
+            'ssd': 'ssds',
+            'case': 'cases',
+            'psu': 'psus',
+            'cooler': 'coolers'
+        }
+        
+        selected_cpu = None
+        selected_mb = None
+        selected_ram = None
+        selected_gpu = None
+        selected_cooler = None
+        selected_case = None
+        selected_psu = None
+        
+        # Handle all categories from the database structure
+        all_components = {}
+        for category in ['cpus', 'motherboards', 'ram', 'gpus', 'ssds', 'cases', 'psus', 'coolers']:
+            all_components[category] = components.get(category, [])
+        
+        if data.get('cpu'):
+            selected_cpu = next((cpu for cpu in all_components['cpus'] if cpu['id'] == data.get('cpu')), None)
+        if data.get('motherboard'):
+            selected_mb = next((mb for mb in all_components['motherboards'] if mb['id'] == data.get('motherboard')), None)
+        if data.get('ram'):
+            selected_ram = next((ram for ram in all_components['ram'] if ram['id'] == data.get('ram')), None)
+        if data.get('gpu'):
+            selected_gpu = next((gpu for gpu in all_components['gpus'] if gpu['id'] == data.get('gpu')), None)
+        if data.get('cooler'):
+            selected_cooler = next((cooler for cooler in all_components['coolers'] if cooler['id'] == data.get('cooler')), None)
+        if data.get('case'):
+            selected_case = next((case for case in all_components['cases'] if case['id'] == data.get('case')), None)
+        if data.get('psu'):
+            selected_psu = next((psu for psu in all_components['psus'] if psu['id'] == data.get('psu')), None)
         
         # CPU and Motherboard socket compatibility
         if selected_cpu and selected_mb:

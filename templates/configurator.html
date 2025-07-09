@@ -186,28 +186,6 @@
                     <div class="component-section" id="step-3" style="display: none;">
                         <div class="category-header">
                             <h3><i class="fas fa-memory"></i> RAM (Arbeitsspeicher)</h3>
-                        </div>
-                        
-                        <div class="component-selection">
-                            {% for ram in components.ram %}
-                            <div class="component-card" data-category="ram" data-id="{{ ram.id }}">
-                                <div class="component-name">{{ ram.name }}</div>
-                                <div class="component-price">€{{ "%.2f"|format(ram.price) }}</div>
-                                <div class="component-specs">
-                                    {{ ram.capacity }}GB {{ ram.type }} • 
-                                    {{ ram.speed }}MHz • 
-                                    {{ ram.modules }} Module • 
-                                    {{ ram.latency }}
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- RAM Selection -->
-                    <div class="component-section" id="step-3" style="display: none;">
-                        <div class="category-header">
-                            <h3><i class="fas fa-memory"></i> RAM (Arbeitsspeicher)</h3>
                             
                             <!-- Filter and Search Controls -->
                             <div class="filter-controls">
