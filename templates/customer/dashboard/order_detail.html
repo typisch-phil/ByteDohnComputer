@@ -157,14 +157,17 @@
                     </div>
                     {% endif %}
                     
-                    {% if order.invoice and order.invoice|length > 0 %}
+                    {% if order.invoice %}
+                    {% set invoice = order.invoice[0] if order.invoice is iterable and order.invoice else order.invoice %}
+                    {% if invoice %}
                     <hr>
                     <div class="d-grid">
-                        <a href="{{ url_for('customer_dashboard.invoice_detail', invoice_id=order.invoice[0].id) }}" 
+                        <a href="{{ url_for('customer_dashboard.invoice_detail', invoice_id=invoice.id) }}" 
                            class="btn btn-outline-primary">
                             <i class="fas fa-file-invoice"></i> Rechnung ansehen
                         </a>
                     </div>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>

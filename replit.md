@@ -113,6 +113,7 @@ The application is designed for flexible deployment:
 - July 09, 2025: DHL API-Integration vollständig implementiert - Automatische Versandetiketten-Erstellung, Sendungsverfolgung, Admin-Panel Integration mit tracking_number und shipping_label_url Feldern, öffentliche Tracking-Seite unter /sendungsverfolgung
 - July 09, 2025: Alternative DHL Tracking-Systeme implementiert - Weiterleitung zu DHL.de, 17track.net, ParcelsApp.com als Fallback-Optionen ohne API-Schlüssel
 - July 09, 2025: Kundendashboard auf traditionelles Design umgestellt - Behält alle modernen Funktionen (Bestellungen, Rechnungen, Konfigurationen, Tracking) aber mit klassischem Layout
+- July 09, 2025: Dashboard auf ursprüngliches, ganz einfaches Design zurückgesetzt - Minimaler Header, einfache Navigation, grundlegende Card-Layouts ohne komplexe Styling-Effekte
 
 ## User Preferences
 

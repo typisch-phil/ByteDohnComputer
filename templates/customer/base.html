@@ -3,85 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Kunden-Dashboard - ByteDohm.de{% endblock %}</title>
+    <title>{% block title %}Dashboard - ByteDohm.de{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body class="bg-light">
+    <!-- Simple Header -->
+    <header class="bg-white shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="fas fa-microchip"></i> ByteDohm.de
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('customer_dashboard.dashboard') }}">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('customer_dashboard.orders') }}">
-                            <i class="fas fa-box"></i> Bestellungen
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('customer_dashboard.invoices') }}">
-                            <i class="fas fa-file-invoice"></i> Rechnungen
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('customer_dashboard.configurations') }}">
-                            <i class="fas fa-cogs"></i> Konfigurationen
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('customer_dashboard.profile') }}">
-                            <i class="fas fa-user"></i> Profil
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle"></i> 
-                            {% if current_user.first_name %}
-                                {{ current_user.first_name }}
-                            {% else %}
-                                Konto
-                            {% endif %}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('customer_dashboard.profile') }}">
-                                <i class="fas fa-user"></i> Profil
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('customer_dashboard.settings') }}">
-                                <i class="fas fa-cog"></i> Einstellungen
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('customer_auth.logout') }}">
-                                <i class="fas fa-sign-out-alt"></i> Abmelden
-                            </a></li>
-                        </ul>
-                    </li>
-                </ul>
+            <div class="d-flex justify-content-between align-items-center py-3">
+                <h1 class="h4 mb-0">
+                    <a href="{{ url_for('index') }}" class="text-decoration-none text-dark">
+                        <i class="fas fa-microchip text-primary"></i> ByteDohm.de
+                    </a>
+                </h1>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted">
+                        Willkommen, {% if current_user.first_name %}{{ current_user.first_name }}{% else %}Kunde{% endif %}
+                    </span>
+                    <a href="{{ url_for('customer_auth.logout') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Abmelden
+                    </a>
+                </div>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
