@@ -37,11 +37,11 @@
                     <h6 class="small text-muted mb-2">Komponenten:</h6>
                     {% set components = config.components|from_json %}
                     <div class="small">
-                        {% for category, component in components.items() %}
-                            {% if component and component.name %}
+                        {% for category, component_id in components.items() %}
+                            {% if component_id %}
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">{{ category|title }}:</span>
-                                <span>{{ component.name[:30] }}{% if component.name|length > 30 %}...{% endif %}</span>
+                                <span>Komponente ID: {{ component_id }}</span>
                             </div>
                             {% endif %}
                         {% endfor %}

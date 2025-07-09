@@ -28,7 +28,7 @@ class Configuration(db.Model):
     name = db.Column(db.String(100), nullable=False)
     components = db.Column(db.Text, nullable=False)  # JSON string of selected components
     total_price = db.Column(db.Float, nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=True)  # Link to customer
+    customer_id = db.Column(db.Integer, nullable=True)  # Link to customer (no FK for now)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):

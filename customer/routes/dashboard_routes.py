@@ -23,13 +23,10 @@ def dashboard():
     total_spent = customer.get_total_spent()
     recent_orders = customer.get_recent_orders(limit=5)
     
-    # Get customer configurations (safely handle missing customer_id column)
-    try:
-        recent_configs = Configuration.query.filter_by(
-            customer_id=customer.id
-        ).order_by(desc(Configuration.created_at)).limit(5).all()
-    except:
-        recent_configs = []
+    # Get customer configurations
+    recent_configs = Configuration.query.filter_by(
+        customer_id=customer.id
+    ).order_by(desc(Configuration.created_at)).limit(5).all()
     
     # Order status counts
     order_status_counts = {}
@@ -94,28 +91,14 @@ def configurations():
     page = request.args.get('page', 1, type=int)
     per_page = 10
     
-    # Get configurations with pagination (safely handle missing customer_id column)
-    try:
-        configs = Configuration.query.filter_by(
-            customer_id=customer.id
-        ).order_by(desc(Configuration.created_at)).paginate(
-            page=page, 
-            per_page=per_page, 
-            error_out=False
-        )
-    except:
-        # Create empty pagination object
-        from werkzeug.datastructures import ImmutableMultiDict
-        configs = type('EmptyPagination', (), {
-            'items': [], 
-            'pages': 0, 
-            'has_prev': False, 
-            'has_next': False,
-            'prev_num': None,
-            'next_num': None,
-            'page': 1,
-            'iter_pages': lambda: []
-        })()
+    # Get configurations with pagination
+    configs = Configuration.query.filter_by(
+        customer_id=customer.id
+    ).order_by(desc(Configuration.created_at)).paginate(
+        page=page, 
+        per_page=per_page, 
+        error_out=False
+    )
     
     return render_template('customer/dashboard/configurations.html', configs=configs)
 

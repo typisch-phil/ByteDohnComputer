@@ -221,11 +221,21 @@ def save_configuration():
         if not data.get('name') or not data.get('components'):
             return jsonify({'error': 'Name und Komponenten sind erforderlich'}), 400
         
+        # Get current customer if logged in
+        customer_id = None
+        try:
+            from flask_login import current_user
+            if current_user.is_authenticated and hasattr(current_user, 'id'):
+                customer_id = current_user.id
+        except:
+            pass
+        
         # Save configuration to database
         config = Configuration(
             name=data['name'],
             components=json.dumps(data['components']),
             total_price=data.get('total_price', 0),
+            customer_id=customer_id,
             created_at=datetime.utcnow()
         )
         
@@ -283,12 +293,22 @@ def create_checkout_session():
         if not line_items:
             return jsonify({'error': 'Keine gültigen Komponenten gefunden'}), 400
         
+        # Get current customer if logged in
+        customer_id = None
+        try:
+            from flask_login import current_user
+            if current_user.is_authenticated and hasattr(current_user, 'id'):
+                customer_id = current_user.id
+        except:
+            pass
+        
         # Save configuration before checkout
         config_name = data.get('config_name', f"PC-Konfiguration {datetime.now().strftime('%Y-%m-%d %H:%M')}")
         config = Configuration(
             name=config_name,
             components=json.dumps(data['components']),
             total_price=data['total_price'],
+            customer_id=customer_id,
             created_at=datetime.utcnow()
         )
         

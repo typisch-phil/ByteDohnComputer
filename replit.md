@@ -109,6 +109,7 @@ The application is designed for flexible deployment:
 - July 09, 2025: Admin-Dashboard erweitert - Vollständige Bestellverwaltung, Kundendatenbank, Rechnungssystem und detaillierte Statistiken implementiert
 - July 09, 2025: Vollständige Stripe-Integration - Automatische Kunden- und Bestellerstellung, Webhook-System, Rechnungsautomation, erweiterte Dashboard-Statistiken
 - July 09, 2025: Kundensystem vollständig implementiert - Registrierung, Login, Dashboard mit MySQL-Backend, sichere Passwort-Hashing, separate customer/ Ordnerstruktur
+- July 09, 2025: Konfigurationsspeicherung behoben - customer_id-Spalte hinzugefügt, Konfigurationen werden korrekt mit eingeloggten Benutzern verknüpft, Dashboard zeigt gespeicherte Konfigurationen an
 
 ## User Preferences
 
