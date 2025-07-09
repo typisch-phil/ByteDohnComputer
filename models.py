@@ -28,6 +28,7 @@ class Configuration(db.Model):
     name = db.Column(db.String(100), nullable=False)
     components = db.Column(db.Text, nullable=False)  # JSON string of selected components
     total_price = db.Column(db.Float, nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=True)  # Link to customer
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):
@@ -91,7 +92,7 @@ class PrebuiltPC(db.Model):
     def __repr__(self):
         return f'<PrebuiltPC {self.name}>'
 
-class Customer(db.Model):
+class Customer(UserMixin, db.Model):
     __tablename__ = 'customers'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), nullable=False)
@@ -101,8 +102,42 @@ class Customer(db.Model):
     address = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationship to orders
+    # Relationships
     orders = db.relationship('Order', backref='customer', lazy=True)
+    
+    def set_password(self, password):
+        """Set password hash - placeholder until migration"""
+        pass
+    
+    def check_password(self, password):
+        """Check password against hash - placeholder until migration"""
+        return False
+    
+    def get_full_name(self):
+        """Get full name"""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.email
+    
+    def get_full_address(self):
+        """Get formatted full address"""
+        return self.address or ''
+    
+    def get_order_count(self):
+        """Get total number of orders"""
+        return len(self.orders)
+    
+    def get_total_spent(self):
+        """Get total amount spent"""
+        return sum(order.total_amount for order in self.orders if order.payment_status == 'paid')
+    
+    def get_recent_orders(self, limit=5):
+        """Get recent orders"""
+        return sorted(self.orders, key=lambda x: x.created_at, reverse=True)[:limit]
+    
+    def update_last_login(self):
+        """Update last login timestamp - placeholder until migration"""
+        pass
     
     def __repr__(self):
         return f'<Customer {self.email}>'
@@ -156,3 +191,21 @@ class Invoice(db.Model):
     
     def __repr__(self):
         return f'<Invoice {self.invoice_number}>'
+
+
+class CustomerSession(db.Model):
+    __tablename__ = 'customer_sessions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=False)
+    session_token = db.Column(db.String(255), unique=True, nullable=False)
+    ip_address = db.Column(db.String(45), nullable=True)
+    user_agent = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    customer = db.relationship('Customer', backref='sessions')
+    
+    def __repr__(self):
+        return f'<CustomerSession {self.customer_id}>'

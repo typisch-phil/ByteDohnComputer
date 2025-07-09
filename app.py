@@ -56,6 +56,13 @@ def from_json_filter(value):
 from routes import *
 from admin_routes import *
 
+# Register customer blueprints
+from customer.routes.auth_routes import customer_auth
+from customer.routes.dashboard_routes import customer_dashboard
+
+app.register_blueprint(customer_auth)
+app.register_blueprint(customer_dashboard)
+
 with app.app_context():
     # Import models to ensure tables are created
     import models

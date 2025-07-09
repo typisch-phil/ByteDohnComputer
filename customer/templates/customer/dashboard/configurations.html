@@ -1,0 +1,167 @@
+{% extends "customer/dashboard/base.html" %}
+
+{% block title %}Meine Konfigurationen - ByteDohm.de{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Gespeicherte Konfigurationen</h1>
+            <a href="{{ url_for('configurator') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Neue Konfiguration
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if configs.items %}
+<div class="row">
+    {% for config in configs.items %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="card-title mb-0">{{ config.name }}</h5>
+                    <span class="badge bg-primary">{{ "%.2f"|format(config.total_price) }}€</span>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        Erstellt: {{ config.created_at.strftime('%d.%m.%Y um %H:%M') }}
+                    </small>
+                </div>
+                
+                {% if config.components %}
+                <div class="mb-3">
+                    <h6 class="small text-muted mb-2">Komponenten:</h6>
+                    {% set components = config.components|from_json %}
+                    <div class="small">
+                        {% for category, component in components.items() %}
+                            {% if component and component.name %}
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">{{ category|title }}:</span>
+                                <span>{{ component.name[:30] }}{% if component.name|length > 30 %}...{% endif %}</span>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="card-footer bg-transparent">
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('configurator') }}?load={{ config.id }}" 
+                       class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="fas fa-edit me-1"></i>Bearbeiten
+                    </a>
+                    <button class="btn btn-outline-danger btn-sm" 
+                            onclick="deleteConfiguration({{ config.id }}, '{{ config.name }}')">
+                        <i class="fas fa-trash me-1"></i>Löschen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if configs.pages > 1 %}
+<nav aria-label="Konfigurationen Navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if configs.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('customer_dashboard.configurations', page=configs.prev_num) }}">
+                <i class="fas fa-chevron-left"></i> Vorherige
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in configs.iter_pages() %}
+            {% if page_num %}
+                {% if page_num != configs.page %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('customer_dashboard.configurations', page=page_num) }}">{{ page_num }}</a>
+                </li>
+                {% else %}
+                <li class="page-item active">
+                    <span class="page-link">{{ page_num }}</span>
+                </li>
+                {% endif %}
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">…</span>
+            </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if configs.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('customer_dashboard.configurations', page=configs.next_num) }}">
+                Nächste <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<!-- No Configurations -->
+<div class="text-center py-5">
+    <i class="fas fa-cogs fa-4x text-muted mb-4"></i>
+    <h4 class="mb-3">Noch keine Konfigurationen</h4>
+    <p class="text-muted mb-4">Sie haben noch keine PC-Konfigurationen gespeichert. Erstellen Sie jetzt Ihre erste Konfiguration!</p>
+    <a href="{{ url_for('configurator') }}" class="btn btn-primary btn-lg">
+        <i class="fas fa-plus me-2"></i>Erste Konfiguration erstellen
+    </a>
+</div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Konfiguration löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sind Sie sicher, dass Sie die Konfiguration <strong id="configName"></strong> löschen möchten?</p>
+                <p class="text-muted mb-0">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Löschen</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let configToDelete = null;
+
+function deleteConfiguration(configId, configName) {
+    configToDelete = configId;
+    document.getElementById('configName').textContent = configName;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (configToDelete) {
+        // TODO: Implement delete functionality via AJAX
+        // For now, just hide the modal and show a message
+        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+        
+        // Show placeholder message
+        alert('Löschfunktion wird in Kürze implementiert. Bitte kontaktieren Sie den Support.');
+        
+        configToDelete = null;
+    }
+});
+</script>
+{% endblock %}

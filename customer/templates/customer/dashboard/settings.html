@@ -1,0 +1,205 @@
+{% extends "customer/dashboard/base.html" %}
+
+{% block title %}Einstellungen - ByteDohm.de{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="h3 mb-4">Kontoeinstellungen</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Account Security -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>Kontosicherheit
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-key fa-2x text-primary me-3"></i>
+                            <div>
+                                <h6 class="mb-1">Passwort</h6>
+                                <small class="text-muted">Zuletzt geändert: Nie</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        <a href="{{ url_for('customer_dashboard.change_password') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i>Passwort ändern
+                        </a>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-envelope fa-2x text-success me-3"></i>
+                            <div>
+                                <h6 class="mb-1">E-Mail-Verifizierung</h6>
+                                <small class="{% if customer.email_verified %}text-success{% else %}text-warning{% endif %}">
+                                    {% if customer.email_verified %}
+                                        E-Mail verifiziert
+                                    {% else %}
+                                        E-Mail nicht verifiziert
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        {% if not customer.email_verified %}
+                        <button class="btn btn-outline-warning" onclick="resendVerification()">
+                            <i class="fas fa-paper-plane me-2"></i>Verifizierung senden
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user-secret me-2"></i>Datenschutz
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('customer_dashboard.profile') }}">
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter"
+                                   {{ 'checked' if customer.newsletter_subscription else '' }}>
+                            <label class="form-check-label" for="newsletter">
+                                <strong>Newsletter-Abonnement</strong>
+                                <br><small class="text-muted">Erhalten Sie Angebote und Neuigkeiten per E-Mail</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Einstellungen speichern
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Data Export -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-download me-2"></i>Datenexport
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Laden Sie eine Kopie Ihrer gespeicherten Daten herunter.</p>
+                <button class="btn btn-outline-info" onclick="exportData()">
+                    <i class="fas fa-file-export me-2"></i>Daten exportieren
+                </button>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Gefahrenbereich
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>Konto löschen</h6>
+                <p class="text-muted mb-3">
+                    Das Löschen Ihres Kontos ist permanent und kann nicht rückgängig gemacht werden. 
+                    Alle Ihre Daten, Bestellungen und Konfigurationen werden unwiderruflich gelöscht.
+                </p>
+                <a href="{{ url_for('customer_dashboard.delete_account') }}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash me-2"></i>Konto löschen
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Account Summary -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Kontoinformationen</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="user-avatar mx-auto mb-2" style="width: 80px; height: 80px; font-size: 2rem;">
+                        {{ customer.first_name[0]|upper }}{{ customer.last_name[0]|upper }}
+                    </div>
+                    <h6 class="mb-1">{{ customer.get_full_name() }}</h6>
+                    <small class="text-muted">{{ customer.email }}</small>
+                </div>
+                
+                <hr>
+                
+                <div class="small">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Mitglied seit:</span>
+                        <span>{{ customer.created_at.strftime('%d.%m.%Y') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Bestellungen:</span>
+                        <span>{{ customer.get_order_count() }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Ausgegeben:</span>
+                        <span>{{ "%.2f"|format(customer.get_total_spent()) }}€</span>
+                    </div>
+                    {% if customer.last_login %}
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Letzter Login:</span>
+                        <span>{{ customer.last_login.strftime('%d.%m.%Y') }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Schnellzugriff</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('customer_dashboard.profile') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-user me-2"></i>Profil bearbeiten
+                    </a>
+                    <a href="{{ url_for('customer_dashboard.orders') }}" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-shopping-cart me-2"></i>Bestellhistorie
+                    </a>
+                    <a href="{{ url_for('customer_dashboard.configurations') }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-cogs me-2"></i>Konfigurationen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function resendVerification() {
+    // TODO: Implement email verification resend
+    alert('E-Mail-Verifizierung wird in Kürze implementiert.');
+}
+
+function exportData() {
+    // TODO: Implement data export
+    alert('Datenexport wird in Kürze implementiert.');
+}
+</script>
+{% endblock %}

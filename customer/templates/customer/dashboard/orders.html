@@ -1,0 +1,143 @@
+{% extends "customer/dashboard/base.html" %}
+
+{% block title %}Meine Bestellungen - ByteDohm.de{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Meine Bestellungen</h1>
+        </div>
+    </div>
+</div>
+
+{% if orders.items %}
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Bestellnummer</th>
+                        <th>Datum</th>
+                        <th>Typ</th>
+                        <th>Betrag</th>
+                        <th>Status</th>
+                        <th>Zahlung</th>
+                        <th class="text-end">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders.items %}
+                    <tr>
+                        <td>
+                            <strong>{{ order.order_number }}</strong>
+                        </td>
+                        <td>{{ order.created_at.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                {% if order.order_type == 'custom' %}
+                                    Konfiguration
+                                {% elif order.order_type == 'prebuilt' %}
+                                    Fertig-PC
+                                {% else %}
+                                    {{ order.order_type|title }}
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ "%.2f"|format(order.total_amount) }} €</strong>
+                        </td>
+                        <td>
+                            <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'processing' %}bg-info{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'delivered' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {% if order.status == 'pending' %}Ausstehend
+                                {% elif order.status == 'processing' %}In Bearbeitung
+                                {% elif order.status == 'shipped' %}Versendet
+                                {% elif order.status == 'delivered' %}Geliefert
+                                {% elif order.status == 'cancelled' %}Storniert
+                                {% else %}{{ order.status|title }}
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {% if order.payment_status == 'paid' %}bg-success{% elif order.payment_status == 'pending' %}bg-warning{% elif order.payment_status == 'failed' %}bg-danger{% elif order.payment_status == 'refunded' %}bg-info{% else %}bg-secondary{% endif %}">
+                                {% if order.payment_status == 'paid' %}Bezahlt
+                                {% elif order.payment_status == 'pending' %}Ausstehend
+                                {% elif order.payment_status == 'failed' %}Fehlgeschlagen
+                                {% elif order.payment_status == 'refunded' %}Erstattet
+                                {% else %}{{ order.payment_status|title }}
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('customer_dashboard.order_detail', order_id=order.id) }}" 
+                               class="btn btn-outline-primary btn-sm" title="Details anzeigen">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if orders.pages > 1 %}
+<nav aria-label="Bestellungen Navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if orders.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('customer_dashboard.orders', page=orders.prev_num) }}">
+                <i class="fas fa-chevron-left"></i> Vorherige
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in orders.iter_pages() %}
+            {% if page_num %}
+                {% if page_num != orders.page %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('customer_dashboard.orders', page=page_num) }}">{{ page_num }}</a>
+                </li>
+                {% else %}
+                <li class="page-item active">
+                    <span class="page-link">{{ page_num }}</span>
+                </li>
+                {% endif %}
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">…</span>
+            </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if orders.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('customer_dashboard.orders', page=orders.next_num) }}">
+                Nächste <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<!-- No Orders -->
+<div class="text-center py-5">
+    <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
+    <h4 class="mb-3">Noch keine Bestellungen</h4>
+    <p class="text-muted mb-4">Sie haben noch keine Bestellungen getätigt. Starten Sie jetzt mit Ihrer ersten PC-Konfiguration!</p>
+    <div class="d-flex gap-2 justify-content-center">
+        <a href="{{ url_for('configurator') }}" class="btn btn-primary">
+            <i class="fas fa-cogs me-2"></i>PC konfigurieren
+        </a>
+        <a href="{{ url_for('prebuild') }}" class="btn btn-outline-primary">
+            <i class="fas fa-computer me-2"></i>Fertig-PCs ansehen
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
