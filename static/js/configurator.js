@@ -63,7 +63,8 @@ class PCConfigurator {
         this.setupFilterListeners();
         
         // Global clear filters function
-        window.clearFilters = (category) => {
+        const self = this;
+        window.clearFilters = function(category) {
             // Reset search
             const searchInput = document.getElementById(`search-${category}`);
             if (searchInput) searchInput.value = '';
@@ -73,7 +74,7 @@ class PCConfigurator {
             selects.forEach(select => select.value = '');
             
             // Reapply filters (which will show all items)
-            this.applyFilters(category);
+            self.applyFilters(category);
         };
     }
     
@@ -125,17 +126,25 @@ class PCConfigurator {
     }
     
     applyFilters(category) {
+        console.log(`Applying filters for category: ${category}`);
         const cards = document.querySelectorAll(`.component-card[data-category="${category}"]`);
+        console.log(`Found ${cards.length} cards for category ${category}`);
+        
         const searchTerm = this.getFilterValue(`search-${category}`);
+        console.log(`Search term: ${searchTerm}`);
         
         let filteredCards = Array.from(cards);
         
         // Apply search filter
-        if (searchTerm) {
+        if (searchTerm && searchTerm.trim() !== '') {
             filteredCards = filteredCards.filter(card => {
-                const name = card.querySelector('.component-name').textContent.toLowerCase();
-                const specs = card.querySelector('.component-specs').textContent.toLowerCase();
-                return name.includes(searchTerm.toLowerCase()) || specs.includes(searchTerm.toLowerCase());
+                const nameEl = card.querySelector('.component-name');
+                const specsEl = card.querySelector('.component-specs');
+                const name = nameEl ? nameEl.textContent.toLowerCase() : '';
+                const specs = specsEl ? specsEl.textContent.toLowerCase() : '';
+                const searchLower = searchTerm.toLowerCase().trim();
+                const matches = name.includes(searchLower) || specs.includes(searchLower);
+                return matches;
             });
         }
         
@@ -146,8 +155,17 @@ class PCConfigurator {
         filteredCards = this.applySorting(category, filteredCards);
         
         // Show/hide cards
-        cards.forEach(card => card.classList.add('hidden'));
-        filteredCards.forEach(card => card.classList.remove('hidden'));
+        cards.forEach(card => {
+            if (filteredCards.includes(card)) {
+                card.classList.remove('hidden');
+                card.style.display = '';
+            } else {
+                card.classList.add('hidden');
+                card.style.display = 'none';
+            }
+        });
+        
+        console.log(`Filtered to ${filteredCards.length} cards`);
         
         // Show no results message if needed
         this.showNoResultsMessage(category, filteredCards.length === 0);
