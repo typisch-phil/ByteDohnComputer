@@ -133,8 +133,8 @@ class PCConfigurator {
             if (element) {
                 const eventType = filterId.startsWith('search-') ? 'input' : 'change';
                 element.addEventListener(eventType, () => {
-                    console.log(`Filter changed: ${filterId} for category ${category}`);
-                    this.applyFilters(category);
+                    console.log(`Filter triggered: ${filterId} = "${element.value}" for category ${category}`);
+                    setTimeout(() => this.applyFilters(category), 10);
                 });
                 console.log(`Added event listener for ${filterId}`);
             } else {
@@ -224,16 +224,25 @@ class PCConfigurator {
             const socket = this.getFilterValue('filter-cpu-socket');
             const cores = this.getFilterValue('filter-cpu-cores');
             
+            console.log(`CPU filters - socket: "${socket}", cores: "${cores}"`);
+            
             return cards.filter(card => {
                 const specsEl = card.querySelector('.component-specs');
                 const specs = specsEl ? specsEl.textContent : '';
                 
-                if (socket && !specs.includes(`Socket ${socket}`)) return false;
+                console.log(`Checking CPU card specs: "${specs}"`);
                 
-                if (cores) {
+                if (socket && socket !== '') {
+                    const socketMatch = specs.includes(`Socket ${socket}`);
+                    console.log(`Socket filter "${socket}" matches: ${socketMatch}`);
+                    if (!socketMatch) return false;
+                }
+                
+                if (cores && cores !== '') {
                     const coresMatch = specs.match(/(\d+) Kerne/);
                     if (coresMatch) {
                         const cardCores = parseInt(coresMatch[1]);
+                        console.log(`Cores filter "${cores}" vs card cores: ${cardCores}`);
                         if (cores === '12' && cardCores < 12) return false;
                         if (cores !== '12' && cardCores !== parseInt(cores)) return false;
                     }
