@@ -864,9 +864,15 @@ class PCConfigurator {
         
         for (const [category, componentId] of Object.entries(this.selectedComponents)) {
             if (componentId) {
+                // Handle category name mapping for cart
+                let categoryKey = category + 's';
+                if (category === 'ram') {
+                    categoryKey = 'ram'; // RAM category doesn't use plural
+                }
+                
                 newCart.push({
                     componentId: componentId,
-                    category: category + 's', // Add 's' for API consistency
+                    category: categoryKey,
                     quantity: 1,
                     addedAt: new Date().toISOString()
                 });
@@ -895,16 +901,24 @@ class PCConfigurator {
         
         // Calculate price from selected components
         for (const [category, componentId] of Object.entries(this.selectedComponents)) {
-            if (componentId && this.components[category + 's']) {
-                const component = this.components[category + 's'].find(c => c.id === componentId);
-                if (component && component.price) {
-                    console.log(`Found component ${category}: ${component.name} - €${component.price}`);
-                    total += component.price;
-                } else {
-                    console.warn(`Component not found or no price: ${category} ID ${componentId}`);
+            if (componentId) {
+                // Handle category name mapping (some categories don't need 's')
+                let categoryKey = category + 's';
+                if (category === 'ram') {
+                    categoryKey = 'ram'; // RAM category doesn't use plural
                 }
-            } else if (componentId) {
-                console.warn(`No components data for category: ${category}s`);
+                
+                if (this.components[categoryKey]) {
+                    const component = this.components[categoryKey].find(c => c.id === componentId);
+                    if (component && component.price) {
+                        console.log(`Found component ${category}: ${component.name} - €${component.price}`);
+                        total += component.price;
+                    } else {
+                        console.warn(`Component not found or no price: ${category} ID ${componentId}`);
+                    }
+                } else {
+                    console.warn(`No components data for category: ${categoryKey}`);
+                }
             }
         }
         

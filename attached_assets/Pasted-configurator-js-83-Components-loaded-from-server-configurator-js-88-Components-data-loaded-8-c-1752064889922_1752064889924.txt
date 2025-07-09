@@ -1,0 +1,348 @@
+configurator.js:83 Components loaded from server
+configurator.js:88 Components data loaded: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:89 Total components: 9
+configurator.js:201 Added event listener for search-cpu
+configurator.js:201 Added event listener for filter-cpu-socket
+configurator.js:201 Added event listener for filter-cpu-cores
+configurator.js:201 Added event listener for sort-cpu
+configurator.js:201 Added event listener for search-motherboard
+configurator.js:201 Added event listener for filter-mb-socket
+configurator.js:201 Added event listener for filter-mb-form-factor
+configurator.js:201 Added event listener for sort-motherboard
+configurator.js:201 Added event listener for search-ram
+configurator.js:201 Added event listener for filter-ram-type
+configurator.js:201 Added event listener for filter-ram-capacity
+configurator.js:201 Added event listener for sort-ram
+configurator.js:201 Added event listener for search-gpu
+configurator.js:201 Added event listener for filter-gpu-memory
+configurator.js:201 Added event listener for filter-gpu-brand
+configurator.js:201 Added event listener for sort-gpu
+configurator.js:201 Added event listener for search-ssd
+configurator.js:201 Added event listener for filter-ssd-capacity
+configurator.js:201 Added event listener for filter-ssd-interface
+configurator.js:201 Added event listener for sort-ssd
+configurator.js:201 Added event listener for search-case
+configurator.js:201 Added event listener for filter-case-form-factor
+configurator.js:201 Added event listener for filter-case-size
+configurator.js:201 Added event listener for sort-case
+configurator.js:201 Added event listener for search-psu
+configurator.js:201 Added event listener for filter-psu-wattage
+configurator.js:201 Added event listener for filter-psu-efficiency
+configurator.js:201 Added event listener for sort-psu
+configurator.js:201 Added event listener for search-cooler
+configurator.js:201 Added event listener for filter-cooler-type
+configurator.js:201 Added event listener for filter-cooler-socket
+configurator.js:201 Added event listener for sort-cooler
+configurator.js:893 Calculating total price. Selected components: {cpu: null, motherboard: null, ram: null, gpu: null, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:911 Total calculated price: 0
+configurator.js:917 Updating total price: 0
+configurator.js:921 Total price element updated: 0,00 €
+configurator.js:38 === TESTING ALL INPUTS ===
+configurator.js:47 ✓ Found element: search-cpu, type: INPUT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: filter-cpu-socket, type: SELECT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: filter-cpu-cores, type: SELECT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: search-motherboard, type: INPUT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: filter-mb-socket, type: SELECT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:563 Selected cpu component 1
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: null, ram: null, gpu: null, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:911 Total calculated price: 449.99
+configurator.js:917 Updating total price: 449.99
+configurator.js:921 Total price element updated: 449,99 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: null, ram: null, gpu: null, ssd: null, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: null, ram: null, gpu: null, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:911 Total calculated price: 449.99
+configurator.js:917 Updating total price: 449.99
+configurator.js:921 Total price element updated: 449,99 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
+configurator.js:563 Selected motherboard component 4
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: null, gpu: null, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:911 Total calculated price: 849.98
+configurator.js:917 Updating total price: 849.98
+configurator.js:921 Total price element updated: 849,98 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: 4, ram: null, gpu: null, ssd: null, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: null, gpu: null, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:911 Total calculated price: 849.98
+configurator.js:917 Updating total price: 849.98
+configurator.js:921 Total price element updated: 849,98 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
+configurator.js:563 Selected ram component 5
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: null, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+clearSubsequentSelections @ configurator.js:601
+selectComponent @ configurator.js:566
+(anonymous) @ configurator.js:100
+configurator.js:911 Total calculated price: 849.98
+configurator.js:917 Updating total price: 849.98
+configurator.js:921 Total price element updated: 849,98 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: 4, ram: 5, gpu: null, ssd: null, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: null, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+selectComponent @ configurator.js:574
+(anonymous) @ configurator.js:100
+configurator.js:911 Total calculated price: 849.98
+configurator.js:917 Updating total price: 849.98
+configurator.js:921 Total price element updated: 849,98 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
+configurator.js:563 Selected gpu component 3
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+clearSubsequentSelections @ configurator.js:601
+selectComponent @ configurator.js:566
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:911 Total calculated price: 2049.9700000000003
+configurator.js:917 Updating total price: 2049.9700000000003
+configurator.js:921 Total price element updated: 2.049,97 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: null, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+selectComponent @ configurator.js:574
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:911 Total calculated price: 2049.9700000000003
+configurator.js:917 Updating total price: 2049.9700000000003
+configurator.js:921 Total price element updated: 2.049,97 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
+configurator.js:563 Selected ssd component 7
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+clearSubsequentSelections @ configurator.js:601
+selectComponent @ configurator.js:566
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:911 Total calculated price: 2169.9700000000003
+configurator.js:917 Updating total price: 2169.9700000000003
+configurator.js:921 Total price element updated: 2.169,97 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+selectComponent @ configurator.js:574
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:911 Total calculated price: 2169.9700000000003
+configurator.js:917 Updating total price: 2169.9700000000003
+configurator.js:921 Total price element updated: 2.169,97 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
+configurator.js:534 Deselecting ssd component 7
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+clearSubsequentSelections @ configurator.js:601
+selectComponent @ configurator.js:541
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:911 Total calculated price: 2049.9700000000003
+configurator.js:917 Updating total price: 2049.9700000000003
+configurator.js:921 Total price element updated: 2.049,97 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: null, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: null, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+selectComponent @ configurator.js:549
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:911 Total calculated price: 2049.9700000000003
+configurator.js:917 Updating total price: 2049.9700000000003
+configurator.js:921 Total price element updated: 2.049,97 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
+configurator.js:563 Selected ssd component 7
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+clearSubsequentSelections @ configurator.js:601
+selectComponent @ configurator.js:566
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:911 Total calculated price: 2169.9700000000003
+configurator.js:917 Updating total price: 2169.9700000000003
+configurator.js:921 Total price element updated: 2.169,97 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+selectComponent @ configurator.js:574
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:911 Total calculated price: 2169.9700000000003
+configurator.js:917 Updating total price: 2169.9700000000003
+configurator.js:921 Total price element updated: 2.169,97 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
+configurator.js:563 Selected case component 8
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+clearSubsequentSelections @ configurator.js:601
+selectComponent @ configurator.js:566
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:901 Found component case: Fractal Design Define 7 - €120
+configurator.js:911 Total calculated price: 2289.9700000000003
+configurator.js:917 Updating total price: 2289.9700000000003
+configurator.js:921 Total price element updated: 2.289,97 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+selectComponent @ configurator.js:574
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:901 Found component case: Fractal Design Define 7 - €120
+configurator.js:911 Total calculated price: 2289.9700000000003
+configurator.js:917 Updating total price: 2289.9700000000003
+configurator.js:921 Total price element updated: 2.289,97 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
+configurator.js:563 Selected psu component 9
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+clearSubsequentSelections @ configurator.js:601
+selectComponent @ configurator.js:566
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:901 Found component case: Fractal Design Define 7 - €120
+configurator.js:901 Found component psu: Corsair RM850x 850W 80+ Gold - €145
+configurator.js:911 Total calculated price: 2434.9700000000003
+configurator.js:917 Updating total price: 2434.9700000000003
+configurator.js:921 Total price element updated: 2.434,97 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+selectComponent @ configurator.js:574
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:901 Found component case: Fractal Design Define 7 - €120
+configurator.js:901 Found component psu: Corsair RM850x 850W 80+ Gold - €145
+configurator.js:911 Total calculated price: 2434.9700000000003
+configurator.js:917 Updating total price: 2434.9700000000003
+configurator.js:921 Total price element updated: 2.434,97 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
+configurator.js:563 Selected cooler component 10
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+clearSubsequentSelections @ configurator.js:601
+selectComponent @ configurator.js:566
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:901 Found component case: Fractal Design Define 7 - €120
+configurator.js:901 Found component psu: Corsair RM850x 850W 80+ Gold - €145
+configurator.js:901 Found component cooler: Noctua NH-D15 Chromax - €120
+configurator.js:911 Total calculated price: 2554.9700000000003
+configurator.js:917 Updating total price: 2554.9700000000003
+configurator.js:921 Total price element updated: 2.554,97 €
+configurator.js:611 Sending compatibility check with: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:893 Calculating total price. Selected components: {cpu: 1, motherboard: 4, ram: 5, gpu: 3, ssd: 7, …}
+configurator.js:894 Available components data: (8) ['cases', 'coolers', 'cpus', 'gpus', 'motherboards', 'psus', 'ram', 'ssds']
+configurator.js:901 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:901 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:907 No components data for category: rams
+calculateTotalPrice @ configurator.js:907
+updateTotalPrice @ configurator.js:916
+selectComponent @ configurator.js:574
+(anonymous) @ configurator.js:100
+configurator.js:901 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:901 Found component ssd: Lexar - €120
+configurator.js:901 Found component case: Fractal Design Define 7 - €120
+configurator.js:901 Found component psu: Corsair RM850x 850W 80+ Gold - €145
+configurator.js:901 Found component cooler: Noctua NH-D15 Chromax - €120
+configurator.js:911 Total calculated price: 2554.9700000000003
+configurator.js:917 Updating total price: 2554.9700000000003
+configurator.js:921 Total price element updated: 2.554,97 €
+configurator.js:626 Compatibility result: {compatible: true, errors: Array(0), warnings: Array(0)}
