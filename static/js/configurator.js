@@ -133,19 +133,38 @@ class PCConfigurator {
             if (element) {
                 const eventType = filterId.startsWith('search-') ? 'input' : 'change';
                 element.addEventListener(eventType, () => {
+                    console.log(`Filter changed: ${filterId} for category ${category}`);
                     this.applyFilters(category);
                 });
+                console.log(`Added event listener for ${filterId}`);
+            } else {
+                console.warn(`Filter element not found: ${filterId}`);
             }
         });
     }
     
     applyFilters(category) {
         console.log(`Applying filters for category: ${category}`);
-        const cards = document.querySelectorAll(`.component-card[data-category="${category}"]`);
+        
+        // Find the correct container for the category
+        const container = document.querySelector(`#${category}-list`) || 
+                         document.querySelector(`#step-${this.getCategoryStep(category)} .component-selection`);
+        
+        if (!container) {
+            console.error(`Container not found for category: ${category}`);
+            return;
+        }
+        
+        const cards = container.querySelectorAll(`.component-card[data-category="${category}"]`);
         console.log(`Found ${cards.length} cards for category ${category}`);
         
+        if (cards.length === 0) {
+            console.warn(`No cards found for category ${category}`);
+            return;
+        }
+        
         const searchTerm = this.getFilterValue(`search-${category}`);
-        console.log(`Search term: ${searchTerm}`);
+        console.log(`Search term: "${searchTerm}"`);
         
         let filteredCards = Array.from(cards);
         
@@ -158,6 +177,7 @@ class PCConfigurator {
                 const specs = specsEl ? specsEl.textContent.toLowerCase() : '';
                 const searchLower = searchTerm.toLowerCase().trim();
                 const matches = name.includes(searchLower) || specs.includes(searchLower);
+                console.log(`Card "${name}" matches "${searchTerm}": ${matches}`);
                 return matches;
             });
         }
@@ -183,6 +203,20 @@ class PCConfigurator {
         
         // Show no results message if needed
         this.showNoResultsMessage(category, filteredCards.length === 0);
+    }
+    
+    getCategoryStep(category) {
+        const categorySteps = {
+            'cpu': 1,
+            'motherboard': 2,
+            'ram': 3,
+            'gpu': 4,
+            'ssd': 5,
+            'case': 6,
+            'psu': 7,
+            'cooler': 8
+        };
+        return categorySteps[category] || 1;
     }
     
     applyCategoryFilters(category, cards) {
@@ -367,11 +401,11 @@ class PCConfigurator {
     
     showNoResultsMessage(category, show) {
         const container = document.querySelector(`#${category}-list`) || 
-                        document.querySelector(`.component-section[id*="${category}"] .component-selection`);
+                        document.querySelector(`#step-${this.getCategoryStep(category)} .component-selection`);
         
         let noResultsDiv = container ? container.querySelector('.no-results') : null;
         
-        if (show && !noResultsDiv) {
+        if (show && !noResultsDiv && container) {
             noResultsDiv = document.createElement('div');
             noResultsDiv.className = 'no-results text-center py-4';
             noResultsDiv.innerHTML = `
@@ -379,7 +413,7 @@ class PCConfigurator {
                 <h5>Keine Komponenten gefunden</h5>
                 <p class="text-muted">Versuchen Sie andere Suchbegriffe oder setzen Sie die Filter zurück.</p>
             `;
-            if (container) container.appendChild(noResultsDiv);
+            container.appendChild(noResultsDiv);
         } else if (!show && noResultsDiv) {
             noResultsDiv.remove();
         }

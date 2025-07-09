@@ -732,7 +732,30 @@ function clearFilters(category) {
     if (window.configurator) {
         window.configurator.applyFilters(category);
         console.log(`Filters cleared and reapplied for ${category}`);
+    } else {
+        console.error('Configurator not initialized');
     }
+}
+
+// Test function to verify filter functionality
+function testFilters() {
+    console.log('Testing filter functionality...');
+    
+    const categories = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
+    
+    categories.forEach(category => {
+        const searchInput = document.getElementById(`search-${category}`);
+        const filterSelects = document.querySelectorAll(`[id*="filter-${category}"], [id*="sort-${category}"]`);
+        
+        console.log(`Category ${category}:`);
+        console.log(`  Search input: ${searchInput ? 'Found' : 'Not found'}`);
+        console.log(`  Filter selects: ${filterSelects.length} found`);
+        
+        if (window.configurator) {
+            const cards = document.querySelectorAll(`.component-card[data-category="${category}"]`);
+            console.log(`  Component cards: ${cards.length} found`);
+        }
+    });
 }
 </script>
 {% endblock %}
