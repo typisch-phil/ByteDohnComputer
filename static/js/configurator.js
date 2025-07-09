@@ -24,12 +24,10 @@ class PCConfigurator {
         this.loadComponents();
         this.setupEventListeners();
         this.updateStepIndicator();
-        this.updateNavigationButtons(); // Initialize navigation buttons state
+        this.updateNavigationButtons();
     }
     
     loadComponents() {
-        // Components are already loaded from the server-side template
-        // This method would be used if we were fetching via AJAX
         console.log('Components loaded from server');
     }
     
@@ -61,21 +59,6 @@ class PCConfigurator {
         
         // Filter and search listeners
         this.setupFilterListeners();
-        
-        // Global clear filters function
-        const self = this;
-        window.clearFilters = function(category) {
-            // Reset search
-            const searchInput = document.getElementById(`search-${category}`);
-            if (searchInput) searchInput.value = '';
-            
-            // Reset all selects for this category
-            const selects = document.querySelectorAll(`select[id*="filter-${category}"], select[id*="sort-${category}"]`);
-            selects.forEach(select => select.value = '');
-            
-            // Reapply filters (which will show all items)
-            self.applyFilters(category);
-        };
     }
     
     setupFilterListeners() {
@@ -208,7 +191,8 @@ class PCConfigurator {
             const cores = this.getFilterValue('filter-cpu-cores');
             
             return cards.filter(card => {
-                const specs = card.querySelector('.component-specs').textContent;
+                const specsEl = card.querySelector('.component-specs');
+                const specs = specsEl ? specsEl.textContent : '';
                 
                 if (socket && !specs.includes(`Socket ${socket}`)) return false;
                 
@@ -230,7 +214,8 @@ class PCConfigurator {
             const formFactor = this.getFilterValue('filter-mb-form-factor');
             
             return cards.filter(card => {
-                const specs = card.querySelector('.component-specs').textContent;
+                const specsEl = card.querySelector('.component-specs');
+                const specs = specsEl ? specsEl.textContent : '';
                 
                 if (socket && !specs.includes(`Socket ${socket}`)) return false;
                 if (formFactor && !specs.includes(formFactor)) return false;
@@ -242,21 +227,16 @@ class PCConfigurator {
         if (category === 'ram') {
             const type = this.getFilterValue('filter-ram-type');
             const capacity = this.getFilterValue('filter-ram-capacity');
-            const speed = this.getFilterValue('filter-ram-speed');
             
             return cards.filter(card => {
-                const specs = card.querySelector('.component-specs').textContent;
+                const specsEl = card.querySelector('.component-specs');
+                const specs = specsEl ? specsEl.textContent : '';
                 
                 if (type && !specs.includes(type)) return false;
                 
                 if (capacity) {
                     const capacityMatch = specs.match(/(\d+)GB/);
                     if (capacityMatch && parseInt(capacityMatch[1]) !== parseInt(capacity)) return false;
-                }
-                
-                if (speed) {
-                    const speedMatch = specs.match(/(\d+)MHz/);
-                    if (speedMatch && parseInt(speedMatch[1]) < parseInt(speed)) return false;
                 }
                 
                 return true;
@@ -268,8 +248,10 @@ class PCConfigurator {
             const brand = this.getFilterValue('filter-gpu-brand');
             
             return cards.filter(card => {
-                const name = card.querySelector('.component-name').textContent;
-                const specs = card.querySelector('.component-specs').textContent;
+                const nameEl = card.querySelector('.component-name');
+                const specsEl = card.querySelector('.component-specs');
+                const name = nameEl ? nameEl.textContent : '';
+                const specs = specsEl ? specsEl.textContent : '';
                 
                 if (memory) {
                     const memoryMatch = specs.match(/(\d+)GB/);
@@ -284,17 +266,18 @@ class PCConfigurator {
         
         if (category === 'ssd') {
             const capacity = this.getFilterValue('filter-ssd-capacity');
-            const interface = this.getFilterValue('filter-ssd-interface');
+            const interfaceType = this.getFilterValue('filter-ssd-interface');
             
             return cards.filter(card => {
-                const specs = card.querySelector('.component-specs').textContent;
+                const specsEl = card.querySelector('.component-specs');
+                const specs = specsEl ? specsEl.textContent : '';
                 
                 if (capacity) {
                     const capacityMatch = specs.match(/(\d+)GB/);
                     if (capacityMatch && parseInt(capacityMatch[1]) < parseInt(capacity)) return false;
                 }
                 
-                if (interface && !specs.includes(interface)) return false;
+                if (interfaceType && !specs.includes(interfaceType)) return false;
                 
                 return true;
             });
@@ -305,7 +288,8 @@ class PCConfigurator {
             const size = this.getFilterValue('filter-case-size');
             
             return cards.filter(card => {
-                const specs = card.querySelector('.component-specs').textContent;
+                const specsEl = card.querySelector('.component-specs');
+                const specs = specsEl ? specsEl.textContent : '';
                 
                 if (formFactor && !specs.includes(formFactor)) return false;
                 if (size && !specs.includes(size)) return false;
@@ -319,7 +303,8 @@ class PCConfigurator {
             const efficiency = this.getFilterValue('filter-psu-efficiency');
             
             return cards.filter(card => {
-                const specs = card.querySelector('.component-specs').textContent;
+                const specsEl = card.querySelector('.component-specs');
+                const specs = specsEl ? specsEl.textContent : '';
                 
                 if (wattage) {
                     const wattageMatch = specs.match(/(\d+)W/);
@@ -337,7 +322,8 @@ class PCConfigurator {
             const socket = this.getFilterValue('filter-cooler-socket');
             
             return cards.filter(card => {
-                const specs = card.querySelector('.component-specs').textContent;
+                const specsEl = card.querySelector('.component-specs');
+                const specs = specsEl ? specsEl.textContent : '';
                 
                 if (type && !specs.includes(type)) return false;
                 if (socket && !specs.includes(socket)) return false;
@@ -383,17 +369,17 @@ class PCConfigurator {
         const container = document.querySelector(`#${category}-list`) || 
                         document.querySelector(`.component-section[id*="${category}"] .component-selection`);
         
-        let noResultsDiv = container?.querySelector('.no-results');
+        let noResultsDiv = container ? container.querySelector('.no-results') : null;
         
         if (show && !noResultsDiv) {
             noResultsDiv = document.createElement('div');
-            noResultsDiv.className = 'no-results';
+            noResultsDiv.className = 'no-results text-center py-4';
             noResultsDiv.innerHTML = `
-                <i class="fas fa-search"></i>
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
                 <h5>Keine Komponenten gefunden</h5>
-                <p>Versuchen Sie andere Suchbegriffe oder Filter, oder setzen Sie die Filter zurück.</p>
+                <p class="text-muted">Versuchen Sie andere Suchbegriffe oder setzen Sie die Filter zurück.</p>
             `;
-            container?.appendChild(noResultsDiv);
+            if (container) container.appendChild(noResultsDiv);
         } else if (!show && noResultsDiv) {
             noResultsDiv.remove();
         }
@@ -425,8 +411,7 @@ class PCConfigurator {
         const statusDiv = document.getElementById('compatibility-status');
         if (!statusDiv) return;
         
-        // Show loading
-        statusDiv.innerHTML = '<div class="text-center"><div class="loading"></div> Überprüfe Kompatibilität...</div>';
+        statusDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Überprüfe Kompatibilität...</div>';
         
         try {
             const response = await fetch('/api/validate-compatibility', {
@@ -440,83 +425,45 @@ class PCConfigurator {
             const result = await response.json();
             this.displayCompatibilityResults(result);
         } catch (error) {
-            console.error('Compatibility validation error:', error);
-            statusDiv.innerHTML = '<div class="alert alert-danger">Fehler bei der Kompatibilitätsprüfung</div>';
+            console.error('Compatibility check failed:', error);
+            statusDiv.innerHTML = '<div class="alert alert-warning">Kompatibilitätsprüfung nicht verfügbar</div>';
         }
     }
     
     displayCompatibilityResults(result) {
         const statusDiv = document.getElementById('compatibility-status');
+        if (!statusDiv) return;
+        
         let html = '<h4>Kompatibilitätsstatus</h4>';
         
         if (result.compatible) {
-            html += '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Konfiguration ist kompatibel!</div>';
+            html += '<div class="alert alert-success"><i class="fas fa-check"></i> Alle Komponenten sind kompatibel!</div>';
         } else {
-            html += '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Kompatibilitätsprobleme gefunden!</div>';
-        }
-        
-        // Display errors
-        if (result.errors && result.errors.length > 0) {
-            html += '<div class="mt-3"><strong>Fehler:</strong>';
-            result.errors.forEach(error => {
-                html += `<div class="status-item"><span class="status-icon status-error"><i class="fas fa-times-circle"></i></span>${error}</div>`;
+            html += '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Kompatibilitätsprobleme gefunden:</div>';
+            result.issues.forEach(issue => {
+                html += `<div class="alert alert-warning">${issue}</div>`;
             });
-            html += '</div>';
-        }
-        
-        // Display warnings
-        if (result.warnings && result.warnings.length > 0) {
-            html += '<div class="mt-3"><strong>Warnungen:</strong>';
-            result.warnings.forEach(warning => {
-                html += `<div class="status-item"><span class="status-icon status-warning"><i class="fas fa-exclamation-circle"></i></span>${warning}</div>`;
-            });
-            html += '</div>';
-        }
-        
-        // Display price and power consumption
-        if (result.total_price > 0) {
-            html += `
-                <div class="price-summary">
-                    <div class="total-price">Gesamtpreis: €${result.total_price.toFixed(2)}</div>
-                    <div class="text-center mt-2">
-                        <small>Geschätzter Stromverbrauch: ${result.total_wattage}W</small>
-                    </div>
-                </div>
-            `;
         }
         
         statusDiv.innerHTML = html;
     }
     
     updateStepIndicator() {
-        const steps = document.querySelectorAll('.step');
-        const componentCategories = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
-        
-        steps.forEach((step, index) => {
-            const category = componentCategories[index];
-            step.classList.remove('active', 'completed');
-            
-            if (this.selectedComponents[category]) {
-                step.classList.add('completed');
-            } else if (index === this.currentStep - 1) {
-                step.classList.add('active');
+        for (let i = 1; i <= this.totalSteps; i++) {
+            const indicator = document.querySelector(`.step-indicator .step:nth-child(${i})`);
+            if (indicator) {
+                indicator.classList.toggle('active', i === this.currentStep);
+                indicator.classList.toggle('completed', i < this.currentStep);
             }
-        });
+        }
     }
     
     nextStep() {
-        // Check if current step has a selection before proceeding
-        const componentCategories = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
-        const currentCategory = componentCategories[this.currentStep - 1];
-        
-        if (!this.selectedComponents[currentCategory]) {
-            alert(`Bitte wählen Sie eine ${this.getCategoryDisplayName(currentCategory)} aus, bevor Sie fortfahren.`);
-            return;
-        }
-        
         if (this.currentStep < this.totalSteps) {
             this.currentStep++;
             this.showStep(this.currentStep);
+            this.updateStepIndicator();
+            this.updateNavigationButtons();
         }
     }
     
@@ -524,25 +471,18 @@ class PCConfigurator {
         if (this.currentStep > 1) {
             this.currentStep--;
             this.showStep(this.currentStep);
+            this.updateStepIndicator();
+            this.updateNavigationButtons();
         }
     }
     
     showStep(step) {
-        // Hide all component sections
-        document.querySelectorAll('.component-section').forEach(section => {
-            section.style.display = 'none';
-        });
-        
-        // Show current step section
-        const currentSection = document.getElementById(`step-${step}`);
-        if (currentSection) {
-            currentSection.style.display = 'block';
+        for (let i = 1; i <= this.totalSteps; i++) {
+            const stepDiv = document.getElementById(`step-${i}`);
+            if (stepDiv) {
+                stepDiv.style.display = i === step ? 'block' : 'none';
+            }
         }
-        
-        this.updateStepIndicator();
-        
-        // Update navigation buttons
-        this.updateNavigationButtons();
     }
     
     updateNavigationButtons() {
@@ -554,175 +494,185 @@ class PCConfigurator {
         }
         
         if (nextBtn) {
-            const componentCategories = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
-            const currentCategory = componentCategories[this.currentStep - 1];
-            const hasSelection = this.selectedComponents[currentCategory] !== null;
-            
-            // Enable/disable next button based on selection
-            nextBtn.disabled = !hasSelection;
-            
             if (this.currentStep === this.totalSteps) {
                 nextBtn.textContent = 'Konfiguration abschließen';
-                nextBtn.classList.remove('btn-primary');
-                nextBtn.classList.add('btn-success');
+                nextBtn.innerHTML = '<i class="fas fa-check"></i> Abschließen';
             } else {
-                nextBtn.textContent = 'Weiter';
-                nextBtn.classList.remove('btn-success');
-                nextBtn.classList.add('btn-primary');
-            }
-            
-            // Visual feedback for disabled state
-            if (!hasSelection) {
-                nextBtn.style.opacity = '0.5';
-                nextBtn.style.cursor = 'not-allowed';
-            } else {
-                nextBtn.style.opacity = '1';
-                nextBtn.style.cursor = 'pointer';
+                nextBtn.innerHTML = 'Weiter <i class="fas fa-arrow-right"></i>';
             }
         }
     }
     
     getCategoryDisplayName(category) {
-        const displayNames = {
-            'cpu': 'CPU',
-            'motherboard': 'Motherboard',
-            'ram': 'RAM',
-            'gpu': 'Grafikkarte',
-            'ssd': 'SSD',
-            'case': 'Gehäuse',
-            'psu': 'Netzteil',
-            'cooler': 'Kühler'
+        const names = {
+            cpu: 'CPU',
+            motherboard: 'Motherboard',
+            ram: 'RAM',
+            gpu: 'GPU',
+            ssd: 'SSD',
+            case: 'Gehäuse',
+            psu: 'Netzteil',
+            cooler: 'Kühler'
         };
-        return displayNames[category] || category;
+        return names[category] || category;
     }
-
+    
     saveConfiguration() {
-        const selectedCount = Object.values(this.selectedComponents).filter(c => c !== null).length;
-        
-        if (selectedCount === 0) {
-            alert('Bitte wählen Sie mindestens eine Komponente aus.');
-            return;
-        }
-        
-        // Create configuration summary
-        const configName = prompt('Geben Sie einen Namen für Ihre Konfiguration ein:');
-        if (!configName) return;
-        
         const configData = {
-            name: configName,
+            name: prompt('Name für die Konfiguration:') || 'Meine PC-Konfiguration',
             components: this.selectedComponents,
-            timestamp: new Date().toISOString()
+            totalPrice: this.calculateTotalPrice()
         };
         
-        // Save to localStorage for now (in production, this would be sent to server)
-        const savedConfigs = JSON.parse(localStorage.getItem('savedConfigurations') || '[]');
-        savedConfigs.push(configData);
-        localStorage.setItem('savedConfigurations', JSON.stringify(savedConfigs));
-        
-        alert('Konfiguration erfolgreich gespeichert!');
+        fetch('/api/save-configuration', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(configData)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Konfiguration erfolgreich gespeichert!');
+            } else {
+                alert('Fehler beim Speichern der Konfiguration.');
+            }
+        })
+        .catch(error => {
+            console.error('Save error:', error);
+            alert('Fehler beim Speichern der Konfiguration.');
+        });
+    }
+    
+    calculateTotalPrice() {
+        let total = 0;
+        // This would calculate based on selected components
+        // Implementation depends on how component data is structured
+        return total;
     }
     
     loadConfiguration(config) {
         this.selectedComponents = config.components;
-        
-        // Update UI to reflect loaded configuration
-        Object.keys(this.selectedComponents).forEach(category => {
-            const componentId = this.selectedComponents[category];
-            if (componentId) {
-                const card = document.querySelector(`.component-card[data-category="${category}"][data-id="${componentId}"]`);
-                if (card) {
-                    card.classList.add('selected');
-                }
-            }
-        });
-        
-        this.validateCompatibility();
         this.updateStepIndicator();
+        this.updateNavigationButtons();
+        this.validateCompatibility();
     }
     
     resetConfiguration() {
-        // Clear all selections
-        Object.keys(this.selectedComponents).forEach(key => {
-            this.selectedComponents[key] = null;
-        });
-        
-        // Remove visual selections
-        document.querySelectorAll('.component-card.selected').forEach(card => {
-            card.classList.remove('selected');
-        });
-        
-        // Reset step indicator
-        this.currentStep = 1;
-        this.updateStepIndicator();
-        
-        // Clear compatibility status
-        const statusDiv = document.getElementById('compatibility-status');
-        if (statusDiv) {
-            statusDiv.innerHTML = '<p>Wählen Sie Komponenten aus, um die Kompatibilität zu überprüfen.</p>';
+        if (confirm('Sind Sie sicher, dass Sie die Konfiguration zurücksetzen möchten?')) {
+            this.selectedComponents = {
+                cpu: null,
+                motherboard: null,
+                ram: null,
+                gpu: null,
+                ssd: null,
+                case: null,
+                psu: null,
+                cooler: null
+            };
+            
+            // Remove all selected states
+            document.querySelectorAll('.component-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            this.currentStep = 1;
+            this.showStep(1);
+            this.updateStepIndicator();
+            this.updateNavigationButtons();
+            
+            const statusDiv = document.getElementById('compatibility-status');
+            if (statusDiv) {
+                statusDiv.innerHTML = '<h4>Kompatibilitätsstatus</h4><p>Wählen Sie Komponenten aus, um die Kompatibilität zu überprüfen.</p>';
+            }
         }
     }
 }
 
-// Initialize configurator when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('pc-configurator')) {
-        window.configurator = new PCConfigurator();
+// Global functions for template usage
+function clearFilters(category) {
+    console.log(`Clearing filters for category: ${category}`);
+    
+    // Clear search input
+    const searchInput = document.getElementById(`search-${category}`);
+    if (searchInput) {
+        searchInput.value = '';
+        console.log(`Cleared search input for ${category}`);
     }
-});
+    
+    // Clear all filter selects
+    const filterSelects = document.querySelectorAll(`[id*="filter-${category}"], [id*="sort-${category}"]`);
+    filterSelects.forEach(select => {
+        select.value = '';
+        console.log(`Cleared filter: ${select.id}`);
+    });
+    
+    // For motherboard, handle special case
+    if (category === 'motherboard') {
+        const mbSocket = document.getElementById('filter-mb-socket');
+        const mbFormFactor = document.getElementById('filter-mb-form-factor');
+        if (mbSocket) mbSocket.value = '';
+        if (mbFormFactor) mbFormFactor.value = '';
+    }
+    
+    // Reapply filters to show all components
+    if (window.configurator) {
+        window.configurator.applyFilters(category);
+        console.log(`Filters cleared and reapplied for ${category}`);
+    }
+}
 
-// Utility functions
 function formatPrice(price) {
-    return new Intl.NumberFormat('de-DE', {
-        style: 'currency',
-        currency: 'EUR'
+    return new Intl.NumberFormat('de-DE', { 
+        style: 'currency', 
+        currency: 'EUR' 
     }).format(price);
 }
 
 function formatSpecs(specs) {
-    // Format component specifications for display
-    return Object.entries(specs)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(' • ');
+    if (typeof specs === 'object') {
+        return Object.entries(specs)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(' • ');
+    }
+    return specs;
 }
 
-// Export configuration as JSON
 function exportConfiguration() {
     if (window.configurator) {
-        const config = {
+        const configData = {
             components: window.configurator.selectedComponents,
             timestamp: new Date().toISOString()
         };
         
-        const dataStr = JSON.stringify(config, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        const dataStr = JSON.stringify(configData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
         
-        const exportFileDefaultName = 'pc-configuration.json';
-        
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = 'pc-konfiguration.json';
+        link.click();
     }
 }
 
-// Import configuration from JSON
 function importConfiguration() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
     
-    input.onchange = (e) => {
+    input.onchange = function(e) {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = function(event) {
                 try {
-                    const config = JSON.parse(e.target.result);
-                    if (window.configurator && config.components) {
+                    const config = JSON.parse(event.target.result);
+                    if (window.configurator) {
                         window.configurator.loadConfiguration(config);
                     }
                 } catch (error) {
-                    alert('Fehler beim Laden der Konfiguration: ' + error.message);
+                    alert('Fehler beim Laden der Konfiguration: Ungültige Datei');
                 }
             };
             reader.readAsText(file);
