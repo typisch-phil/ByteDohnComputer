@@ -112,12 +112,18 @@ def validate_compatibility():
         for category in ['cpus', 'motherboards', 'ram', 'gpus', 'ssds', 'cases', 'psus', 'coolers']:
             all_components[category] = components.get(category, [])
         
+        print(f"Debug - Received data: {data}")
+        print(f"Debug - Available components: {list(components.keys())}")
+        
         if data.get('cpu'):
             selected_cpu = next((cpu for cpu in all_components['cpus'] if cpu['id'] == data.get('cpu')), None)
+            print(f"Debug - Selected CPU: {selected_cpu}")
         if data.get('motherboard'):
             selected_mb = next((mb for mb in all_components['motherboards'] if mb['id'] == data.get('motherboard')), None)
+            print(f"Debug - Selected Motherboard: {selected_mb}")
         if data.get('ram'):
             selected_ram = next((ram for ram in all_components['ram'] if ram['id'] == data.get('ram')), None)
+            print(f"Debug - Selected RAM: {selected_ram}")
         if data.get('gpu'):
             selected_gpu = next((gpu for gpu in all_components['gpus'] if gpu['id'] == data.get('gpu')), None)
         if data.get('cooler'):
@@ -134,8 +140,16 @@ def validate_compatibility():
         
         # RAM compatibility
         if selected_ram and selected_mb:
-            if selected_ram.get('type') != selected_mb.get('memory_type'):
-                errors.append(f"RAM-Typ {selected_ram.get('type')} ist nicht kompatibel mit Motherboard ({selected_mb.get('memory_type')})")
+            ram_type = selected_ram.get('type')
+            mb_memory_type = selected_mb.get('memory_type')
+            print(f"Debug - RAM type: {ram_type}, MB memory type: {mb_memory_type}")
+            if ram_type != mb_memory_type:
+                errors.append(f"RAM-Typ {ram_type} ist nicht kompatibel mit Motherboard ({mb_memory_type})")
+        elif selected_ram and not selected_mb:
+            print(f"Debug - RAM selected but no motherboard found")
+            errors.append(f"Kein kompatibles Motherboard ausgewählt für RAM-Typ {selected_ram.get('type')}")
+        elif not selected_ram and selected_mb:
+            print(f"Debug - Motherboard selected but no RAM found")
         
         # GPU and Case compatibility
         if selected_gpu and selected_case:
