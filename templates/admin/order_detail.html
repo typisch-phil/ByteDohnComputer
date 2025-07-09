@@ -193,10 +193,14 @@
                                 <div class="alert alert-info mt-2">
                                     <small><i class="fas fa-info-circle"></i> 
                                     <strong>Für echte DHL Versandmarken:</strong><br>
-                                    1. Kontaktieren Sie DHL unter 0228 4333112<br>
-                                    2. Beantragen Sie API-Zugang für Ihr Geschäftskonto<br>
-                                    3. Geben Sie Ihre EKP-Nummer an: {{ order.tracking_number.split('E')[1][:10] if 'E' in order.tracking_number else 'Nicht verfügbar' }}<br>
-                                    4. Nach Freischaltung werden automatisch echte Marken erstellt
+                                    <a href="{{ url_for('admin_dhl_api_guide') }}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-external-link-alt"></i> Vollständige Anleitung
+                                    </a><br>
+                                    <small class="text-muted">
+                                    1. DHL kontaktieren: 0228 4333112<br>
+                                    2. API-Zugang für Geschäftskonto beantragen<br>
+                                    3. Nach Freischaltung automatische Marken-Erstellung
+                                    </small>
                                     </small>
                                 </div>
                                 {% endif %}

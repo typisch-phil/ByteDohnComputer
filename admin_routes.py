@@ -460,6 +460,12 @@ def admin_create_shipping_label(order_id):
     
     return redirect(url_for('admin_order_detail', order_id=order_id))
 
+@app.route('/admin/dhl-api-guide')
+@login_required
+def admin_dhl_api_guide():
+    """DHL API-Freischaltung Anleitung"""
+    return render_template('admin/dhl_api_guide.html')
+
 @app.route('/admin/orders/<int:order_id>/track-shipment')
 @login_required
 def admin_track_shipment(order_id):

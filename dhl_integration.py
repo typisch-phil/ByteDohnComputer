@@ -207,7 +207,10 @@ class DHLShippingAPI:
         }
         
         # Paketdetails basierend auf Bestellwert
-        package_details = self._determine_package_size(order.total_amount)
+        package_details = {
+            'size': 'S' if order.total_amount < 500 else 'M' if order.total_amount < 1500 else 'L',
+            'weight': '1.5' if order.total_amount < 500 else '3.0' if order.total_amount < 1500 else '5.0'
+        }
         
         portal_data = {
             'portal_url': 'https://www.dhl.de/de/geschaeftskunden/paket/kunde-werden/angebot-dhl-geschaeftskunden-online.html',
