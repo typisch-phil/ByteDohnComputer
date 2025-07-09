@@ -56,36 +56,36 @@
                                 </h6>
                                 <p class="mb-2">{{ shipment.status.description }}</p>
                                 
-                                {% if shipment.details %}
+                                {% if shipment.get('details') %}
                                 <div class="row">
                                     <div class="col-md-6">
                                         <small class="text-muted">
                                             <strong>Absender:</strong><br>
-                                            {{ shipment.details.shipper.organizationName or 'ByteDohm GmbH' }}<br>
-                                            {{ shipment.details.shipper.postalCode }} {{ shipment.details.shipper.city }}
+                                            {{ shipment.details.get('shipper', {}).get('organizationName', 'ByteDohm GmbH') }}<br>
+                                            {{ shipment.details.get('shipper', {}).get('postalCode', '') }} {{ shipment.details.get('shipper', {}).get('city', '') }}
                                         </small>
                                     </div>
                                     <div class="col-md-6">
                                         <small class="text-muted">
                                             <strong>Empfänger:</strong><br>
-                                            {{ shipment.details.consignee.organizationName or shipment.details.consignee.familyName }}<br>
-                                            {{ shipment.details.consignee.postalCode }} {{ shipment.details.consignee.city }}
+                                            {{ shipment.details.get('consignee', {}).get('organizationName', shipment.details.get('consignee', {}).get('familyName', '')) }}<br>
+                                            {{ shipment.details.get('consignee', {}).get('postalCode', '') }} {{ shipment.details.get('consignee', {}).get('city', '') }}
                                         </small>
                                     </div>
                                 </div>
                                 {% endif %}
                                 
-                                {% if shipment.events %}
+                                {% if shipment.get('events') %}
                                 <h6 class="mt-3">Sendungsverlauf:</h6>
                                 <div class="timeline">
                                     {% for event in shipment.events %}
                                     <div class="timeline-item">
                                         <div class="timeline-marker bg-primary"></div>
                                         <div class="timeline-content">
-                                            <p class="mb-1"><strong>{{ event.description }}</strong></p>
+                                            <p class="mb-1"><strong>{{ event.get('description', 'Sendungsstatus') }}</strong></p>
                                             <small class="text-muted">
-                                                {{ event.timestamp }} 
-                                                {% if event.location %}
+                                                {{ event.get('timestamp', '') }} 
+                                                {% if event.get('location', {}).get('address', {}).get('addressLocality') %}
                                                 - {{ event.location.address.addressLocality }}
                                                 {% endif %}
                                             </small>

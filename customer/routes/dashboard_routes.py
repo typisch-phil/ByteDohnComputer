@@ -191,6 +191,34 @@ def settings():
     return render_template('customer/dashboard/settings.html', customer=customer)
 
 
+@customer_dashboard.route('/rechnungen')
+@customer_login_required  
+def invoices():
+    """Customer invoices page"""
+    from models import Invoice, Order
+    
+    # Get all invoices for customer's orders
+    invoices = db.session.query(Invoice).join(Order).filter(
+        Order.customer_id == current_user.id
+    ).order_by(Invoice.issue_date.desc()).all()
+    
+    return render_template('customer/dashboard/invoices.html', invoices=invoices)
+
+@customer_dashboard.route('/rechnung/<int:invoice_id>')
+@customer_login_required
+def invoice_detail(invoice_id):
+    """Customer invoice detail page"""
+    from models import Invoice, Order
+    
+    # Ensure invoice belongs to current customer
+    invoice = db.session.query(Invoice).join(Order).filter(
+        Invoice.id == invoice_id,
+        Order.customer_id == current_user.id
+    ).first_or_404()
+    
+    return render_template('customer/dashboard/invoice_detail.html', invoice=invoice)
+
+
 @customer_dashboard.route('/konto-loeschen', methods=['GET', 'POST'])
 @customer_login_required
 def delete_account():

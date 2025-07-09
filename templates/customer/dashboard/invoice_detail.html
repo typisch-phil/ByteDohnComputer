@@ -1,0 +1,199 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Rechnung {{ invoice.invoice_number }} - ByteDohm.de{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Rechnung {{ invoice.invoice_number }}</h2>
+                <div>
+                    <a href="{{ url_for('customer_dashboard.invoices') }}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-arrow-left"></i> Zurück
+                    </a>
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Drucken
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Invoice Header -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h3 class="text-primary">ByteDohm GmbH</h3>
+                            <p class="mb-1">Musterstraße 123</p>
+                            <p class="mb-1">12345 Berlin</p>
+                            <p class="mb-1">Deutschland</p>
+                            <p class="mb-1">E-Mail: info@bytedohm.de</p>
+                            <p class="mb-0">Tel: +49 30 12345678</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h4>RECHNUNG</h4>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td class="text-end"><strong>Rechnungsnummer:</strong></td>
+                                    <td>{{ invoice.invoice_number }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>Rechnungsdatum:</strong></td>
+                                    <td>{{ invoice.issue_date.strftime('%d.%m.%Y') }}</td>
+                                </tr>
+                                {% if invoice.due_date %}
+                                <tr>
+                                    <td class="text-end"><strong>Fälligkeitsdatum:</strong></td>
+                                    <td>{{ invoice.due_date.strftime('%d.%m.%Y') }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td class="text-end"><strong>Bestellnummer:</strong></td>
+                                    <td>{{ invoice.order.order_number }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Customer Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6>Rechnungsadresse:</h6>
+                            <p class="mb-1">
+                                <strong>{{ invoice.order.customer.first_name }} {{ invoice.order.customer.last_name }}</strong>
+                            </p>
+                            <p class="mb-1">{{ invoice.order.customer.email }}</p>
+                            {% if invoice.order.customer.address %}
+                            <p class="mb-0">{{ invoice.order.customer.address }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle"></i> Status</h6>
+                                <p class="mb-2">
+                                    {% if invoice.status == 'paid' %}
+                                        <span class="badge bg-success">Bezahlt</span>
+                                    {% elif invoice.status == 'sent' %}
+                                        <span class="badge bg-info">Versendet</span>
+                                    {% elif invoice.status == 'overdue' %}
+                                        <span class="badge bg-danger">Überfällig</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ invoice.status|title }}</span>
+                                    {% endif %}
+                                </p>
+                                {% if invoice.status == 'paid' %}
+                                <p class="mb-0 text-success">
+                                    <i class="fas fa-check"></i> Rechnung wurde bezahlt
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Items -->
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Pos.</th>
+                                    <th>Artikel</th>
+                                    <th>Typ</th>
+                                    <th class="text-center">Menge</th>
+                                    <th class="text-end">Einzelpreis</th>
+                                    <th class="text-end">Gesamtpreis</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in invoice.order.order_items %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ item.item_name }}</td>
+                                    <td>
+                                        {% if item.item_type == 'component' %}
+                                            <span class="badge bg-primary">Komponente</span>
+                                        {% elif item.item_type == 'prebuilt' %}
+                                            <span class="badge bg-info">Fertig-PC</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-end">{{ "%.2f"|format(item.unit_price) }} €</td>
+                                    <td class="text-end">{{ "%.2f"|format(item.total_price) }} €</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Invoice Totals -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="alert alert-light">
+                                <h6>Zahlungsinformationen</h6>
+                                <p class="mb-1"><strong>Zahlungsmethode:</strong> Stripe (Kreditkarte)</p>
+                                <p class="mb-0"><strong>Zahlungsstatus:</strong> 
+                                    {% if invoice.order.payment_status == 'paid' %}
+                                        <span class="text-success">Bezahlt</span>
+                                    {% else %}
+                                        <span class="text-warning">{{ invoice.order.payment_status|title }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-end"><strong>Zwischensumme:</strong></td>
+                                    <td class="text-end">{{ "%.2f"|format(invoice.total_amount / 1.19) }} €</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>MwSt. (19%):</strong></td>
+                                    <td class="text-end">{{ "%.2f"|format(invoice.tax_amount or (invoice.total_amount * 0.19 / 1.19)) }} €</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>Versandkosten:</strong></td>
+                                    <td class="text-end text-success">Kostenlos</td>
+                                </tr>
+                                <tr class="table-dark">
+                                    <td class="text-end"><strong>Gesamtbetrag:</strong></td>
+                                    <td class="text-end"><strong>{{ "%.2f"|format(invoice.total_amount) }} €</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <hr>
+                            <p class="text-muted small mb-0">
+                                Vielen Dank für Ihren Einkauf bei ByteDohm! Bei Fragen zu dieser Rechnung wenden Sie sich bitte an unseren Kundenservice.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .breadcrumb, .navbar, .sidebar {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .container {
+        max-width: 100% !important;
+    }
+}
+</style>
+{% endblock %}
