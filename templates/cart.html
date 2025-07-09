@@ -53,6 +53,10 @@
                         <i class="fas fa-credit-card"></i> Zur Kasse
                     </button>
                     
+                    <button id="clear-cart-btn" class="btn btn-outline-danger w-100 mb-2" onclick="clearCartConfirm()" style="display: none;">
+                        <i class="fas fa-trash"></i> Warenkorb leeren
+                    </button>
+                    
                     <a href="{{ url_for('configurator') }}" class="btn btn-outline-secondary w-100">
                         <i class="fas fa-cog"></i> Weiter konfigurieren
                     </a>
@@ -293,6 +297,12 @@ class Cart {
             }).join('');
         }
         
+        // Show/hide clear cart button
+        const clearCartBtn = document.getElementById('clear-cart-btn');
+        if (clearCartBtn) {
+            clearCartBtn.style.display = this.items.length > 0 ? 'block' : 'none';
+        }
+        
         // Update totals
         const total = this.calculateTotal();
         document.getElementById('subtotal').textContent = `€${total.toFixed(2)}`;
@@ -402,6 +412,33 @@ function saveCurrentCart() {
         console.error('Save error:', error);
         alert('Fehler beim Speichern der Konfiguration.');
     });
+}
+
+function clearCartConfirm() {
+    if (cart.items.length === 0) {
+        return;
+    }
+    
+    if (confirm('Sind Sie sicher, dass Sie den gesamten Warenkorb leeren möchten?\n\nAlle Artikel werden entfernt.')) {
+        cart.clearCart();
+        
+        // Show success message
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = `
+            <i class="fas fa-check-circle"></i> Warenkorb wurde geleert
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(toast);
+        
+        // Auto-remove toast after 3 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 3000);
+    }
 }
 </script>
 {% endblock %}
