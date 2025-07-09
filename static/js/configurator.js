@@ -245,8 +245,8 @@ class PCConfigurator {
         });
         
         // Show and reorder filtered cards
-        const container = document.querySelector(`#step-${this.getCategoryStep(category)} .component-selection`);
-        if (container) {
+        const sortContainer = document.querySelector(`#step-${this.getCategoryStep(category)} .component-selection`);
+        if (sortContainer) {
             // Remove all cards from container first
             filteredCards.forEach(card => {
                 if (card.parentNode) {
@@ -258,7 +258,7 @@ class PCConfigurator {
             filteredCards.forEach(card => {
                 card.classList.remove('hidden');
                 card.style.display = '';
-                container.appendChild(card);
+                sortContainer.appendChild(card);
             });
         }
         
