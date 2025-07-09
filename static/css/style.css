@@ -179,7 +179,8 @@ body {
     top: 50%;
     transform: translateY(-50%);
     color: #6c757d;
-    z-index: 2;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .search-box input {
