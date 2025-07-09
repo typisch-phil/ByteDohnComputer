@@ -41,6 +41,17 @@ def load_user(user_id):
     from models import AdminUser
     return AdminUser.query.get(int(user_id))
 
+# Add template filters
+@app.template_filter('from_json')
+def from_json_filter(value):
+    """Parse JSON string to dictionary"""
+    if isinstance(value, str):
+        try:
+            return json.loads(value)
+        except (json.JSONDecodeError, ValueError):
+            return {}
+    return value or {}
+
 # Import routes after app creation to avoid circular imports
 from routes import *
 from admin_routes import *

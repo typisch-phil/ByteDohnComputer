@@ -535,6 +535,7 @@ class PCConfigurator {
             // Update step indicator and navigation
             this.updateStepIndicator();
             this.updateNavigationButtons();
+            this.updateTotalPrice();
             
             return;
         }
@@ -559,6 +560,7 @@ class PCConfigurator {
         // Update step indicator and navigation
         this.updateStepIndicator();
         this.updateNavigationButtons();
+        this.updateTotalPrice();
     }
     
     clearSubsequentSelections(changedCategory) {
@@ -800,7 +802,7 @@ class PCConfigurator {
         const configData = {
             name: prompt('Name für die Konfiguration:') || 'Meine PC-Konfiguration',
             components: this.selectedComponents,
-            totalPrice: this.calculateTotalPrice()
+            total_price: this.calculateTotalPrice()
         };
         
         fetch('/api/save-configuration', {
@@ -824,11 +826,97 @@ class PCConfigurator {
         });
     }
     
+    proceedToCheckout() {
+        // Validate that configuration is complete
+        const requiredComponents = ['cpu', 'motherboard', 'ram', 'gpu', 'ssd', 'case', 'psu', 'cooler'];
+        const missingComponents = requiredComponents.filter(comp => !this.selectedComponents[comp]);
+        
+        if (missingComponents.length > 0) {
+            alert('Bitte vervollständigen Sie Ihre Konfiguration, bevor Sie zum Checkout gehen.');
+            return;
+        }
+        
+        // Check for compatibility errors
+        if (this.hasCompatibilityErrors) {
+            alert('Bitte beheben Sie die Kompatibilitätsprobleme, bevor Sie zum Checkout gehen.');
+            return;
+        }
+        
+        // Get configuration name from user
+        const configName = prompt('Geben Sie einen Namen für Ihre Konfiguration ein:', 
+                                 `PC-Konfiguration ${new Date().toLocaleDateString()}`);
+        if (!configName) return;
+        
+        const checkoutData = {
+            components: this.selectedComponents,
+            total_price: this.calculateTotalPrice(),
+            config_name: configName
+        };
+        
+        console.log('Proceeding to checkout with:', checkoutData);
+        
+        // Show loading state
+        const checkoutBtn = document.getElementById('checkout-btn');
+        if (checkoutBtn) {
+            checkoutBtn.disabled = true;
+            checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wird verarbeitet...';
+        }
+        
+        // Create Stripe checkout session
+        fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(checkoutData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to Stripe checkout
+                window.location.href = data.checkout_url;
+            } else {
+                alert('Fehler beim Erstellen der Checkout-Session: ' + (data.error || 'Unbekannter Fehler'));
+                // Reset button state
+                if (checkoutBtn) {
+                    checkoutBtn.disabled = false;
+                    checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Jetzt kaufen';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error creating checkout session:', error);
+            alert('Fehler beim Erstellen der Checkout-Session');
+            // Reset button state
+            if (checkoutBtn) {
+                checkoutBtn.disabled = false;
+                checkoutBtn.innerHTML = '<i class="fas fa-credit-card"></i> Jetzt kaufen';
+            }
+        });
+    }
+    
     calculateTotalPrice() {
         let total = 0;
-        // This would calculate based on selected components
-        // Implementation depends on how component data is structured
+        
+        // Calculate price from selected components
+        for (const [category, componentId] of Object.entries(this.selectedComponents)) {
+            if (componentId && this.components[category + 's']) {
+                const component = this.components[category + 's'].find(c => c.id === componentId);
+                if (component && component.price) {
+                    total += component.price;
+                }
+            }
+        }
+        
         return total;
+    }
+    
+    updateTotalPrice() {
+        const totalPrice = this.calculateTotalPrice();
+        const totalPriceElement = document.getElementById('total-price');
+        if (totalPriceElement) {
+            totalPriceElement.textContent = formatPrice(totalPrice);
+        }
     }
     
     loadConfiguration(config) {

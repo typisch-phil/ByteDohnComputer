@@ -3,6 +3,12 @@ from app import app, db
 from models import Configuration, Component, PrebuiltPC
 import json
 import os
+import stripe
+from datetime import datetime
+import logging
+
+# Configure Stripe
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
 def load_components():
     """Load component data from MySQL database only"""
@@ -204,3 +210,141 @@ def get_components(category):
     """Get components by category"""
     components = load_components()
     return jsonify(components.get(category, []))
+
+@app.route('/api/save-configuration', methods=['POST'])
+def save_configuration():
+    """Save PC configuration to database"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        if not data.get('name') or not data.get('components'):
+            return jsonify({'error': 'Name und Komponenten sind erforderlich'}), 400
+        
+        # Save configuration to database
+        config = Configuration(
+            name=data['name'],
+            components=json.dumps(data['components']),
+            total_price=data.get('total_price', 0),
+            created_at=datetime.utcnow()
+        )
+        
+        db.session.add(config)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Konfiguration gespeichert!',
+            'config_id': config.id
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error saving configuration: {e}")
+        return jsonify({'error': 'Fehler beim Speichern der Konfiguration'}), 500
+
+@app.route('/api/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    """Create Stripe checkout session for PC configuration"""
+    try:
+        data = request.get_json()
+        
+        # Validate required data
+        if not data.get('components') or not data.get('total_price'):
+            return jsonify({'error': 'Komponenten und Gesamtpreis sind erforderlich'}), 400
+        
+        # Get domain for redirect URLs
+        domain = os.environ.get('REPLIT_DEV_DOMAIN') if os.environ.get('REPLIT_DEPLOYMENT') != 'true' else os.environ.get('REPLIT_DOMAINS', '').split(',')[0]
+        
+        if not domain:
+            return jsonify({'error': 'Domain nicht konfiguriert'}), 500
+        
+        # Create line items from components
+        line_items = []
+        
+        # Add each component as a line item
+        for category, component_id in data['components'].items():
+            if component_id:
+                # Find component details
+                component = Component.query.get(component_id)
+                if component:
+                    line_items.append({
+                        'price_data': {
+                            'currency': 'eur',
+                            'product_data': {
+                                'name': f"{component.name} ({category.upper()})",
+                                'description': f"PC-Komponente: {component.name}",
+                            },
+                            'unit_amount': int(component.price * 100),  # Convert to cents
+                        },
+                        'quantity': 1,
+                    })
+        
+        if not line_items:
+            return jsonify({'error': 'Keine gültigen Komponenten gefunden'}), 400
+        
+        # Save configuration before checkout
+        config_name = data.get('config_name', f"PC-Konfiguration {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+        config = Configuration(
+            name=config_name,
+            components=json.dumps(data['components']),
+            total_price=data['total_price'],
+            created_at=datetime.utcnow()
+        )
+        
+        db.session.add(config)
+        db.session.commit()
+        
+        # Create Stripe checkout session
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url=f'https://{domain}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}&config_id={config.id}',
+            cancel_url=f'https://{domain}/checkout/cancel?config_id={config.id}',
+            metadata={
+                'config_id': str(config.id),
+                'config_name': config_name
+            }
+        )
+        
+        return jsonify({
+            'success': True,
+            'checkout_url': checkout_session.url,
+            'session_id': checkout_session.id
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error creating checkout session: {e}")
+        return jsonify({'error': f'Fehler beim Erstellen der Checkout-Session: {str(e)}'}), 500
+
+@app.route('/checkout/success')
+def checkout_success():
+    """Handle successful checkout"""
+    session_id = request.args.get('session_id')
+    config_id = request.args.get('config_id')
+    
+    try:
+        # Retrieve the checkout session from Stripe
+        checkout_session = stripe.checkout.Session.retrieve(session_id)
+        
+        # Get configuration
+        config = Configuration.query.get(config_id) if config_id else None
+        
+        return render_template('checkout_success.html', 
+                             session=checkout_session,
+                             config=config)
+        
+    except Exception as e:
+        logging.error(f"Error handling checkout success: {e}")
+        return render_template('checkout_error.html', 
+                             error="Fehler beim Abrufen der Bestelldetails")
+
+@app.route('/checkout/cancel')
+def checkout_cancel():
+    """Handle cancelled checkout"""
+    config_id = request.args.get('config_id')
+    config = Configuration.query.get(config_id) if config_id else None
+    
+    return render_template('checkout_cancel.html', config=config)
