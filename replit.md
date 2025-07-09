@@ -12,6 +12,7 @@ The application follows a traditional web architecture pattern with:
 - **Backend**: Flask web framework with Python
 - **Database**: SQLAlchemy ORM with MySQL-only support (alle anderen Datenbanken entfernt)
 - **Data Storage**: Alle Daten werden ausschließlich in MySQL gespeichert, JSON-Fallbacks wurden entfernt
+- **Payment Processing**: Vollständige Stripe-Integration mit automatischer Kunden- und Bestellerstellung
 - **Static Assets**: CSS and JavaScript files served directly by Flask
 
 ## Key Components
@@ -106,6 +107,7 @@ The application is designed for flexible deployment:
 - July 09, 2025: Modernes UI-System implementiert - Toast-Benachrichtigungen, Modal-Dialoge, Eingabefelder mit Validierung für bessere Benutzererfahrung
 - July 09, 2025: Import/Export-System verbessert - Komponenten-Validierung beim Import, moderne Dialoge, Fehlerbehandlung mit Toast-Nachrichten
 - July 09, 2025: Admin-Dashboard erweitert - Vollständige Bestellverwaltung, Kundendatenbank, Rechnungssystem und detaillierte Statistiken implementiert
+- July 09, 2025: Vollständige Stripe-Integration - Automatische Kunden- und Bestellerstellung, Webhook-System, Rechnungsautomation, erweiterte Dashboard-Statistiken
 
 ## User Preferences
 

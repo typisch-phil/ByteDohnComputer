@@ -58,10 +58,16 @@ def admin_dashboard():
     total_revenue = db.session.query(func.sum(Order.total_amount)).filter_by(payment_status='paid').scalar() or 0
     pending_revenue = db.session.query(func.sum(Order.total_amount)).filter_by(payment_status='pending').scalar() or 0
     
+    # Invoice stats
+    total_invoices = Invoice.query.count()
+    paid_invoices = Invoice.query.filter_by(status='paid').count()
+    overdue_invoices = Invoice.query.filter_by(status='overdue').count()
+    
     # Recent data
     recent_components = Component.query.order_by(Component.created_at.desc()).limit(5).all()
     recent_prebuilts = PrebuiltPC.query.order_by(PrebuiltPC.created_at.desc()).limit(5).all()
     recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
+    recent_invoices = Invoice.query.order_by(Invoice.issue_date.desc()).limit(5).all()
     
     stats = {
         'components': {
@@ -86,6 +92,11 @@ def admin_dashboard():
         'revenue': {
             'total': total_revenue,
             'pending': pending_revenue
+        },
+        'invoices': {
+            'total': total_invoices,
+            'paid': paid_invoices,
+            'overdue': overdue_invoices
         }
     }
     
@@ -93,7 +104,8 @@ def admin_dashboard():
                          stats=stats, 
                          recent_components=recent_components,
                          recent_prebuilts=recent_prebuilts,
-                         recent_orders=recent_orders)
+                         recent_orders=recent_orders,
+                         recent_invoices=recent_invoices)
 
 # Component Management
 @app.route('/admin/components')

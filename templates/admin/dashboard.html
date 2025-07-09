@@ -59,6 +59,58 @@
     </div>
 </div>
 
+<!-- Additional Stats Row -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-icon text-secondary">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+            <h3 class="mb-1">{{ stats.invoices.total }}</h3>
+            <p class="text-muted mb-2">Rechnungen</p>
+            <div class="d-flex justify-content-between">
+                <small class="text-success">{{ stats.invoices.paid }} bezahlt</small>
+                {% if stats.invoices.overdue > 0 %}
+                <small class="text-danger">{{ stats.invoices.overdue }} überfällig</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-icon text-warning">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h3 class="mb-1">{{ stats.orders.pending }}</h3>
+            <p class="text-muted mb-2">Ausstehende Bestellungen</p>
+            <small class="text-info">{{ stats.orders.processing }} in Bearbeitung</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-icon text-success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="mb-1">{{ stats.orders.completed }}</h3>
+            <p class="text-muted mb-2">Abgeschlossene Bestellungen</p>
+            <small class="text-success">Erfolgreich geliefert</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-icon text-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="mb-1">{{ "%.0f"|format(stats.revenue.pending) }}€</h3>
+            <p class="text-muted mb-2">Ausstehende Zahlungen</p>
+            <small class="text-warning">Noch nicht bezahlt</small>
+        </div>
+    </div>
+</div>
+
 <!-- Quick Actions -->
 <div class="row mt-4">
     <div class="col-12">
@@ -101,6 +153,20 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stripe Integration Info -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle"></i> Stripe Integration</h5>
+            <p class="mb-0">
+                Das System ist vollständig mit Stripe integriert. Alle Zahlungen werden automatisch verarbeitet und 
+                entsprechende Bestellungen und Rechnungen werden automatisch erstellt. Der Webhook-Endpunkt ist 
+                unter <code>/webhook/stripe</code> verfügbar.
+            </p>
         </div>
     </div>
 </div>

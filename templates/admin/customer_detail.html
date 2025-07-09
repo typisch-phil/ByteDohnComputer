@@ -1,0 +1,132 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Kunde Details - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Kunde: {{ customer.first_name }} {{ customer.last_name }}</h1>
+                <a href="{{ url_for('admin_customers') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Zurück zu Kunden
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Customer Info -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Kundeninformationen</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Name:</strong><br>{{ customer.first_name or '' }} {{ customer.last_name or '' }}</p>
+                            <p><strong>E-Mail:</strong><br>{{ customer.email }}</p>
+                            {% if customer.phone %}
+                            <p><strong>Telefon:</strong><br>{{ customer.phone }}</p>
+                            {% endif %}
+                            {% if customer.address %}
+                            <p><strong>Adresse:</strong><br>{{ customer.address }}</p>
+                            {% endif %}
+                            <p><strong>Registriert:</strong><br>{{ customer.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Customer Statistics -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Statistiken</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Gesamtbestellungen:</strong><br>{{ orders|length }}</p>
+                            <p><strong>Gesamtumsatz:</strong><br>
+                                {% set total_spent = orders|selectattr('payment_status', 'equalto', 'paid')|sum(attribute='total_amount') %}
+                                {{ "%.2f"|format(total_spent) }} €
+                            </p>
+                            <p><strong>Letzte Bestellung:</strong><br>
+                                {% if orders %}
+                                    {{ orders[0].created_at.strftime('%d.%m.%Y') }}
+                                {% else %}
+                                    Keine Bestellungen
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Bestellungen</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if orders %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Bestellnummer</th>
+                                            <th>Typ</th>
+                                            <th>Betrag</th>
+                                            <th>Status</th>
+                                            <th>Zahlung</th>
+                                            <th>Datum</th>
+                                            <th>Aktionen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in orders %}
+                                        <tr>
+                                            <td>{{ order.order_number }}</td>
+                                            <td>
+                                                <span class="badge {% if order.order_type == 'custom' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                                    {% if order.order_type == 'custom' %}Konfigurator{% else %}Fertig-PC{% endif %}
+                                                </span>
+                                            </td>
+                                            <td>{{ "%.2f"|format(order.total_amount) }} €</td>
+                                            <td>
+                                                <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'processing' %}bg-info{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'delivered' %}bg-success{% else %}bg-danger{% endif %}">
+                                                    {% if order.status == 'pending' %}Ausstehend
+                                                    {% elif order.status == 'processing' %}In Bearbeitung
+                                                    {% elif order.status == 'shipped' %}Versandt
+                                                    {% elif order.status == 'delivered' %}Geliefert
+                                                    {% else %}Storniert
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if order.payment_status == 'paid' %}bg-success{% elif order.payment_status == 'pending' %}bg-warning{% elif order.payment_status == 'failed' %}bg-danger{% else %}bg-info{% endif %}">
+                                                    {% if order.payment_status == 'paid' %}Bezahlt
+                                                    {% elif order.payment_status == 'pending' %}Ausstehend
+                                                    {% elif order.payment_status == 'failed' %}Fehlgeschlagen
+                                                    {% else %}Erstattet
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+                                            <td>{{ order.created_at.strftime('%d.%m.%Y') }}</td>
+                                            <td>
+                                                <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted">
+                                <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                                <p>Dieser Kunde hat noch keine Bestellungen getätigt.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

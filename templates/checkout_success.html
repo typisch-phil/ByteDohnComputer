@@ -13,7 +13,18 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    {% if session %}
+                    {% if order %}
+                    <div class="alert alert-success">
+                        <h4>Vielen Dank für Ihre Bestellung!</h4>
+                        <p>Ihre Zahlung wurde erfolgreich verarbeitet.</p>
+                        <p><strong>Bestellnummer:</strong> {{ order.order_number }}</p>
+                        <p><strong>Betrag:</strong> {{ "%.2f"|format(order.total_amount) }} €</p>
+                        <p><strong>Status:</strong> {{ order.payment_status }}</p>
+                        {% if order.customer %}
+                        <p><strong>Kunde:</strong> {{ order.customer.email }}</p>
+                        {% endif %}
+                    </div>
+                    {% elif session %}
                     <div class="alert alert-success">
                         <h4>Vielen Dank für Ihre Bestellung!</h4>
                         <p>Ihre Zahlung wurde erfolgreich verarbeitet.</p>

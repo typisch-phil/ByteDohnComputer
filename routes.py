@@ -295,23 +295,81 @@ def create_checkout_session():
         db.session.add(config)
         db.session.commit()
         
+        # Create or get customer
+        customer_data = data.get('customer', {})
+        customer = None
+        
+        if customer_data.get('email'):
+            # Find existing customer or create new one
+            customer = Customer.query.filter_by(email=customer_data['email']).first()
+            if not customer:
+                customer = Customer(
+                    email=customer_data['email'],
+                    first_name=customer_data.get('first_name', ''),
+                    last_name=customer_data.get('last_name', ''),
+                    phone=customer_data.get('phone', ''),
+                    address=customer_data.get('address', ''),
+                    created_at=datetime.utcnow()
+                )
+                db.session.add(customer)
+                db.session.commit()
+        
+        # Create order
+        order_number = f"ORD-{datetime.now().strftime('%Y%m%d')}-{config.id:04d}"
+        order = Order(
+            customer_id=customer.id if customer else None,
+            order_number=order_number,
+            order_type='custom',
+            total_amount=data['total_price'],
+            status='pending',
+            payment_status='pending',
+            created_at=datetime.utcnow()
+        )
+        db.session.add(order)
+        db.session.commit()
+        
+        # Create order items
+        for category, component_id in data['components'].items():
+            if component_id:
+                component = Component.query.get(component_id)
+                if component:
+                    order_item = OrderItem(
+                        order_id=order.id,
+                        item_type='component',
+                        item_id=component.id,
+                        item_name=component.name,
+                        quantity=1,
+                        unit_price=component.price,
+                        total_price=component.price
+                    )
+                    db.session.add(order_item)
+        
+        db.session.commit()
+        
         # Create Stripe checkout session
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            success_url=f'https://{domain}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}&config_id={config.id}',
-            cancel_url=f'https://{domain}/checkout/cancel?config_id={config.id}',
+            success_url=f'https://{domain}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}&order_id={order.id}',
+            cancel_url=f'https://{domain}/checkout/cancel?order_id={order.id}',
             metadata={
-                'config_id': str(config.id),
-                'config_name': config_name
+                'order_id': str(order.id),
+                'order_number': order_number,
+                'config_id': str(config.id)
             }
         )
+        
+        # Update order with Stripe session ID
+        order.stripe_session_id = checkout_session.id
+        db.session.commit()
         
         return jsonify({
             'success': True,
             'checkout_url': checkout_session.url,
-            'session_id': checkout_session.id
+            'session_id': checkout_session.id,
+            'order_id': order.id,
+            'order_number': order_number
         })
         
     except Exception as e:
@@ -323,18 +381,38 @@ def create_checkout_session():
 def checkout_success():
     """Handle successful checkout"""
     session_id = request.args.get('session_id')
-    config_id = request.args.get('config_id')
+    order_id = request.args.get('order_id')
     
     try:
         # Retrieve the checkout session from Stripe
         checkout_session = stripe.checkout.Session.retrieve(session_id)
         
-        # Get configuration
-        config = Configuration.query.get(config_id) if config_id else None
+        # Get order
+        order = Order.query.get(order_id) if order_id else None
+        
+        if order and checkout_session.payment_status == 'paid':
+            # Update order status
+            order.payment_status = 'paid'
+            order.status = 'processing'
+            order.updated_at = datetime.utcnow()
+            
+            # Create invoice
+            invoice_number = f"INV-{datetime.now().strftime('%Y%m%d')}-{order.id:04d}"
+            invoice = Invoice(
+                order_id=order.id,
+                invoice_number=invoice_number,
+                issue_date=datetime.utcnow(),
+                due_date=datetime.utcnow(),  # Immediate due date for paid orders
+                total_amount=order.total_amount,
+                tax_amount=order.total_amount * 0.19,  # 19% German VAT
+                status='paid'
+            )
+            db.session.add(invoice)
+            db.session.commit()
         
         return render_template('checkout_success.html', 
                              session=checkout_session,
-                             config=config)
+                             order=order)
         
     except Exception as e:
         logging.error(f"Error handling checkout success: {e}")
@@ -344,10 +422,77 @@ def checkout_success():
 @app.route('/checkout/cancel')
 def checkout_cancel():
     """Handle cancelled checkout"""
-    config_id = request.args.get('config_id')
-    config = Configuration.query.get(config_id) if config_id else None
+    order_id = request.args.get('order_id')
+    order = Order.query.get(order_id) if order_id else None
     
-    return render_template('checkout_cancel.html', config=config)
+    if order:
+        # Update order status to cancelled
+        order.status = 'cancelled'
+        order.payment_status = 'failed'
+        order.updated_at = datetime.utcnow()
+        db.session.commit()
+    
+    return render_template('checkout_cancel.html', order=order)
+
+# Stripe Webhook Handler
+@app.route('/webhook/stripe', methods=['POST'])
+def stripe_webhook():
+    """Handle Stripe webhook events"""
+    payload = request.get_data(as_text=True)
+    sig_header = request.headers.get('Stripe-Signature')
+    
+    try:
+        # Verify webhook signature (in production, use webhook secret)
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+        )
+    except (ValueError, stripe.error.SignatureVerificationError):
+        return '', 400
+    
+    # Handle the event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        
+        # Find order by Stripe session ID
+        order = Order.query.filter_by(stripe_session_id=session['id']).first()
+        
+        if order:
+            # Update order status
+            order.payment_status = 'paid'
+            order.status = 'processing'
+            order.updated_at = datetime.utcnow()
+            
+            # Create invoice if not exists
+            existing_invoice = Invoice.query.filter_by(order_id=order.id).first()
+            if not existing_invoice:
+                invoice_number = f"INV-{datetime.now().strftime('%Y%m%d')}-{order.id:04d}"
+                invoice = Invoice(
+                    order_id=order.id,
+                    invoice_number=invoice_number,
+                    issue_date=datetime.utcnow(),
+                    due_date=datetime.utcnow(),
+                    total_amount=order.total_amount,
+                    tax_amount=order.total_amount * 0.19,  # 19% German VAT
+                    status='paid'
+                )
+                db.session.add(invoice)
+            
+            db.session.commit()
+    
+    elif event['type'] == 'checkout.session.expired':
+        session = event['data']['object']
+        
+        # Find order by Stripe session ID
+        order = Order.query.filter_by(stripe_session_id=session['id']).first()
+        
+        if order:
+            # Update order status to cancelled
+            order.status = 'cancelled'
+            order.payment_status = 'failed'
+            order.updated_at = datetime.utcnow()
+            db.session.commit()
+    
+    return '', 200
 
 @app.route('/warenkorb')
 def cart():
