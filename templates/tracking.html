@@ -42,6 +42,49 @@
                     </div>
                     {% endif %}
                     
+                    <!-- Alternative Tracking-Optionen -->
+                    {% if alternatives and alternatives.valid %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-link"></i> Alternative Tracking-Optionen</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6>Externe Tracking-Services:</h6>
+                                    <div class="list-group">
+                                        {% for option in alternatives.options %}
+                                        {% if option.type == 'redirect' %}
+                                        <a href="{{ option.url }}" target="_blank" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">{{ option.name }}</h6>
+                                                <small><i class="fas fa-external-link-alt"></i></small>
+                                            </div>
+                                            <p class="mb-1">{{ option.description }}</p>
+                                        </a>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6>Direkt-Link</h6>
+                                            <a href="{{ alternatives.direct_dhl_url }}" target="_blank" class="btn btn-primary">
+                                                <i class="fas fa-truck"></i> Bei DHL verfolgen
+                                            </a>
+                                            <hr>
+                                            <small class="text-muted">
+                                                Öffnet die offizielle DHL Sendungsverfolgung in einem neuen Tab
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
                     {% if tracking_data %}
                     <div class="alert alert-success">
                         <h6><i class="fas fa-check-circle"></i> Sendung gefunden</h6>

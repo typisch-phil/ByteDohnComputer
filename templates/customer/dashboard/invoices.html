@@ -15,14 +15,14 @@
         </div>
     </div>
 
-    {% if invoices %}
+    {% if invoices.items %}
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-list"></i> 
-                        Alle Rechnungen ({{ invoices|length }})
+                        Alle Rechnungen ({{ invoices.total }})
                     </h5>
                 </div>
                 <div class="card-body p-0">
@@ -31,7 +31,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Rechnungsnummer</th>
-                                    <th>Bestellung</th>
+                                    <th>Bestellnummer</th>
                                     <th>Datum</th>
                                     <th>Betrag</th>
                                     <th>Status</th>
@@ -39,10 +39,15 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for invoice in invoices %}
+                                {% for invoice in invoices.items %}
                                 <tr>
                                     <td>
                                         <strong>{{ invoice.invoice_number }}</strong>
+                                        {% if invoice.due_date %}
+                                        <br><small class="text-muted">
+                                            Fällig: {{ invoice.due_date.strftime('%d.%m.%Y') }}
+                                        </small>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <a href="{{ url_for('customer_dashboard.order_detail', order_id=invoice.order.id) }}" 
@@ -51,7 +56,14 @@
                                         </a>
                                     </td>
                                     <td>{{ invoice.issue_date.strftime('%d.%m.%Y') }}</td>
-                                    <td><strong>{{ "%.2f"|format(invoice.total_amount) }} €</strong></td>
+                                    <td>
+                                        <strong>{{ "%.2f"|format(invoice.total_amount) }} €</strong>
+                                        {% if invoice.tax_amount > 0 %}
+                                        <br><small class="text-muted">
+                                            inkl. {{ "%.2f"|format(invoice.tax_amount) }} € MwSt.
+                                        </small>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         {% if invoice.status == 'draft' %}
                                             <span class="badge bg-secondary">Entwurf</span>
@@ -70,6 +82,12 @@
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye"></i> Ansehen
                                         </a>
+                                        {% if invoice.status == 'paid' %}
+                                        <a href="{{ url_for('customer_dashboard.download_invoice', invoice_id=invoice.id) }}" 
+                                           class="btn btn-sm btn-outline-success" title="Rechnung herunterladen">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -80,6 +98,52 @@
             </div>
         </div>
     </div>
+
+    <!-- Pagination -->
+    {% if invoices.pages > 1 %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Rechnungen Pagination">
+                <ul class="pagination justify-content-center">
+                    {% if invoices.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('customer_dashboard.invoices', page=invoices.prev_num) }}">
+                            <i class="fas fa-chevron-left"></i> Vorherige
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in invoices.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != invoices.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('customer_dashboard.invoices', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if invoices.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('customer_dashboard.invoices', page=invoices.next_num) }}">
+                            Nächste <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
     {% else %}
     <div class="row">
         <div class="col-12">
@@ -89,7 +153,7 @@
                     <h4>Keine Rechnungen gefunden</h4>
                     <p class="text-muted">Sie haben noch keine Rechnungen erhalten.</p>
                     <a href="{{ url_for('configurator') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Neue Bestellung aufgeben
+                        <i class="fas fa-plus"></i> Erste Bestellung aufgeben
                     </a>
                 </div>
             </div>

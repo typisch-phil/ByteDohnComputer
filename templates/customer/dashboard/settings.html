@@ -1,0 +1,109 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Einstellungen - ByteDohm.de{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-cog"></i> Einstellungen</h2>
+                <a href="{{ url_for('customer_dashboard.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user-cog"></i> Konto-Einstellungen</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('customer_dashboard.profile') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-user"></i> Profil bearbeiten</h6>
+                                <small><i class="fas fa-chevron-right"></i></small>
+                            </div>
+                            <p class="mb-1">Name, Adresse und Kontaktdaten verwalten</p>
+                        </a>
+                        
+                        <a href="{{ url_for('customer_dashboard.change_password') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-key"></i> Passwort ändern</h6>
+                                <small><i class="fas fa-chevron-right"></i></small>
+                            </div>
+                            <p class="mb-1">Ihr Passwort für mehr Sicherheit ändern</p>
+                        </a>
+                        
+                        <a href="{{ url_for('customer_dashboard.orders') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-box"></i> Bestellungen verwalten</h6>
+                                <small><i class="fas fa-chevron-right"></i></small>
+                            </div>
+                            <p class="mb-1">Alle Ihre Bestellungen und deren Status</p>
+                        </a>
+                        
+                        <a href="{{ url_for('customer_dashboard.invoices') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-file-invoice"></i> Rechnungen</h6>
+                                <small><i class="fas fa-chevron-right"></i></small>
+                            </div>
+                            <p class="mb-1">Alle Rechnungen herunterladen und einsehen</p>
+                        </a>
+                        
+                        <a href="{{ url_for('customer_dashboard.configurations') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-cogs"></i> Konfigurationen</h6>
+                                <small><i class="fas fa-chevron-right"></i></small>
+                            </div>
+                            <p class="mb-1">Gespeicherte PC-Konfigurationen verwalten</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-shield-alt"></i> Sicherheit</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Sicherheitstipps</h6>
+                        <ul class="mb-0">
+                            <li>Verwenden Sie ein starkes Passwort</li>
+                            <li>Teilen Sie Ihre Anmeldedaten nicht</li>
+                            <li>Melden Sie sich nach der Nutzung ab</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{{ url_for('customer_dashboard.change_password') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-key"></i> Passwort ändern
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6><i class="fas fa-question-circle"></i> Hilfe</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">Benötigen Sie Hilfe oder haben Fragen?</p>
+                    <div class="d-grid">
+                        <a href="mailto:support@bytedohm.de" class="btn btn-outline-success">
+                            <i class="fas fa-envelope"></i> Support kontaktieren
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

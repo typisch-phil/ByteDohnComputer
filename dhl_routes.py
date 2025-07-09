@@ -63,25 +63,39 @@ def track_shipment(tracking_number):
 
 @app.route('/sendungsverfolgung')
 def tracking_page():
-    """Sendungsverfolgung Seite"""
+    """Sendungsverfolgung Seite mit Alternativen"""
     tracking_number = request.args.get('tracking')
     tracking_data = None
     error = None
+    alternatives = None
     
     if tracking_number:
         try:
+            # Versuche primäre API
             result = track_order_shipment(tracking_number)
             if result['success']:
                 tracking_data = result['data']
             else:
                 error = result['error']
+                
+            # Immer alternative Optionen bereitstellen
+            from dhl_alternatives import get_alternative_tracking_data
+            alternatives = get_alternative_tracking_data(tracking_number)
+            
         except Exception as e:
             error = f"Fehler beim Verfolgen: {str(e)}"
+            # Auch bei Fehlern alternative Optionen anbieten
+            try:
+                from dhl_alternatives import get_alternative_tracking_data
+                alternatives = get_alternative_tracking_data(tracking_number)
+            except:
+                pass
     
     return render_template('tracking.html', 
                          tracking_number=tracking_number,
                          tracking_data=tracking_data,
-                         error=error)
+                         error=error,
+                         alternatives=alternatives)
 
 @app.route('/api/shipping/estimate', methods=['POST'])
 def estimate_shipping():

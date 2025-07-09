@@ -1,0 +1,138 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Konfigurationen - ByteDohm.de{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-cogs"></i> Meine Konfigurationen</h2>
+                <a href="{{ url_for('customer_dashboard.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if configs.items %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i> 
+                        Gespeicherte Konfigurationen ({{ configs.total }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for config in configs.items %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">{{ config.name }}</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-2">
+                                        <strong>Preis:</strong> {{ "%.2f"|format(config.total_price) }} €
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Erstellt:</strong> {{ config.created_at.strftime('%d.%m.%Y') }}
+                                    </p>
+                                    
+                                    {% if config.components %}
+                                    <div class="mb-3">
+                                        <h6>Komponenten:</h6>
+                                        <small class="text-muted">
+                                            {% set components = config.components | from_json %}
+                                            {% for key, component in components.items() %}
+                                            {{ component.name }}{% if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ url_for('configurator') }}?load={{ config.id }}" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i> Bearbeiten
+                                        </a>
+                                        <a href="{{ url_for('create_checkout_session') }}" 
+                                           class="btn btn-success btn-sm">
+                                            <i class="fas fa-shopping-cart"></i> Bestellen
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if configs.pages > 1 %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Konfigurationen Pagination">
+                <ul class="pagination justify-content-center">
+                    {% if configs.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('customer_dashboard.configurations', page=configs.prev_num) }}">
+                            <i class="fas fa-chevron-left"></i> Vorherige
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in configs.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != configs.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('customer_dashboard.configurations', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if configs.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('customer_dashboard.configurations', page=configs.next_num) }}">
+                            Nächste <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-cogs fa-4x text-muted mb-4"></i>
+                    <h4>Keine Konfigurationen gefunden</h4>
+                    <p class="text-muted">Sie haben noch keine PC-Konfigurationen erstellt.</p>
+                    <a href="{{ url_for('configurator') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ersten PC konfigurieren
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
