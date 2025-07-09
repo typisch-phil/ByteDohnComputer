@@ -235,6 +235,9 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Hidden field for specifications JSON -->
+        <input type="hidden" id="specifications" name="specifications" value="{}">
     </div>
 
     <!-- Features -->
@@ -244,10 +247,10 @@
         </h5>
         
         <div class="mb-3">
-            <label for="features" class="form-label">Features Liste *</label>
+            <label for="features_text" class="form-label">Features Liste *</label>
             <textarea class="form-control" 
-                      id="features" 
-                      name="features" 
+                      id="features_text" 
+                      name="features_text" 
                       rows="6" 
                       placeholder="Ein Feature pro Zeile:
 Ultra-hochauflösendes Gaming in 4K
@@ -262,6 +265,9 @@ Windows 11 Pro vorinstalliert
                 Bitte geben Sie mindestens ein Feature an.
             </div>
         </div>
+        
+        <!-- Hidden field for features JSON -->
+        <input type="hidden" id="features" name="features" value="[]">
     </div>
 
     <!-- Submit Button -->
@@ -280,6 +286,31 @@ Windows 11 Pro vorinstalliert
 
 {% block scripts %}
 <script>
+// Collect form data for JSON fields
+function collectFormData() {
+    // Collect specifications
+    const specs = {
+        cpu: document.getElementById('cpu').value,
+        gpu: document.getElementById('gpu').value,
+        ram: document.getElementById('ram').value,
+        storage: document.getElementById('storage').value,
+        motherboard: document.getElementById('motherboard').value,
+        cooler: document.getElementById('cooler').value,
+        case: document.getElementById('case').value,
+        psu: document.getElementById('psu').value
+    };
+    
+    // Collect features from textarea
+    const featuresText = document.getElementById('features_text').value;
+    const features = featuresText.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+    
+    // Update hidden fields
+    document.getElementById('specifications').value = JSON.stringify(specs);
+    document.getElementById('features').value = JSON.stringify(features);
+}
+
 // Form validation
 (function() {
     'use strict';
@@ -287,6 +318,9 @@ Windows 11 Pro vorinstalliert
         const forms = document.getElementsByClassName('needs-validation');
         Array.prototype.filter.call(forms, function(form) {
             form.addEventListener('submit', function(event) {
+                // Collect data before validation
+                collectFormData();
+                
                 if (form.checkValidity() === false) {
                     event.preventDefault();
                     event.stopPropagation();

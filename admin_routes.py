@@ -214,22 +214,34 @@ def admin_add_prebuilt():
     """Add new prebuilt PC"""
     if request.method == 'POST':
         try:
-            name = request.form['name']
-            price = float(request.form['price'])
-            category = request.form['category']
-            description = request.form['description']
-            image_url = request.form.get('image_url')
+            name = request.form.get('name', '').strip()
+            category = request.form.get('category', '').strip()
+            description = request.form.get('description', '').strip()
+            price_str = request.form.get('price', '0')
+            image_url = request.form.get('image_url', '').strip()
+            
+            if not name or not category or not description:
+                flash('Name, Kategorie und Beschreibung sind erforderlich', 'error')
+                return render_template('admin/add_prebuilt.html')
+            
+            try:
+                price = float(price_str)
+            except ValueError:
+                flash('Ungültiger Preis', 'error')
+                return render_template('admin/add_prebuilt.html')
             
             # Parse specifications JSON
+            specs_json = request.form.get('specifications', '{}')
             try:
-                specs = json.loads(request.form['specifications'])
+                specs = json.loads(specs_json)
             except json.JSONDecodeError:
                 flash('Ungültiges JSON-Format in den Spezifikationen', 'error')
                 return render_template('admin/add_prebuilt.html')
             
             # Parse features JSON
+            features_json = request.form.get('features', '[]')
             try:
-                features = json.loads(request.form['features'])
+                features = json.loads(features_json)
                 if not isinstance(features, list):
                     raise ValueError('Features müssen als Array definiert werden')
             except (json.JSONDecodeError, ValueError) as e:
