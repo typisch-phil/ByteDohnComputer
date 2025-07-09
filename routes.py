@@ -141,10 +141,24 @@ def validate_compatibility():
         # RAM compatibility
         if selected_ram and selected_mb:
             ram_type = selected_ram.get('type')
-            mb_memory_type = selected_mb.get('memory_type')
-            print(f"Debug - RAM type: {ram_type}, MB memory type: {mb_memory_type}")
-            if ram_type != mb_memory_type:
-                errors.append(f"RAM-Typ {ram_type} ist nicht kompatibel mit Motherboard ({mb_memory_type})")
+            # Handle both memory_type (string) and ram_types (array) formats
+            mb_memory_types = selected_mb.get('memory_type')
+            mb_ram_types = selected_mb.get('ram_types', [])
+            
+            print(f"Debug - RAM type: {ram_type}")
+            print(f"Debug - MB memory_type: {mb_memory_types}")
+            print(f"Debug - MB ram_types: {mb_ram_types}")
+            
+            # Check compatibility with either format
+            compatible = False
+            if mb_memory_types and ram_type == mb_memory_types:
+                compatible = True
+            elif mb_ram_types and ram_type in mb_ram_types:
+                compatible = True
+            
+            if not compatible:
+                supported_types = mb_memory_types or ', '.join(mb_ram_types) if mb_ram_types else 'Unbekannt'
+                errors.append(f"RAM-Typ {ram_type} ist nicht kompatibel mit Motherboard (unterstützt: {supported_types})")
         elif selected_ram and not selected_mb:
             print(f"Debug - RAM selected but no motherboard found")
             errors.append(f"Kein kompatibles Motherboard ausgewählt für RAM-Typ {selected_ram.get('type')}")
