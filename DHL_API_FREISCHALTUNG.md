@@ -1,25 +1,25 @@
-# SimplySell DHL API-Freischaltung für ByteDohm
+# DHL API-Freischaltung für ByteDohm
 
 ## Übersicht
-Für die automatische Erstellung echter DHL Versandmarken nutzen wir die SimplySell DHL API. Das System ist bereits vollständig implementiert und wartet nur auf die API-Freischaltung.
+Für die automatische Erstellung echter DHL Versandmarken benötigen Sie eine API-Freischaltung bei DHL. Das System ist bereits vollständig implementiert und wartet nur auf die Freischaltung.
 
-## Schritt 1: SimplySell DHL API Service kontaktieren
+## Schritt 1: DHL Geschäftskunden Service kontaktieren
 
 **Telefon:** 0228 4333112 (Mo-Fr 8-18 Uhr)
 **E-Mail:** geschaeftskunden.info@dhl.com
 **Online:** https://www.dhl.de/de/geschaeftskunden/kontakt.html
 
-## Schritt 2: SimplySell DHL API-Zugang beantragen
+## Schritt 2: DHL API-Zugang beantragen
 
 ### Ihre aktuellen Daten für den Antrag:
 - **EKP-Nummer:** [Ihre 10-stellige EKP aus den Secrets]
 - **DHL Username:** [Aus den Replit Secrets]
 - **DHL Passwort:** [Aus den Replit Secrets]
 - **Firmenname:** ByteDohm GmbH
-- **Verwendungszweck:** Automatische Versandetikett-Erstellung über SimplySell
+- **Verwendungszweck:** Automatische Versandetikett-Erstellung
 
-### Bei SimplySell zu beantragen:
-1. **SimplySell DHL Paket API** - Freischaltung für Versandmarken
+### Bei DHL zu beantragen:
+1. **DHL Paket DE API v2** - Freischaltung für Versandmarken
 2. **OAuth 2.0 Authentication** - Für sichere API-Verbindung
 3. **Produktions-API-Zugang** - Für Live-Betrieb
 

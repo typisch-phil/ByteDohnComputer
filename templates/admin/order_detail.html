@@ -185,21 +185,21 @@
                             {% if order.tracking_number %}
                             <div class="alert {% if order.status == 'shipped' %}alert-success{% else %}alert-warning{% endif %}">
                                 <h6><i class="fas fa-{% if order.status == 'shipped' %}check{% else %}exclamation-triangle{% endif %}"></i> 
-                                {% if order.status == 'shipped' %}Versandetikett erstellt{% else %}SimplySell DHL Portal-Anweisungen{% endif %}</h6>
+                                {% if order.status == 'shipped' %}Versandetikett erstellt{% else %}DHL Portal-Anweisungen{% endif %}</h6>
                                 <p class="mb-2"><strong>{% if order.status == 'shipped' %}Tracking-Nummer:{% else %}Temp. Tracking:{% endif %}</strong></p>
                                 <p><code>{{ order.tracking_number }}</code></p>
                                 
                                 {% if order.status != 'shipped' %}
                                 <div class="alert alert-info mt-2">
                                     <small><i class="fas fa-info-circle"></i> 
-                                    <strong>Für echte SimplySell DHL Versandmarken:</strong><br>
+                                    <strong>Für echte DHL Versandmarken:</strong><br>
                                     <a href="{{ url_for('admin_dhl_api_guide') }}" class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-external-link-alt"></i> Vollständige Anleitung
                                     </a><br>
                                     <small class="text-muted">
-                                    1. SimplySell DHL kontaktieren: 0228 4333112<br>
-                                    2. SimplySell API-Zugang für Geschäftskonto beantragen<br>
-                                    3. Nach Freischaltung automatische SimplySell Marken-Erstellung
+                                    1. DHL kontaktieren: 0228 4333112<br>
+                                    2. DHL API-Zugang für Geschäftskonto beantragen<br>
+                                    3. Nach Freischaltung automatische Marken-Erstellung
                                     </small>
                                     </small>
                                 </div>
@@ -208,7 +208,7 @@
                                 {% if order.shipping_label_url %}
                                 <a href="{{ order.shipping_label_url }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
                                     <i class="fas fa-{% if order.status == 'shipped' %}download{% else %}external-link-alt{% endif %}"></i> 
-                                    {% if order.status == 'shipped' %}Etikett herunterladen{% else %}SimplySell DHL Portal öffnen{% endif %}
+                                    {% if order.status == 'shipped' %}Etikett herunterladen{% else %}DHL Portal öffnen{% endif %}
                                 </a>
                                 {% endif %}
                                 <a href="{{ url_for('admin_track_shipment', order_id=order.id) }}" class="btn btn-sm btn-outline-info">
@@ -218,14 +218,14 @@
                             {% else %}
                             {% if order.payment_status == 'paid' and order.status in ['processing', 'paid'] %}
                             <form method="POST" action="{{ url_for('admin_create_shipping_label', order_id=order.id) }}">
-                                <p class="mb-2">Erstelle ein SimplySell DHL Versandetikett für diese Bestellung:</p>
+                                <p class="mb-2">Erstelle ein DHL Versandetikett für diese Bestellung:</p>
                                 <div class="alert alert-info">
                                     <small><i class="fas fa-info-circle"></i> 
-                                    Das System erstellt automatisch ein SimplySell DHL Versandetikett mit korrekter Adresse und Tracking-Nummer.
+                                    Das System erstellt automatisch ein DHL Versandetikett mit korrekter Adresse und Tracking-Nummer.
                                     </small>
                                 </div>
-                                <button type="submit" class="btn btn-success" onclick="return confirm('SimplySell DHL Versandetikett erstellen?')">
-                                    <i class="fas fa-plus"></i> SimplySell DHL Etikett erstellen
+                                <button type="submit" class="btn btn-success" onclick="return confirm('DHL Versandetikett erstellen?')">
+                                    <i class="fas fa-plus"></i> DHL Etikett erstellen
                                 </button>
                             </form>
                             {% else %}
