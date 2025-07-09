@@ -238,16 +238,29 @@ class PCConfigurator {
         // Apply sorting
         filteredCards = this.applySorting(category, filteredCards);
         
-        // Show/hide cards
+        // First hide all cards
         cards.forEach(card => {
-            if (filteredCards.includes(card)) {
+            card.classList.add('hidden');
+            card.style.display = 'none';
+        });
+        
+        // Show and reorder filtered cards
+        const container = document.querySelector(`#step-${this.getCategoryStep(category)} .component-selection`);
+        if (container) {
+            // Remove all cards from container first
+            filteredCards.forEach(card => {
+                if (card.parentNode) {
+                    card.parentNode.removeChild(card);
+                }
+            });
+            
+            // Re-add cards in sorted order
+            filteredCards.forEach(card => {
                 card.classList.remove('hidden');
                 card.style.display = '';
-            } else {
-                card.classList.add('hidden');
-                card.style.display = 'none';
-            }
-        });
+                container.appendChild(card);
+            });
+        }
         
         console.log(`Filtered to ${filteredCards.length} cards`);
         
@@ -430,22 +443,38 @@ class PCConfigurator {
     
     applySorting(category, cards) {
         const sortValue = this.getFilterValue(`sort-${category}`);
+        console.log(`Applying sort: ${sortValue} to ${cards.length} cards`);
         
-        return cards.sort((a, b) => {
-            if (sortValue === 'name') {
-                const nameA = a.querySelector('.component-name').textContent;
-                const nameB = b.querySelector('.component-name').textContent;
+        if (!sortValue || sortValue === 'name') {
+            // Default alphabetical sort by name
+            return Array.from(cards).sort((a, b) => {
+                const nameA = a.querySelector('.component-name')?.textContent || '';
+                const nameB = b.querySelector('.component-name')?.textContent || '';
                 return nameA.localeCompare(nameB);
-            }
-            
-            if (sortValue === 'price-asc' || sortValue === 'price-desc') {
-                const priceA = this.extractPrice(a.querySelector('.component-price').textContent);
-                const priceB = this.extractPrice(b.querySelector('.component-price').textContent);
-                return sortValue === 'price-asc' ? priceA - priceB : priceB - priceA;
-            }
-            
-            return 0;
-        });
+            });
+        }
+        
+        if (sortValue === 'price-asc' || sortValue === 'price-desc') {
+            return Array.from(cards).sort((a, b) => {
+                const priceAEl = a.querySelector('.component-price');
+                const priceBEl = b.querySelector('.component-price');
+                
+                if (!priceAEl || !priceBEl) {
+                    console.warn('Price element not found for sorting');
+                    return 0;
+                }
+                
+                const priceA = this.extractPrice(priceAEl.textContent);
+                const priceB = this.extractPrice(priceBEl.textContent);
+                
+                console.log(`Sorting: ${priceA} vs ${priceB}`);
+                
+                const result = sortValue === 'price-asc' ? priceA - priceB : priceB - priceA;
+                return result;
+            });
+        }
+        
+        return Array.from(cards);
     }
     
     getFilterValue(filterId) {
