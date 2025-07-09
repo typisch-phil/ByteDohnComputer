@@ -968,42 +968,42 @@ class PCConfigurator {
         let invalidComponents = [];
         let loadedComponents = {};
         
+        // Map singular categories to plural for component lookup
+        const categoryMapping = {
+            'cpu': 'cpus',
+            'motherboard': 'motherboards',
+            'ram': 'ram',  // RAM doesn't have 's'
+            'gpu': 'gpus',
+            'ssd': 'ssds',
+            'case': 'cases',
+            'psu': 'psus',
+            'cooler': 'coolers'
+        };
+        
         // Check each component exists in the database
         for (const [category, componentId] of Object.entries(config.components)) {
-            if (componentId && this.components[category + 's']) {
-                const component = this.components[category + 's'].find(comp => comp.id === componentId);
-                if (component) {
-                    loadedComponents[category] = componentId;
-                    validComponents++;
-                    
-                    // Visually select the component
-                    const card = document.querySelector(`.component-card[data-category="${category}"][data-id="${componentId}"]`);
-                    if (card) {
-                        // Remove previous selections in this category
-                        document.querySelectorAll(`.component-card[data-category="${category}"].selected`).forEach(c => {
-                            c.classList.remove('selected');
-                        });
-                        card.classList.add('selected');
+            if (componentId) {
+                const pluralCategory = categoryMapping[category];
+                if (pluralCategory && this.components[pluralCategory]) {
+                    const component = this.components[pluralCategory].find(comp => comp.id === componentId);
+                    if (component) {
+                        loadedComponents[category] = componentId;
+                        validComponents++;
+                        
+                        // Visually select the component
+                        const card = document.querySelector(`.component-card[data-category="${category}"][data-id="${componentId}"]`);
+                        if (card) {
+                            // Remove previous selections in this category
+                            document.querySelectorAll(`.component-card[data-category="${category}"].selected`).forEach(c => {
+                                c.classList.remove('selected');
+                            });
+                            card.classList.add('selected');
+                        }
+                    } else {
+                        invalidComponents.push(`${this.getCategoryDisplayName(category)} (ID: ${componentId})`);
                     }
                 } else {
-                    invalidComponents.push(`${this.getCategoryDisplayName(category)} (ID: ${componentId})`);
-                }
-            } else if (componentId && category === 'ram' && this.components['ram']) {
-                // Special handling for RAM category (no 's' plural)
-                const component = this.components['ram'].find(comp => comp.id === componentId);
-                if (component) {
-                    loadedComponents[category] = componentId;
-                    validComponents++;
-                    
-                    const card = document.querySelector(`.component-card[data-category="${category}"][data-id="${componentId}"]`);
-                    if (card) {
-                        document.querySelectorAll(`.component-card[data-category="${category}"].selected`).forEach(c => {
-                            c.classList.remove('selected');
-                        });
-                        card.classList.add('selected');
-                    }
-                } else {
-                    invalidComponents.push(`${this.getCategoryDisplayName(category)} (ID: ${componentId})`);
+                    invalidComponents.push(`${this.getCategoryDisplayName(category)} (unbekannte Kategorie)`);
                 }
             }
         }

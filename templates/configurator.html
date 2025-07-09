@@ -750,5 +750,41 @@ function testFilters() {
         }
     });
 }
+
+// Load saved configuration if provided
+{% if saved_config %}
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Loading saved configuration: {{ saved_config.name }}');
+    
+    // Wait for configurator to be initialized
+    setTimeout(function() {
+        if (window.configurator && window.configurator.loadConfiguration) {
+            const savedComponents = {{ saved_config.components_data|tojson }};
+            console.log('Saved components:', savedComponents);
+            
+            // Load the configuration
+            window.configurator.loadConfiguration({
+                name: '{{ saved_config.name }}',
+                components: savedComponents,
+                total_price: {{ saved_config.total_price }}
+            }).then(() => {
+                console.log('Configuration loaded successfully');
+                
+                // Show success message
+                if (window.showToast) {
+                    window.showToast('Konfiguration "{{ saved_config.name }}" wurde geladen!', 'success');
+                }
+            }).catch(error => {
+                console.error('Error loading configuration:', error);
+                if (window.showToast) {
+                    window.showToast('Fehler beim Laden der Konfiguration', 'error');
+                }
+            });
+        } else {
+            console.error('Configurator not available for loading saved configuration');
+        }
+    }, 1000); // Wait 1 second for full initialization
+});
+{% endif %}
 </script>
 {% endblock %}

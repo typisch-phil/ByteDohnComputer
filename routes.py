@@ -54,7 +54,23 @@ def index():
 @app.route('/konfigurator')
 def configurator():
     components = load_components()
-    return render_template('configurator.html', components=components)
+    
+    # Check if loading a saved configuration
+    load_config_id = request.args.get('load')
+    saved_config = None
+    
+    if load_config_id:
+        try:
+            saved_config = Configuration.query.get(int(load_config_id))
+            if saved_config:
+                # Parse the components JSON
+                saved_config.components_data = json.loads(saved_config.components)
+        except:
+            saved_config = None
+    
+    return render_template('configurator.html', 
+                         components=components, 
+                         saved_config=saved_config)
 
 @app.route('/fertig-pcs')
 def prebuild():
