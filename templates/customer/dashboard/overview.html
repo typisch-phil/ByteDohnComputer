@@ -1,0 +1,204 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Dashboard - ByteDohm.de{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-tachometer-alt"></i> 
+                Willkommen{% if current_user.first_name %}, {{ current_user.first_name }}{% endif %}!
+            </h2>
+            <p class="text-muted">Hier ist eine Übersicht über Ihr Konto und Ihre Aktivitäten.</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ stats.total_orders }}</h4>
+                            <p class="mb-0">Bestellungen</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-box fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ "%.2f"|format(stats.total_spent) }} €</h4>
+                            <p class="mb-0">Ausgegeben</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-euro-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ stats.recent_configs|length }}</h4>
+                            <p class="mb-0">Konfigurationen</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-cogs fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ stats.order_status_counts.get('pending', 0) }}</h4>
+                            <p class="mb-0">Offene Bestellungen</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Orders -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-box"></i> Letzte Bestellungen
+                    </h5>
+                    <a href="{{ url_for('customer_dashboard.orders') }}" class="btn btn-sm btn-outline-primary">
+                        Alle anzeigen
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if stats.recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Bestellnummer</th>
+                                    <th>Datum</th>
+                                    <th>Betrag</th>
+                                    <th>Status</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in stats.recent_orders %}
+                                <tr>
+                                    <td><strong>{{ order.order_number }}</strong></td>
+                                    <td>{{ order.created_at.strftime('%d.%m.%Y') }}</td>
+                                    <td>{{ "%.2f"|format(order.total_amount) }} €</td>
+                                    <td>
+                                        {% if order.status == 'pending' %}
+                                            <span class="badge bg-warning">Ausstehend</span>
+                                        {% elif order.status == 'processing' %}
+                                            <span class="badge bg-info">In Bearbeitung</span>
+                                        {% elif order.status == 'shipped' %}
+                                            <span class="badge bg-primary">Versendet</span>
+                                        {% elif order.status == 'delivered' %}
+                                            <span class="badge bg-success">Zugestellt</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('customer_dashboard.order_detail', order_id=order.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                        <h5>Keine Bestellungen</h5>
+                        <p class="text-muted">Sie haben noch keine Bestellungen aufgegeben.</p>
+                        <a href="{{ url_for('configurator') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Erste Bestellung aufgeben
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt"></i> Schnellaktionen
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('configurator') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Neuen PC konfigurieren
+                        </a>
+                        <a href="{{ url_for('prebuild') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-desktop"></i> Fertig-PCs ansehen
+                        </a>
+                        <a href="{{ url_for('customer_dashboard.invoices') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-file-invoice"></i> Rechnungen einsehen
+                        </a>
+                        <a href="{{ url_for('customer_dashboard.profile') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user"></i> Profil bearbeiten
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Configurations -->
+            {% if stats.recent_configs %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-cogs"></i> Letzte Konfigurationen
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% for config in stats.recent_configs %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ config.name }}</strong><br>
+                            <small class="text-muted">{{ "%.2f"|format(config.total_price) }} €</small>
+                        </div>
+                        <small class="text-muted">{{ config.created_at.strftime('%d.%m.') }}</small>
+                    </div>
+                    {% if not loop.last %}<hr class="my-2">{% endif %}
+                    {% endfor %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('customer_dashboard.configurations') }}" class="btn btn-sm btn-outline-primary">
+                            Alle Konfigurationen
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

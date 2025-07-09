@@ -1,0 +1,173 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Bestellungen - ByteDohm.de{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-box"></i> Meine Bestellungen</h2>
+                <a href="{{ url_for('customer_dashboard.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if orders.items %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i> 
+                        Alle Bestellungen ({{ orders.total }} Bestellungen)
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Bestellnummer</th>
+                                    <th>Datum</th>
+                                    <th>Typ</th>
+                                    <th>Betrag</th>
+                                    <th>Zahlungsstatus</th>
+                                    <th>Status</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders.items %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ order.order_number }}</strong>
+                                        {% if order.tracking_number %}
+                                        <br><small class="text-muted">
+                                            <i class="fas fa-truck"></i> {{ order.tracking_number }}
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                                    <td>
+                                        {% if order.order_type == 'custom' %}
+                                            <span class="badge bg-primary">Konfiguration</span>
+                                        {% elif order.order_type == 'prebuilt' %}
+                                            <span class="badge bg-info">Fertig-PC</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ "%.2f"|format(order.total_amount) }} €</strong></td>
+                                    <td>
+                                        {% if order.payment_status == 'pending' %}
+                                            <span class="badge bg-warning">Ausstehend</span>
+                                        {% elif order.payment_status == 'paid' %}
+                                            <span class="badge bg-success">Bezahlt</span>
+                                        {% elif order.payment_status == 'failed' %}
+                                            <span class="badge bg-danger">Fehlgeschlagen</span>
+                                        {% elif order.payment_status == 'refunded' %}
+                                            <span class="badge bg-secondary">Erstattet</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if order.status == 'pending' %}
+                                            <span class="badge bg-warning">Ausstehend</span>
+                                        {% elif order.status == 'processing' %}
+                                            <span class="badge bg-info">In Bearbeitung</span>
+                                        {% elif order.status == 'shipped' %}
+                                            <span class="badge bg-primary">Versendet</span>
+                                        {% elif order.status == 'delivered' %}
+                                            <span class="badge bg-success">Zugestellt</span>
+                                        {% elif order.status == 'cancelled' %}
+                                            <span class="badge bg-danger">Storniert</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('customer_dashboard.order_detail', order_id=order.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Details
+                                        </a>
+                                        {% if order.tracking_number %}
+                                        <a href="{{ url_for('tracking_page') }}?tracking={{ order.tracking_number }}" 
+                                           class="btn btn-sm btn-outline-info" target="_blank">
+                                            <i class="fas fa-search"></i> Verfolgen
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if orders.pages > 1 %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Bestellungen Pagination">
+                <ul class="pagination justify-content-center">
+                    {% if orders.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('customer_dashboard.orders', page=orders.prev_num) }}">
+                            <i class="fas fa-chevron-left"></i> Vorherige
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in orders.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != orders.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('customer_dashboard.orders', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if orders.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('customer_dashboard.orders', page=orders.next_num) }}">
+                            Nächste <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-box fa-4x text-muted mb-4"></i>
+                    <h4>Keine Bestellungen gefunden</h4>
+                    <p class="text-muted">Sie haben noch keine Bestellungen aufgegeben.</p>
+                    <a href="{{ url_for('configurator') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-plus"></i> PC konfigurieren
+                    </a>
+                    <a href="{{ url_for('prebuild') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-desktop"></i> Fertig-PCs ansehen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

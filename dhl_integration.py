@@ -21,10 +21,12 @@ class DHLShippingAPI:
         self.password = os.environ.get('DHL_PASSWORD')
         self.account_number = os.environ.get('DHL_ACCOUNT_NUMBER', '22222222220101')  # Test account
         
-        # API Endpoints
+        # API Endpoints - Live System aktiviert
         self.sandbox_url = "https://api-sandbox.dhl.com"
         self.production_url = "https://api-eu.dhl.com"
-        self.base_url = self.sandbox_url if os.environ.get('DHL_SANDBOX', 'true') == 'true' else self.production_url
+        # Verwende Live API für echte Tracking-Daten
+        self.base_url = self.production_url if os.environ.get('DHL_LIVE', 'false') == 'true' else self.sandbox_url
+        self.track_api_url = f"{self.base_url}/track/shipments"
         
         # Company details (ByteDohm)
         self.sender_details = {
@@ -199,29 +201,61 @@ class DHLShippingAPI:
             }
     
     def track_shipment(self, tracking_number):
-        """Verfolge DHL Sendung"""
+        """Verfolge DHL Sendung mit Live-Daten"""
         try:
+            # DHL Live Tracking API Call
             headers = {
+                'DHL-API-Key': self.api_key if self.api_key and self.api_key != 'demo-key' else 'demo-key',
                 'Accept': 'application/json',
-                'DHL-API-Key': self.api_key or 'demo-key'
+                'Content-Type': 'application/json'
             }
             
-            url = f"{self.base_url}/track/shipments"
             params = {'trackingNumber': tracking_number}
             
-            response = requests.get(url, headers=headers, params=params, timeout=30)
+            response = requests.get(self.track_api_url, params=params, headers=headers, timeout=15)
+            
+            logging.info(f"DHL Tracking API Response: {response.status_code} for {tracking_number}")
             
             if response.status_code == 200:
+                data = response.json()
+                shipments = data.get('shipments', [])
+                
+                if shipments:
+                    shipment = shipments[0]
+                    # Strukturiere Antwort für Template
+                    return {
+                        'success': True,
+                        'data': {
+                            'trackingNumber': tracking_number,
+                            'status': shipment.get('status', {}),
+                            'events': shipment.get('events', []),
+                            'details': shipment.get('details', {}),
+                            'destination': shipment.get('destination', {}),
+                            'origin': shipment.get('origin', {})
+                        }
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'error': 'Keine Sendungsdaten gefunden'
+                    }
+            elif response.status_code == 404:
                 return {
-                    'success': True,
-                    'data': response.json()
+                    'success': False,
+                    'error': 'Sendungsnummer nicht gefunden'
                 }
             else:
                 return {
                     'success': False,
-                    'error': f'Tracking Fehler: {response.status_code}'
+                    'error': f'DHL API Fehler: {response.status_code} - {response.text}'
                 }
                 
+        except requests.RequestException as e:
+            logging.error(f"DHL Tracking Request Error: {e}")
+            return {
+                'success': False,
+                'error': f'Verbindungsfehler zur DHL API: {str(e)}'
+            }
         except Exception as e:
             logging.error(f"DHL Tracking Error: {e}")
             return {
