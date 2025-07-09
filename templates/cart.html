@@ -179,9 +179,37 @@ class Cart {
     
     calculateTotal() {
         return this.items.reduce((total, item) => {
-            const component = this.getComponent(item.componentId, item.category);
-            return total + (component ? component.price * item.quantity : 0);
+            if (item.type === 'prebuilt') {
+                return total + (item.price * item.quantity);
+            } else {
+                const component = this.getComponent(item.componentId, item.category);
+                return total + (component ? component.price * item.quantity : 0);
+            }
         }, 0);
+    }
+    
+    updatePrebuiltQuantity(prebuiltId, quantity) {
+        const item = this.items.find(item => 
+            item.type === 'prebuilt' && item.prebuiltId === prebuiltId
+        );
+        
+        if (item) {
+            if (quantity <= 0) {
+                this.removePrebuiltItem(prebuiltId);
+            } else {
+                item.quantity = quantity;
+                this.saveCart();
+                this.renderCart();
+            }
+        }
+    }
+    
+    removePrebuiltItem(prebuiltId) {
+        this.items = this.items.filter(item => 
+            !(item.type === 'prebuilt' && item.prebuiltId === prebuiltId)
+        );
+        this.saveCart();
+        this.renderCart();
     }
     
     renderCart() {
@@ -202,35 +230,66 @@ class Cart {
             configInfo.style.display = 'block';
             
             cartContainer.innerHTML = this.items.map(item => {
-                const component = this.getComponent(item.componentId, item.category);
-                if (!component) return '';
-                
-                return `
-                    <div class="cart-item border-bottom py-3">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <h6 class="mb-1">${component.name}</h6>
-                                <small class="text-muted">${item.category.toUpperCase()}</small>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="input-group input-group-sm">
-                                    <button class="btn btn-outline-secondary" onclick="cart.updateQuantity(${item.componentId}, '${item.category}', ${item.quantity - 1})">-</button>
-                                    <input type="number" class="form-control text-center" value="${item.quantity}" min="1" 
-                                           onchange="cart.updateQuantity(${item.componentId}, '${item.category}', parseInt(this.value))">
-                                    <button class="btn btn-outline-secondary" onclick="cart.updateQuantity(${item.componentId}, '${item.category}', ${item.quantity + 1})">+</button>
+                if (item.type === 'prebuilt') {
+                    // Handle prebuilt PC items
+                    return `
+                        <div class="cart-item border-bottom py-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h6 class="mb-1">${item.name}</h6>
+                                    <small class="text-muted">FERTIG-PC</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="input-group input-group-sm">
+                                        <button class="btn btn-outline-secondary" onclick="cart.updatePrebuiltQuantity(${item.prebuiltId}, ${item.quantity - 1})">-</button>
+                                        <input type="number" class="form-control text-center" value="${item.quantity}" min="1" 
+                                               onchange="cart.updatePrebuiltQuantity(${item.prebuiltId}, parseInt(this.value))">
+                                        <button class="btn btn-outline-secondary" onclick="cart.updatePrebuiltQuantity(${item.prebuiltId}, ${item.quantity + 1})">+</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <strong>€${(item.price * item.quantity).toFixed(2)}</strong>
+                                </div>
+                                <div class="col-md-1 text-end">
+                                    <button class="btn btn-outline-danger btn-sm" onclick="cart.removePrebuiltItem(${item.prebuiltId})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="col-md-2 text-end">
-                                <strong>€${(component.price * item.quantity).toFixed(2)}</strong>
-                            </div>
-                            <div class="col-md-1 text-end">
-                                <button class="btn btn-outline-danger btn-sm" onclick="cart.removeItem(${item.componentId}, '${item.category}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                        </div>
+                    `;
+                } else {
+                    // Handle component items
+                    const component = this.getComponent(item.componentId, item.category);
+                    if (!component) return '';
+                    
+                    return `
+                        <div class="cart-item border-bottom py-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h6 class="mb-1">${component.name}</h6>
+                                    <small class="text-muted">${item.category.toUpperCase()}</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="input-group input-group-sm">
+                                        <button class="btn btn-outline-secondary" onclick="cart.updateQuantity(${item.componentId}, '${item.category}', ${item.quantity - 1})">-</button>
+                                        <input type="number" class="form-control text-center" value="${item.quantity}" min="1" 
+                                               onchange="cart.updateQuantity(${item.componentId}, '${item.category}', parseInt(this.value))">
+                                        <button class="btn btn-outline-secondary" onclick="cart.updateQuantity(${item.componentId}, '${item.category}', ${item.quantity + 1})">+</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <strong>€${(component.price * item.quantity).toFixed(2)}</strong>
+                                </div>
+                                <div class="col-md-1 text-end">
+                                    <button class="btn btn-outline-danger btn-sm" onclick="cart.removeItem(${item.componentId}, '${item.category}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             }).join('');
         }
         

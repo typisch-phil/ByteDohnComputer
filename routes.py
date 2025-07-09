@@ -377,40 +377,77 @@ def create_checkout_session_from_cart():
         components = load_components()
         
         for cart_item in data['cart_items']:
-            component_id = cart_item['componentId']
-            category = cart_item['category']
             quantity = cart_item.get('quantity', 1)
             
-            # Find component in loaded data
-            if category in components:
-                component = next((comp for comp in components[category] if comp['id'] == component_id), None)
-                if component:
-                    line_items.append({
-                        'price_data': {
-                            'currency': 'eur',
-                            'product_data': {
-                                'name': f"{component['name']} ({category.upper()})",
-                                'description': f"PC-Komponente: {component['name']}",
-                            },
-                            'unit_amount': int(component['price'] * 100),  # Convert to cents
+            if cart_item.get('type') == 'prebuilt':
+                # Handle prebuilt PC
+                prebuilt_id = cart_item['prebuiltId']
+                prebuilt_name = cart_item['name']
+                prebuilt_price = cart_item['price']
+                
+                line_items.append({
+                    'price_data': {
+                        'currency': 'eur',
+                        'product_data': {
+                            'name': f"{prebuilt_name} (FERTIG-PC)",
+                            'description': f"Fertig-PC: {prebuilt_name}",
                         },
-                        'quantity': quantity,
-                    })
+                        'unit_amount': int(prebuilt_price * 100),  # Convert to cents
+                    },
+                    'quantity': quantity,
+                })
+            else:
+                # Handle component
+                component_id = cart_item['componentId']
+                category = cart_item['category']
+                
+                # Find component in loaded data
+                if category in components:
+                    component = next((comp for comp in components[category] if comp['id'] == component_id), None)
+                    if component:
+                        line_items.append({
+                            'price_data': {
+                                'currency': 'eur',
+                                'product_data': {
+                                    'name': f"{component['name']} ({category.upper()})",
+                                    'description': f"PC-Komponente: {component['name']}",
+                                },
+                                'unit_amount': int(component['price'] * 100),  # Convert to cents
+                            },
+                            'quantity': quantity,
+                        })
         
         if not line_items:
             return jsonify({'error': 'Keine gültigen Komponenten im Warenkorb gefunden'}), 400
         
         # Convert cart items to configuration format for saving
         config_components = {}
+        config_prebuilts = []
+        
         for cart_item in data['cart_items']:
-            category_key = cart_item['category'].rstrip('s')  # Remove 's' from category
-            config_components[category_key] = cart_item['componentId']
+            if cart_item.get('type') == 'prebuilt':
+                # Store prebuilt PC info
+                config_prebuilts.append({
+                    'id': cart_item['prebuiltId'],
+                    'name': cart_item['name'],
+                    'quantity': cart_item.get('quantity', 1)
+                })
+            else:
+                # Store component info
+                category_key = cart_item['category'].rstrip('s')  # Remove 's' from category
+                config_components[category_key] = cart_item['componentId']
+        
+        # Create combined configuration data
+        config_data = {
+            'components': config_components,
+            'prebuilts': config_prebuilts
+        }
         
         # Save configuration before checkout
         config_name = data.get('config_name', f"PC-Bestellung {datetime.now().strftime('%Y-%m-%d %H:%M')}")
         config = Configuration(
             name=config_name,
-            components=json.dumps(config_components),
+            components=json.dumps(config_data),
             total_price=data['total_price'],
             created_at=datetime.utcnow()
         )

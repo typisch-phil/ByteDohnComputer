@@ -120,7 +120,7 @@
                         <button class="btn btn-primary w-100 mb-2" onclick="showDetails('{{ pc.name }}')">
                             <i class="fas fa-info-circle"></i> Details anzeigen
                         </button>
-                        <button class="btn btn-success w-100 mb-2">
+                        <button class="btn btn-success w-100 mb-2" onclick="addPrebuiltToCart({{ pc.id }}, '{{ pc.name }}', {{ pc.price }})">
                             <i class="fas fa-shopping-cart"></i> In den Warenkorb
                         </button>
                         <button class="btn btn-outline-secondary w-100" onclick="customizePC('{{ pc.name }}')">
@@ -156,7 +156,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                <button type="button" class="btn btn-primary">In den Warenkorb</button>
+                <button type="button" class="btn btn-primary" onclick="addPrebuiltToCartFromModal()">In den Warenkorb</button>
             </div>
         </div>
     </div>
@@ -182,6 +182,9 @@ const prebuilts = {{ prebuilts | tojson }};
 function showDetails(pcName) {
     const pc = prebuilts.find(p => p.name === pcName);
     if (!pc) return;
+    
+    // Store current PC for modal cart action
+    currentModalPC = pc;
     
     document.getElementById('pcDetailsTitle').textContent = pc.name;
     
@@ -232,6 +235,78 @@ function customizePC(pcName) {
     // Redirect to configurator with pre-selected components
     alert(`Weiterleitung zum Konfigurator mit ${pcName} als Basis...`);
     window.location.href = '{{ url_for("configurator") }}?base=' + encodeURIComponent(pcName);
+}
+
+// Global variable to store the currently viewed PC for modal cart action
+let currentModalPC = null;
+
+function addPrebuiltToCart(pcId, pcName, pcPrice) {
+    // Get current cart from localStorage
+    const cartItems = JSON.parse(localStorage.getItem('cart_items') || '[]');
+    
+    // Check if this prebuilt PC is already in cart
+    const existingIndex = cartItems.findIndex(item => 
+        item.type === 'prebuilt' && item.prebuiltId === pcId
+    );
+    
+    if (existingIndex >= 0) {
+        // Update quantity
+        cartItems[existingIndex].quantity += 1;
+    } else {
+        // Add new prebuilt PC to cart
+        cartItems.push({
+            type: 'prebuilt',
+            prebuiltId: pcId,
+            name: pcName,
+            price: pcPrice,
+            quantity: 1,
+            addedAt: new Date().toISOString()
+        });
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('cart_items', JSON.stringify(cartItems));
+    
+    // Update cart badge
+    if (typeof updateCartBadge === 'function') {
+        updateCartBadge();
+    }
+    
+    // Show success message
+    const message = `${pcName} wurde zum Warenkorb hinzugefügt!`;
+    showCartNotification(message);
+}
+
+function addPrebuiltToCartFromModal() {
+    if (currentModalPC) {
+        addPrebuiltToCart(currentModalPC.id, currentModalPC.name, currentModalPC.price);
+        
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('pcDetailsModal'));
+        if (modal) {
+            modal.hide();
+        }
+    }
+}
+
+function showCartNotification(message) {
+    // Create and show a temporary notification
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 3000);
 }
 
 function applyFilters() {
