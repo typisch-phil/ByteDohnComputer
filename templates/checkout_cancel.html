@@ -18,15 +18,15 @@
                         <p>Keine Sorge - es wurden keine Kosten berechnet.</p>
                     </div>
                     
-                    {% if config %}
+                    {% if order %}
                     <div class="card mt-4">
                         <div class="card-header">
-                            <h5>Ihre gespeicherte Konfiguration</h5>
+                            <h5>Ihre abgebrochene Bestellung</h5>
                         </div>
                         <div class="card-body">
-                            <h6><strong>{{ config.name }}</strong></h6>
-                            <p><strong>Gesamtpreis:</strong> {{ "%.2f"|format(config.total_price) }} €</p>
-                            <p class="text-muted">Diese Konfiguration wurde gespeichert und kann jederzeit erneut bestellt werden.</p>
+                            <h6><strong>{{ order.order_number }}</strong></h6>
+                            <p><strong>Gesamtpreis:</strong> {{ "%.2f"|format(order.total_amount) }} €</p>
+                            <p class="text-muted">Diese Bestellung wurde abgebrochen. Sie können eine neue Bestellung jederzeit aufgeben.</p>
                         </div>
                     </div>
                     {% endif %}

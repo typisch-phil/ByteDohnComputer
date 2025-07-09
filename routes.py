@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify, redirect, url_for
 from app import app, db
-from models import Configuration, Component, PrebuiltPC
+from models import Configuration, Component, PrebuiltPC, Customer, Order, OrderItem, Invoice
 import json
 import os
 import stripe
@@ -418,13 +418,22 @@ def checkout_success():
     """Handle successful checkout"""
     session_id = request.args.get('session_id')
     order_id = request.args.get('order_id')
+    config_id = request.args.get('config_id')
     
     try:
         # Retrieve the checkout session from Stripe
         checkout_session = stripe.checkout.Session.retrieve(session_id)
         
-        # Get order
-        order = Order.query.get(order_id) if order_id else None
+        # Get order - try multiple methods
+        order = None
+        if order_id:
+            order = Order.query.get(order_id)
+        elif checkout_session.id:
+            # Try to find by stripe session ID
+            order = Order.query.filter_by(stripe_session_id=checkout_session.id).first()
+        elif config_id:
+            # If from cart, try to find the most recent order for this config
+            order = Order.query.filter_by(status='pending').order_by(Order.created_at.desc()).first()
         
         if order and checkout_session.payment_status == 'paid':
             # Update order status
@@ -624,16 +633,82 @@ def create_checkout_session_from_cart():
             'prebuilts': config_prebuilts
         }
         
+        # Get current customer if logged in
+        customer_id = None
+        try:
+            from flask_login import current_user
+            if current_user.is_authenticated and hasattr(current_user, 'id'):
+                customer_id = current_user.id
+        except:
+            pass
+        
         # Save configuration before checkout
         config_name = data.get('config_name', f"PC-Bestellung {datetime.now().strftime('%Y-%m-%d %H:%M')}")
         config = Configuration(
             name=config_name,
             components=json.dumps(config_data),
             total_price=data['total_price'],
+            customer_id=customer_id,
             created_at=datetime.utcnow()
         )
         
         db.session.add(config)
+        db.session.commit()
+        
+        # Create order
+        order_number = f"ORD-{datetime.now().strftime('%Y%m%d')}-{config.id:04d}"
+        order = Order(
+            customer_id=customer_id,
+            order_number=order_number,
+            order_type='mixed',  # Can contain both components and prebuilts
+            total_amount=data['total_price'],
+            status='pending',
+            payment_status='pending',
+            created_at=datetime.utcnow()
+        )
+        db.session.add(order)
+        db.session.commit()
+        
+        # Create order items
+        for cart_item in data['cart_items']:
+            quantity = cart_item.get('quantity', 1)
+            
+            if cart_item.get('type') == 'prebuilt':
+                # Add prebuilt PC as order item
+                prebuilt_id = cart_item['prebuiltId']
+                prebuilt_name = cart_item['name']
+                prebuilt_price = cart_item['price']
+                
+                order_item = OrderItem(
+                    order_id=order.id,
+                    item_type='prebuilt',
+                    item_id=prebuilt_id,
+                    item_name=prebuilt_name,
+                    quantity=quantity,
+                    unit_price=prebuilt_price,
+                    total_price=prebuilt_price * quantity
+                )
+                db.session.add(order_item)
+            else:
+                # Add component as order item
+                component_id = cart_item['componentId']
+                category = cart_item['category']
+                
+                # Find component in loaded data to get details
+                if category in components:
+                    component = next((comp for comp in components[category] if comp['id'] == component_id), None)
+                    if component:
+                        order_item = OrderItem(
+                            order_id=order.id,
+                            item_type='component',
+                            item_id=component_id,
+                            item_name=component['name'],
+                            quantity=quantity,
+                            unit_price=component['price'],
+                            total_price=component['price'] * quantity
+                        )
+                        db.session.add(order_item)
+        
         db.session.commit()
         
         # Create Stripe checkout session
@@ -641,19 +716,27 @@ def create_checkout_session_from_cart():
             payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            success_url=f'https://{domain}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}&config_id={config.id}',
+            success_url=f'https://{domain}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}&order_id={order.id}&config_id={config.id}',
             cancel_url=f'https://{domain}/warenkorb',
             metadata={
+                'order_id': str(order.id),
+                'order_number': order_number,
                 'config_id': str(config.id),
                 'config_name': config_name,
                 'source': 'cart'
             }
         )
         
+        # Update order with Stripe session ID
+        order.stripe_session_id = checkout_session.id
+        db.session.commit()
+        
         return jsonify({
             'success': True,
             'checkout_url': checkout_session.url,
-            'session_id': checkout_session.id
+            'session_id': checkout_session.id,
+            'order_id': order.id,
+            'order_number': order_number
         })
         
     except Exception as e:
