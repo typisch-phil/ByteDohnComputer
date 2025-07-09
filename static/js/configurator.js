@@ -26,6 +26,7 @@ class PCConfigurator {
         this.setupEventListeners();
         this.updateStepIndicator();
         this.updateNavigationButtons();
+        this.updateTotalPrice(); // Initialize total price display
         
         // Test all search inputs after page load
         setTimeout(() => {
@@ -585,6 +586,9 @@ class PCConfigurator {
                 }
             }
         }
+        
+        // Update total price after clearing selections
+        this.updateTotalPrice();
     }
     
     async validateCompatibility() {
@@ -876,24 +880,37 @@ class PCConfigurator {
     calculateTotalPrice() {
         let total = 0;
         
+        console.log('Calculating total price. Selected components:', this.selectedComponents);
+        console.log('Available components data:', Object.keys(this.components));
+        
         // Calculate price from selected components
         for (const [category, componentId] of Object.entries(this.selectedComponents)) {
             if (componentId && this.components[category + 's']) {
                 const component = this.components[category + 's'].find(c => c.id === componentId);
                 if (component && component.price) {
+                    console.log(`Found component ${category}: ${component.name} - €${component.price}`);
                     total += component.price;
+                } else {
+                    console.warn(`Component not found or no price: ${category} ID ${componentId}`);
                 }
+            } else if (componentId) {
+                console.warn(`No components data for category: ${category}s`);
             }
         }
         
+        console.log('Total calculated price:', total);
         return total;
     }
     
     updateTotalPrice() {
         const totalPrice = this.calculateTotalPrice();
+        console.log('Updating total price:', totalPrice);
         const totalPriceElement = document.getElementById('total-price');
         if (totalPriceElement) {
             totalPriceElement.textContent = formatPrice(totalPrice);
+            console.log('Total price element updated:', totalPriceElement.textContent);
+        } else {
+            console.error('Total price element not found!');
         }
     }
     
@@ -901,6 +918,7 @@ class PCConfigurator {
         this.selectedComponents = config.components;
         this.updateStepIndicator();
         this.updateNavigationButtons();
+        this.updateTotalPrice();
         this.validateCompatibility();
     }
     
@@ -926,6 +944,7 @@ class PCConfigurator {
             this.showStep(1);
             this.updateStepIndicator();
             this.updateNavigationButtons();
+            this.updateTotalPrice();
             
             const statusDiv = document.getElementById('compatibility-status');
             if (statusDiv) {
