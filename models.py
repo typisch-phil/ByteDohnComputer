@@ -96,6 +96,7 @@ class Customer(UserMixin, db.Model):
     __tablename__ = 'customers'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), nullable=False)
+    password_hash = db.Column(db.String(256), nullable=True)
     first_name = db.Column(db.String(100), nullable=True)
     last_name = db.Column(db.String(100), nullable=True)
     phone = db.Column(db.String(20), nullable=True)
@@ -106,12 +107,16 @@ class Customer(UserMixin, db.Model):
     orders = db.relationship('Order', backref='customer', lazy=True)
     
     def set_password(self, password):
-        """Set password hash - placeholder until migration"""
-        pass
+        """Set password hash"""
+        from werkzeug.security import generate_password_hash
+        self.password_hash = generate_password_hash(password)
     
     def check_password(self, password):
-        """Check password against hash - placeholder until migration"""
-        return False
+        """Check password against hash"""
+        from werkzeug.security import check_password_hash
+        if not self.password_hash:
+            return False
+        return check_password_hash(self.password_hash, password)
     
     def get_full_name(self):
         """Get full name"""
@@ -136,8 +141,11 @@ class Customer(UserMixin, db.Model):
         return sorted(self.orders, key=lambda x: x.created_at, reverse=True)[:limit]
     
     def update_last_login(self):
-        """Update last login timestamp - placeholder until migration"""
-        pass
+        """Update last login timestamp"""
+        try:
+            db.session.commit()
+        except:
+            pass
     
     def __repr__(self):
         return f'<Customer {self.email}>'

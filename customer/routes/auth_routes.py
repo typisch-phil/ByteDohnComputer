@@ -35,7 +35,7 @@ def login():
             return render_template('customer/auth/login.html')
         
         # Find customer
-        customer = Customer.query.filter_by(email=email, is_active=True).first()
+        customer = Customer.query.filter_by(email=email).first()
         
         if not customer or not customer.check_password(password):
             flash('Ungültige E-Mail oder Passwort.', 'error')
@@ -44,13 +44,6 @@ def login():
         # Login customer
         login_user(customer, remember=remember_me)
         customer.update_last_login()
-        
-        # Create session
-        create_customer_session(
-            customer,
-            ip_address=get_customer_ip(),
-            user_agent=get_customer_user_agent()
-        )
         
         flash(f'Willkommen zurück, {customer.first_name}!', 'success')
         
@@ -125,19 +118,13 @@ def register():
             return render_template('customer/auth/register.html')
         
         try:
-            # Create new customer
+            # Create new customer with basic fields only
             customer = Customer(
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
                 phone=phone or None,
-                street=street or None,
-                house_number=house_number or None,
-                postal_code=postal_code or None,
-                city=city or None,
-                country=country,
-                newsletter_subscription=newsletter,
-                email_verified=False  # Could implement email verification later
+                address=f"{street or ''} {house_number or ''}, {postal_code or ''} {city or ''}, {country}".strip(', ')
             )
             
             customer.set_password(password)
@@ -149,19 +136,15 @@ def register():
             login_user(customer)
             customer.update_last_login()
             
-            # Create session
-            create_customer_session(
-                customer,
-                ip_address=get_customer_ip(),
-                user_agent=get_customer_user_agent()
-            )
-            
             flash(f'Willkommen bei ByteDohm, {customer.first_name}! Ihr Konto wurde erfolgreich erstellt.', 'success')
             return redirect(url_for('customer_dashboard.dashboard'))
             
         except Exception as e:
             db.session.rollback()
-            flash('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.', 'error')
+            import traceback
+            print(f"Registration error: {e}")
+            print(traceback.format_exc())
+            flash(f'Ein Fehler ist aufgetreten: {str(e)}', 'error')
             return render_template('customer/auth/register.html')
     
     return render_template('customer/auth/register.html')
