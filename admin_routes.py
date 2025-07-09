@@ -423,8 +423,12 @@ def admin_order_detail(order_id):
 @login_required
 def admin_create_shipping_label(order_id):
     """Erstelle DHL Versandetikett für Bestellung"""
+    import logging
+    logging.info(f"Starting DHL shipping label creation for order {order_id}")
+    
     try:
         result = create_shipping_label_for_order(order_id)
+        logging.info(f"DHL API Result: {result}")
         
         if result['success']:
             # Update order with shipping info
@@ -436,11 +440,14 @@ def admin_create_shipping_label(order_id):
             db.session.commit()
             
             flash(f'Versandetikett erfolgreich erstellt! Tracking: {result["tracking_number"]}', 'success')
+            logging.info(f"Successfully created DHL label for order {order_id}: {result['tracking_number']}")
         else:
             flash(f'Fehler beim Erstellen des Versandetiketts: {result["error"]}', 'error')
+            logging.error(f"DHL label creation failed for order {order_id}: {result['error']}")
             
     except Exception as e:
         flash(f'Unerwarteter Fehler: {str(e)}', 'error')
+        logging.error(f"Exception in DHL label creation for order {order_id}: {str(e)}")
     
     return redirect(url_for('admin_order_detail', order_id=order_id))
 
