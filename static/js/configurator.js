@@ -16,6 +16,7 @@ class PCConfigurator {
         this.components = {};
         this.currentStep = 1;
         this.totalSteps = 8;
+        this.hasCompatibilityErrors = false;
         
         this.init();
     }
@@ -624,12 +625,17 @@ class PCConfigurator {
         const statusDiv = document.getElementById('compatibility-status');
         if (!statusDiv) return;
         
+        // Store compatibility state for navigation control
+        this.hasCompatibilityErrors = !result.compatible;
+        
         let html = '<h4>Kompatibilitätsstatus</h4>';
         
         if (result.compatible) {
             html += '<div class="alert alert-success"><i class="fas fa-check"></i> Alle Komponenten sind kompatibel!</div>';
         } else {
             html += '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Kompatibilitätsprobleme gefunden:</div>';
+            html += '<div class="alert alert-warning mb-2"><i class="fas fa-info-circle"></i> <strong>Navigation blockiert:</strong> Beheben Sie die Probleme, bevor Sie fortfahren können.</div>';
+            
             if (result.errors && result.errors.length > 0) {
                 result.errors.forEach(error => {
                     html += `<div class="alert alert-warning mb-2">${error}</div>`;
@@ -645,6 +651,9 @@ class PCConfigurator {
         }
         
         statusDiv.innerHTML = html;
+        
+        // Update navigation buttons immediately
+        this.updateNavigationButtons();
     }
     
     updateStepIndicator() {
@@ -680,6 +689,12 @@ class PCConfigurator {
     }
     
     nextStep() {
+        // Check for compatibility errors first
+        if (this.hasCompatibilityErrors) {
+            alert('Es gibt Kompatibilitätsprobleme mit Ihrer aktuellen Auswahl. Bitte beheben Sie diese, bevor Sie fortfahren.');
+            return;
+        }
+        
         // Check if current step has a selection
         const currentCategory = this.getCurrentStepCategory();
         if (currentCategory && !this.selectedComponents[currentCategory]) {
@@ -719,6 +734,23 @@ class PCConfigurator {
         
         if (prevBtn) {
             prevBtn.style.display = this.currentStep > 1 ? 'inline-block' : 'none';
+        }
+        
+        if (nextBtn) {
+            // Disable next button if there are compatibility errors
+            if (this.hasCompatibilityErrors) {
+                nextBtn.disabled = true;
+                nextBtn.classList.add('btn-secondary');
+                nextBtn.classList.remove('btn-primary');
+                nextBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Kompatibilitätsprobleme beheben';
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('btn-secondary');
+                nextBtn.classList.add('btn-primary');
+                nextBtn.innerHTML = this.currentStep < this.totalSteps ? 
+                    '<i class="fas fa-arrow-right"></i> Weiter' : 
+                    '<i class="fas fa-check"></i> Fertig';
+            }
         }
         
         if (nextBtn) {
