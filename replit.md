@@ -103,6 +103,8 @@ The application is designed for flexible deployment:
 - July 08, 2025: Vollständige Migration zu MySQL - alle PostgreSQL und SQLite Komponenten entfernt, nur MySQL als Datenquelle
 - July 08, 2025: MySQL-Konfigurationssystem implementiert, automatische Verbindungserkennung, komplette Dokumentation erstellt
 - July 09, 2025: Preisberechnung Bug behoben - Komponenten-Datenübertragung vom Backend zu Frontend implementiert, RAM-Kategorie-Mapping korrigiert
+- July 09, 2025: Modernes UI-System implementiert - Toast-Benachrichtigungen, Modal-Dialoge, Eingabefelder mit Validierung für bessere Benutzererfahrung
+- July 09, 2025: Import/Export-System verbessert - Komponenten-Validierung beim Import, moderne Dialoge, Fehlerbehandlung mit Toast-Nachrichten
 
 ## User Preferences
 

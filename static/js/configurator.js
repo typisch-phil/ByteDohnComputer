@@ -957,16 +957,94 @@ class PCConfigurator {
         }
     }
     
-    loadConfiguration(config) {
-        this.selectedComponents = config.components;
+    async loadConfiguration(config) {
+        // Validate configuration structure
+        if (!config || !config.components) {
+            Toast.show('Ungültige Konfigurationsdatei', 'error');
+            return false;
+        }
+        
+        let validComponents = 0;
+        let invalidComponents = [];
+        let loadedComponents = {};
+        
+        // Check each component exists in the database
+        for (const [category, componentId] of Object.entries(config.components)) {
+            if (componentId && this.components[category + 's']) {
+                const component = this.components[category + 's'].find(comp => comp.id === componentId);
+                if (component) {
+                    loadedComponents[category] = componentId;
+                    validComponents++;
+                    
+                    // Visually select the component
+                    const card = document.querySelector(`.component-card[data-category="${category}"][data-id="${componentId}"]`);
+                    if (card) {
+                        // Remove previous selections in this category
+                        document.querySelectorAll(`.component-card[data-category="${category}"].selected`).forEach(c => {
+                            c.classList.remove('selected');
+                        });
+                        card.classList.add('selected');
+                    }
+                } else {
+                    invalidComponents.push(`${this.getCategoryDisplayName(category)} (ID: ${componentId})`);
+                }
+            } else if (componentId && category === 'ram' && this.components['ram']) {
+                // Special handling for RAM category (no 's' plural)
+                const component = this.components['ram'].find(comp => comp.id === componentId);
+                if (component) {
+                    loadedComponents[category] = componentId;
+                    validComponents++;
+                    
+                    const card = document.querySelector(`.component-card[data-category="${category}"][data-id="${componentId}"]`);
+                    if (card) {
+                        document.querySelectorAll(`.component-card[data-category="${category}"].selected`).forEach(c => {
+                            c.classList.remove('selected');
+                        });
+                        card.classList.add('selected');
+                    }
+                } else {
+                    invalidComponents.push(`${this.getCategoryDisplayName(category)} (ID: ${componentId})`);
+                }
+            }
+        }
+        
+        // Update selected components
+        this.selectedComponents = {
+            cpu: null,
+            motherboard: null,
+            ram: null,
+            gpu: null,
+            ssd: null,
+            case: null,
+            psu: null,
+            cooler: null,
+            ...loadedComponents
+        };
+        
+        // Update UI
         this.updateStepIndicator();
         this.updateNavigationButtons();
         this.updateTotalPrice();
         this.validateCompatibility();
+        
+        // Show results
+        if (invalidComponents.length > 0) {
+            Toast.show(`Konfiguration teilweise geladen. ${validComponents} Komponenten gefunden, ${invalidComponents.length} nicht verfügbar: ${invalidComponents.join(', ')}`, 'warning', 6000);
+        } else {
+            Toast.show(`Konfiguration erfolgreich geladen! ${validComponents} Komponenten importiert.`, 'success');
+        }
+        
+        return true;
     }
-    
-    resetConfiguration() {
-        if (confirm('Sind Sie sicher, dass Sie die Konfiguration zurücksetzen möchten?')) {
+
+    async resetConfiguration() {
+        const confirmed = await Confirm.show(
+            'Alle ausgewählten Komponenten werden entfernt und der Konfigurator wird auf Schritt 1 zurückgesetzt. Diese Aktion kann nicht rückgängig gemacht werden.',
+            'Konfiguration zurücksetzen?',
+            'warning'
+        );
+        
+        if (confirmed) {
             this.selectedComponents = {
                 cpu: null,
                 motherboard: null,
@@ -993,6 +1071,8 @@ class PCConfigurator {
             if (statusDiv) {
                 statusDiv.innerHTML = '<h4>Kompatibilitätsstatus</h4><p>Wählen Sie Komponenten aus, um die Kompatibilität zu überprüfen.</p>';
             }
+            
+            Toast.show('Konfiguration wurde zurückgesetzt', 'info');
         }
     }
 }
@@ -1046,42 +1126,114 @@ function formatSpecs(specs) {
     return specs;
 }
 
-function exportConfiguration() {
-    if (window.configurator) {
-        const configData = {
-            components: window.configurator.selectedComponents,
-            timestamp: new Date().toISOString()
-        };
-        
-        const dataStr = JSON.stringify(configData, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+async function exportConfiguration() {
+    if (!window.configurator) {
+        Toast.show('Konfigurator nicht verfügbar', 'error');
+        return;
+    }
+    
+    // Check if any components are selected
+    const hasSelection = Object.values(window.configurator.selectedComponents).some(comp => comp !== null);
+    if (!hasSelection) {
+        Toast.show('Keine Komponenten ausgewählt. Bitte wählen Sie mindestens eine Komponente aus.', 'warning');
+        return;
+    }
+    
+    const configName = await Input.show(
+        'Geben Sie einen Namen für die Export-Datei ein:',
+        'Meine PC-Konfiguration',
+        'Konfiguration exportieren',
+        'Dateiname',
+        'Wird als Dateiname verwendet (.json wird automatisch hinzugefügt)'
+    );
+    
+    if (!configName) return;
+    
+    const config = {
+        name: configName,
+        components: window.configurator.selectedComponents,
+        total_price: window.configurator.calculateTotalPrice(),
+        exported_at: new Date().toISOString(),
+        version: '1.0'
+    };
+    
+    try {
+        const dataStr = JSON.stringify(config, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
         
         const link = document.createElement('a');
         link.href = URL.createObjectURL(dataBlob);
-        link.download = 'pc-konfiguration.json';
+        link.download = `${configName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
         link.click();
+        
+        // Clean up the URL object
+        setTimeout(() => {
+            URL.revokeObjectURL(link.href);
+        }, 100);
+        
+        Toast.show(`Konfiguration "${configName}" wurde exportiert`, 'success');
+        
+    } catch (error) {
+        console.error('Export error:', error);
+        Toast.show('Fehler beim Exportieren der Konfiguration', 'error');
     }
 }
 
-function importConfiguration() {
+async function importConfiguration() {
+    // Show loading toast
+    const loadingToast = Toast.show('Datei wird ausgewählt...', 'info', 2000);
+    
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
     
-    input.onchange = function(e) {
+    input.onchange = async function(e) {
         const file = e.target.files[0];
         if (file) {
+            // Validate file size (max 1MB)
+            if (file.size > 1024 * 1024) {
+                Toast.show('Datei ist zu groß. Maximale Größe: 1MB', 'error');
+                return;
+            }
+            
+            // Validate file type
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                Toast.show('Nur JSON-Dateien sind erlaubt', 'error');
+                return;
+            }
+            
             const reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = async function(event) {
                 try {
+                    Toast.show('Konfiguration wird geladen...', 'info', 2000);
+                    
                     const config = JSON.parse(event.target.result);
+                    
+                    // Validate required fields
+                    if (!config.name || !config.components) {
+                        Toast.show('Ungültiges Konfigurationsformat. Name und Komponenten erforderlich.', 'error');
+                        return;
+                    }
+                    
                     if (window.configurator) {
-                        window.configurator.loadConfiguration(config);
+                        const success = await window.configurator.loadConfiguration(config);
+                        if (success) {
+                            // Show configuration name
+                            Toast.show(`"${config.name}" wurde importiert`, 'success');
+                        }
+                    } else {
+                        Toast.show('Konfigurator nicht verfügbar', 'error');
                     }
                 } catch (error) {
-                    alert('Fehler beim Laden der Konfiguration: Ungültige Datei');
+                    console.error('Import error:', error);
+                    Toast.show('Fehler beim Laden der Konfiguration: Ungültiges JSON-Format', 'error');
                 }
             };
+            
+            reader.onerror = function() {
+                Toast.show('Fehler beim Lesen der Datei', 'error');
+            };
+            
             reader.readAsText(file);
         }
     };
