@@ -391,7 +391,13 @@ class PCConfigurator {
     
     getFilterValue(filterId) {
         const element = document.getElementById(filterId);
-        return element ? element.value.trim() : '';
+        if (!element) {
+            console.warn(`Filter element not found: ${filterId}`);
+            return '';
+        }
+        const value = element.value.trim();
+        console.log(`Filter ${filterId} value: "${value}"`);
+        return value;
     }
     
     extractPrice(priceText) {
@@ -515,6 +521,13 @@ class PCConfigurator {
     }
     
     nextStep() {
+        // Check if current step has a selection
+        const currentCategory = this.getCurrentStepCategory();
+        if (currentCategory && !this.selectedComponents[currentCategory]) {
+            alert(`Bitte wählen Sie eine ${this.getCategoryDisplayName(currentCategory)} aus, bevor Sie fortfahren.`);
+            return;
+        }
+        
         if (this.currentStep < this.totalSteps) {
             this.currentStep++;
             this.showStep(this.currentStep);
@@ -550,13 +563,32 @@ class PCConfigurator {
         }
         
         if (nextBtn) {
+            const currentCategory = this.getCurrentStepCategory();
+            const hasSelection = currentCategory && this.selectedComponents[currentCategory];
+            
+            // Enable/disable next button based on selection
+            nextBtn.disabled = !hasSelection;
+            
             if (this.currentStep === this.totalSteps) {
-                nextBtn.textContent = 'Konfiguration abschließen';
                 nextBtn.innerHTML = '<i class="fas fa-check"></i> Abschließen';
             } else {
                 nextBtn.innerHTML = 'Weiter <i class="fas fa-arrow-right"></i>';
             }
         }
+    }
+    
+    getCurrentStepCategory() {
+        const stepCategories = {
+            1: 'cpu',
+            2: 'motherboard',
+            3: 'ram',
+            4: 'gpu',
+            5: 'ssd',
+            6: 'case',
+            7: 'psu',
+            8: 'cooler'
+        };
+        return stepCategories[this.currentStep];
     }
     
     getCategoryDisplayName(category) {
