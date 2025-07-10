@@ -885,9 +885,15 @@ class PCConfigurator {
                         categoryKey = 'ram'; // RAM category doesn't use plural
                     }
                     
+                    // Get component details for cart
+                    const componentList = this.componentsByCategory[category] || [];
+                    const component = componentList.find(c => c.id === componentId);
+                    
                     newCart.push({
                         componentId: componentId,
                         category: categoryKey,
+                        name: component ? component.name : `${category} Komponente`,
+                        price: component ? component.price : 0,
                         quantity: 1,
                         addedAt: new Date().toISOString()
                     });

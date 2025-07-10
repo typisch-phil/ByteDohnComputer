@@ -92,25 +92,13 @@
 class Cart {
     constructor() {
         this.items = JSON.parse(localStorage.getItem('cart_items') || '[]');
-        this.components = {};
-        this.loadComponents();
         this.renderCart();
     }
     
-    async loadComponents() {
-        try {
-            // Load all component categories
-            const categories = ['cpus', 'motherboards', 'ram', 'gpus', 'ssds', 'cases', 'psus', 'coolers'];
-            for (const category of categories) {
-                const response = await fetch(`/api/components/${category}`);
-                if (response.ok) {
-                    this.components[category] = await response.json();
-                }
-            }
-            this.renderCart();
-        } catch (error) {
-            console.error('Error loading components:', error);
-        }
+    // Optimiert: Keine API-Aufrufe mehr, verwende gespeicherte Daten
+    loadComponents() {
+        // Überspringe das Laden - verwende bereits gespeicherte Daten aus cart items
+        return Promise.resolve();
     }
     
     addItem(componentId, category) {
@@ -174,20 +162,13 @@ class Cart {
         }
     }
     
-    getComponent(componentId, category) {
-        if (this.components[category]) {
-            return this.components[category].find(comp => comp.id === componentId);
-        }
-        return null;
-    }
-    
     calculateTotal() {
         return this.items.reduce((total, item) => {
             if (item.type === 'prebuilt') {
                 return total + (item.price * item.quantity);
             } else {
-                const component = this.getComponent(item.componentId, item.category);
-                return total + (component ? component.price * item.quantity : 0);
+                // Verwende gespeicherte Preis- und Name-Daten aus dem Item
+                return total + ((item.price || 0) * item.quantity);
             }
         }, 0);
     }
@@ -263,15 +244,14 @@ class Cart {
                         </div>
                     `;
                 } else {
-                    // Handle component items
-                    const component = this.getComponent(item.componentId, item.category);
-                    if (!component) return '';
+                    // Handle component items - verwende gespeicherte Daten
+                    if (!item.name || !item.price) return '';
                     
                     return `
                         <div class="cart-item border-bottom py-3">
                             <div class="row align-items-center">
                                 <div class="col-md-6">
-                                    <h6 class="mb-1">${component.name}</h6>
+                                    <h6 class="mb-1">${item.name}</h6>
                                     <small class="text-muted">${item.category.toUpperCase()}</small>
                                 </div>
                                 <div class="col-md-3">
@@ -283,7 +263,7 @@ class Cart {
                                     </div>
                                 </div>
                                 <div class="col-md-2 text-end">
-                                    <strong>€${(component.price * item.quantity).toFixed(2)}</strong>
+                                    <strong>€${(item.price * item.quantity).toFixed(2)}</strong>
                                 </div>
                                 <div class="col-md-1 text-end">
                                     <button class="btn btn-outline-danger btn-sm" onclick="cart.removeItem(${item.componentId}, '${item.category}')">

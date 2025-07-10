@@ -521,19 +521,24 @@ function updateOrderSummary() {
     let total = 0;
     let itemsHtml = '';
     
-    // Note: This is a simplified version. In a real app, you'd fetch component details from the server
     cartItems.forEach(item => {
-        const itemTotal = item.price * item.quantity;
+        const itemPrice = item.price || 0;
+        const itemTotal = itemPrice * (item.quantity || 1);
         total += itemTotal;
         
+        // Handle both component and prebuilt items
+        const displayName = item.name || item.componentName || 'Artikel';
+        const itemType = item.type === 'prebuilt' ? 'FERTIG-PC' : (item.category ? item.category.toUpperCase() : 'KOMPONENTE');
+        
         itemsHtml += `
-            <div class="order-item d-flex justify-content-between mb-2">
+            <div class="order-item d-flex justify-content-between mb-2 p-2 border rounded">
                 <div>
-                    <div class="fw-bold">${item.name || 'Komponente'}</div>
-                    <small class="text-muted">Anzahl: ${item.quantity}</small>
+                    <div class="fw-bold">${displayName}</div>
+                    <small class="text-muted">${itemType} • Anzahl: ${item.quantity || 1}</small>
                 </div>
                 <div class="text-end">
                     <div class="fw-bold">€${itemTotal.toFixed(2)}</div>
+                    <small class="text-muted">€${itemPrice.toFixed(2)} each</small>
                 </div>
             </div>
         `;
