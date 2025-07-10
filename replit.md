@@ -127,6 +127,9 @@ The application is designed for flexible deployment:
 - July 10, 2025: E-Mail-System SSL/TLS-Verschlüsselung - Port 465 mit SSL-Verbindung für sichere SMTP-Authentifizierung bei mail.mailthree24.de implementiert
 - July 10, 2025: E-Mail-System vollständig funktionsfähig - Migration auf mail.bytedohm.de erfolgreich, alle E-Mail-Funktionen (Test, Registrierung, Bestellbestätigung, Status-Updates) arbeiten korrekt
 - July 10, 2025: Admin Status-Update E-Mails implementiert - Automatische Benachrichtigung an Kunden bei Bestellstatus-Änderungen im Admin-Panel aktiviert
+- July 10, 2025: Warenkorb-System optimiert - Entfernung langsamer API-Aufrufe, direktes Speichern der Komponentendaten für schnelleres Laden
+- July 10, 2025: Konfiguration-zu-Warenkorb-Funktion repariert - Direkte Integration ohne Umweg über Konfigurator, vollständige Komponentendaten werden gespeichert
+- July 10, 2025: MwSt.-System entfernt - Alle 19% MwSt.-Anzeigen entfernt wegen Kleinunternehmer-Regelung, tax_amount auf 0.0 gesetzt
 
 ## User Preferences
 

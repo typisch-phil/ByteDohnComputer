@@ -445,7 +445,7 @@ def checkout_success():
                 issue_date=datetime.utcnow(),
                 due_date=datetime.utcnow(),  # Immediate due date for paid orders
                 total_amount=order.total_amount,
-                tax_amount=order.total_amount * 0.19,  # 19% German VAT
+                tax_amount=0.0,  # Kleinunternehmer-Regelung: keine MwSt.
                 status='paid'
             )
             db.session.add(invoice)
@@ -520,7 +520,7 @@ def stripe_webhook():
                     issue_date=datetime.utcnow(),
                     due_date=datetime.utcnow(),
                     total_amount=order.total_amount,
-                    tax_amount=order.total_amount * 0.19,  # 19% German VAT
+                    tax_amount=0.0,  # Kleinunternehmer-Regelung: keine MwSt.
                     status='paid'
                 )
                 db.session.add(invoice)

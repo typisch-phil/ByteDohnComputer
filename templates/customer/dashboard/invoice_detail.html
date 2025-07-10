@@ -150,7 +150,7 @@
                                     <td class="text-end">{{ "%.2f"|format(invoice.total_amount / 1.19) }} €</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-end"><strong>MwSt. (19%):</strong></td>
+                                    <td class="text-end"><strong>Netto-Betrag:</strong></td>
                                     <td class="text-end">{{ "%.2f"|format(invoice.tax_amount or (invoice.total_amount * 0.19 / 1.19)) }} €</td>
                                 </tr>
                                 <tr>
