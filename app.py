@@ -27,6 +27,10 @@ db = SQLAlchemy(model_class=Base)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 
+# Configure static files for Plesk hosting
+app.static_url_path = '/static'
+app.static_folder = 'static'
+
 # Configure the database - MySQL only 
 # Direct MySQL connection configuration
 mysql_connection = "mysql+pymysql://u6560-6636_bytedohm:HeikoCindy-8@45.88.108.231:3306/u6560-6636_bytedohm"
@@ -73,6 +77,17 @@ from customer.routes.dashboard_routes import customer_dashboard
 
 app.register_blueprint(customer_auth)
 app.register_blueprint(customer_dashboard)
+
+# Error handlers
+@app.errorhandler(404)
+def not_found(error):
+    from flask import render_template
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    from flask import render_template
+    return render_template('errors/500.html'), 500
 
 with app.app_context():
     # Import models to ensure tables are created

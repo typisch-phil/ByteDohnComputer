@@ -1,0 +1,143 @@
+/* Plesk-optimized CSS for ByteDohm.de */
+
+/* Basic Reset and Variables */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --tech-blue: #0066cc;
+    --tech-dark: #1a1a1a;
+    --tech-gray: #2d2d2d;
+    --accent-orange: #ff6b35;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    line-height: 1.6;
+    color: var(--dark-color);
+    background-color: #ffffff;
+}
+
+/* Navigation */
+.navbar {
+    background: linear-gradient(135deg, var(--tech-dark), var(--tech-gray)) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+    padding: 1rem 0 !important;
+}
+
+.navbar-brand {
+    font-size: 1.8rem !important;
+    font-weight: bold !important;
+    color: var(--tech-blue) !important;
+    text-decoration: none !important;
+}
+
+.navbar-nav .nav-link {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+    margin: 0 1rem !important;
+    transition: color 0.3s ease !important;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--tech-blue) !important;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, var(--tech-dark), var(--tech-blue)) !important;
+    color: white !important;
+    padding: 100px 0 !important;
+    text-align: center !important;
+}
+
+.hero h1 {
+    font-size: 3.5rem !important;
+    margin-bottom: 1rem !important;
+    font-weight: 700 !important;
+}
+
+.hero p {
+    font-size: 1.2rem !important;
+    margin-bottom: 2rem !important;
+    opacity: 0.9 !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--accent-orange) !important;
+    border: none !important;
+    padding: 12px 30px !important;
+    font-size: 1.1rem !important;
+    border-radius: 30px !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-primary:hover {
+    background: #e55a30 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3) !important;
+}
+
+/* Cards */
+.card {
+    border: none !important;
+    border-radius: 15px !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+    border-bottom: none !important;
+    font-weight: 600 !important;
+}
+
+/* Footer */
+.modern-footer {
+    background: linear-gradient(135deg, var(--tech-dark), var(--tech-gray)) !important;
+    color: white !important;
+    padding: 3rem 0 1rem !important;
+    margin-top: auto !important;
+}
+
+.footer-section h5 {
+    color: var(--tech-blue) !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+}
+
+.footer-section a {
+    color: #cccccc !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease !important;
+}
+
+.footer-section a:hover {
+    color: var(--tech-blue) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem !important;
+    }
+    
+    .hero p {
+        font-size: 1rem !important;
+    }
+    
+    .navbar-nav .nav-link {
+        margin: 0 0.5rem !important;
+    }
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Serverfehler | ByteDohm.de</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+        <div class="row">
+            <div class="col-md-6 text-center">
+                <i class="fas fa-server text-danger" style="font-size: 5rem;"></i>
+                <h1 class="display-4 mt-3">500</h1>
+                <h2>Interner Serverfehler</h2>
+                <p class="lead">Es ist ein technischer Fehler aufgetreten. Bitte versuchen Sie es später erneut.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Zurück zur Startseite
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
