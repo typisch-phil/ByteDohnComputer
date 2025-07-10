@@ -1,11 +1,12 @@
 import json
 from datetime import datetime
-from flask import request, render_template, redirect, url_for, flash, session
+from flask import request, render_template, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, login_user, logout_user, UserMixin, current_user
 from werkzeug.security import check_password_hash
 from app import app, db
 from models import Component, PrebuiltPC, AdminUser, Order, OrderItem, Customer, Invoice
 from dhl_integration import create_shipping_label_for_order, track_order_shipment
+from email_service import send_registration_email, EmailService, send_newsletter_email
 
 # Admin Authentication
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -737,3 +738,199 @@ def admin_statistics():
     }
     
     return render_template('admin/statistics.html', stats=stats)
+
+# Newsletter Management
+@app.route('/admin/newsletter')
+@login_required
+def admin_newsletter():
+    """Newsletter creation page"""
+    # Anzahl der Newsletter-Abonnenten
+    subscriber_count = Customer.query.filter_by(newsletter_subscription=True).count()
+    return render_template('admin/newsletter.html', subscriber_count=subscriber_count)
+
+@app.route('/admin/newsletter/preview', methods=['POST'])
+@login_required
+def admin_newsletter_preview():
+    """Generate newsletter preview"""
+    try:
+        subject = request.form.get('subject', '')
+        preheader = request.form.get('preheader', '')
+        content = request.form.get('content', '')
+        footer_text = request.form.get('footer_text', '')
+        
+        # Create newsletter HTML template
+        preview_html = f"""
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <!-- Header -->
+            <div style="background-color: #2c3e50; color: white; padding: 20px; text-align: center;">
+                <h1 style="margin: 0; font-size: 28px;">ByteDohm Newsletter</h1>
+                {f'<p style="margin: 5px 0 0 0; color: #ecf0f1; font-size: 14px;">{preheader}</p>' if preheader else ''}
+            </div>
+            
+            <!-- Content -->
+            <div style="background-color: white; padding: 30px; border-left: 3px solid #3498db;">
+                <h2 style="color: #2c3e50; margin-top: 0;">{subject}</h2>
+                <div style="margin: 20px 0;">
+                    {content}
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="background-color: #f8f9fa; padding: 20px; border-top: 1px solid #dee2e6; font-size: 12px; color: #6c757d;">
+                {f'<p style="margin: 0 0 10px 0;">{footer_text}</p>' if footer_text else ''}
+                <p style="margin: 0;">
+                    <strong>ByteDohm.de</strong> | Ihr PC-Konfigurator<br>
+                    Diese E-Mail wurde an Newsletter-Abonnenten gesendet.
+                </p>
+                <p style="margin: 10px 0 0 0; font-size: 11px;">
+                    <a href="#" style="color: #6c757d;">Newsletter abbestellen</a> | 
+                    <a href="#" style="color: #6c757d;">In Ihrem Browser anzeigen</a>
+                </p>
+            </div>
+        </div>
+        """
+        
+        return jsonify({
+            'success': True,
+            'preview_html': preview_html
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/admin/newsletter/test', methods=['POST'])
+@login_required
+def admin_newsletter_test():
+    """Send test newsletter"""
+    try:
+        subject = request.form.get('subject', '')
+        preheader = request.form.get('preheader', '')
+        content = request.form.get('content', '')
+        footer_text = request.form.get('footer_text', '')
+        test_email = request.form.get('test_email', '')
+        
+        if not test_email:
+            return jsonify({
+                'success': False,
+                'error': 'Test-E-Mail-Adresse ist erforderlich'
+            }), 400
+        
+        # Create a dummy customer object for test email
+        class TestCustomer:
+            def __init__(self, email):
+                self.email = email
+                self.first_name = "Test"
+                self.last_name = "Benutzer"
+                self.get_full_name = lambda: "Test Benutzer"
+        
+        test_customer = TestCustomer(test_email)
+        
+        # Send test email
+        email_service = EmailService()
+        success = email_service.send_newsletter_email(
+            test_customer, 
+            f"[TEST] {subject}", 
+            content,
+            preheader=preheader,
+            footer_text=footer_text
+        )
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': f'Test-E-Mail erfolgreich an {test_email} gesendet'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Fehler beim Senden der Test-E-Mail'
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/admin/newsletter/send', methods=['POST'])
+@login_required
+def admin_newsletter_send():
+    """Send newsletter to all subscribers"""
+    try:
+        subject = request.form.get('subject', '')
+        preheader = request.form.get('preheader', '')
+        content = request.form.get('content', '')
+        footer_text = request.form.get('footer_text', '')
+        
+        if not subject or not content:
+            return jsonify({
+                'success': False,
+                'error': 'Betreff und Inhalt sind erforderlich'
+            }), 400
+        
+        # Get all newsletter subscribers
+        subscribers = Customer.query.filter_by(newsletter_subscription=True).all()
+        
+        if not subscribers:
+            return jsonify({
+                'success': False,
+                'error': 'Keine Newsletter-Abonnenten gefunden'
+            }), 400
+        
+        # Send newsletter to all subscribers
+        email_service = EmailService()
+        sent_count = 0
+        failed_count = 0
+        
+        for customer in subscribers:
+            try:
+                success = email_service.send_newsletter_email(
+                    customer, 
+                    subject, 
+                    content,
+                    preheader=preheader,
+                    footer_text=footer_text
+                )
+                if success:
+                    sent_count += 1
+                else:
+                    failed_count += 1
+            except Exception as e:
+                print(f"Fehler beim Senden an {customer.email}: {e}")
+                failed_count += 1
+        
+        # Save newsletter to history (could be expanded with a Newsletter model)
+        
+        return jsonify({
+            'success': True,
+            'sent_count': sent_count,
+            'failed_count': failed_count,
+            'message': f'Newsletter an {sent_count} Empfänger gesendet'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/admin/newsletter/history')
+@login_required
+def admin_newsletter_history():
+    """Get newsletter history (placeholder - could be expanded with Newsletter model)"""
+    try:
+        # For now, return empty history
+        # In the future, you could create a Newsletter model to track sent newsletters
+        return jsonify({
+            'success': True,
+            'newsletters': []
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500

@@ -1,0 +1,397 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Newsletter erstellen - ByteDohm Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Newsletter erstellen</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-secondary" onclick="previewNewsletter()">
+                            <i class="fas fa-eye"></i> Live-Vorschau
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="sendTestEmail()">
+                            <i class="fas fa-paper-plane"></i> Test-E-Mail
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="sendNewsletter()">
+                            <i class="fas fa-broadcast-tower"></i> Newsletter versenden
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Newsletter Editor -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Newsletter Editor</h5>
+                </div>
+                <div class="card-body">
+                    <form id="newsletterForm">
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Betreff</label>
+                            <input type="text" class="form-control" id="subject" name="subject" 
+                                   placeholder="Newsletter Betreff..." required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="preheader" class="form-label">Preheader (Vorschautext)</label>
+                            <input type="text" class="form-control" id="preheader" name="preheader" 
+                                   placeholder="Kurzer Vorschautext für E-Mail-Client..." maxlength="100">
+                            <div class="form-text">Wird in der E-Mail-Vorschau angezeigt (max. 100 Zeichen)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Newsletter Inhalt</label>
+                            <textarea class="form-control" id="content" name="content" rows="15" 
+                                      placeholder="Schreiben Sie hier Ihren Newsletter-Inhalt...&#10;&#10;Sie können HTML verwenden:&#10;- <h2>Überschrift</h2>&#10;- <p>Absatz</p>&#10;- <strong>Fett</strong>&#10;- <em>Kursiv</em>&#10;- <a href='#'>Link</a>&#10;- <img src='URL' alt='Beschreibung'>&#10;- <ul><li>Liste</li></ul>" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="footer_text" class="form-label">Footer-Text (optional)</label>
+                            <textarea class="form-control" id="footer_text" name="footer_text" rows="3" 
+                                      placeholder="Zusätzlicher Text für den Footer..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="test_email" class="form-label">Test-E-Mail-Adresse</label>
+                            <input type="email" class="form-control" id="test_email" name="test_email" 
+                                   placeholder="test@beispiel.de" value="admin@bytedohm.de">
+                            <div class="form-text">E-Mail-Adresse für Test-Versand</div>
+                        </div>
+                    </form>
+
+                    <!-- Newsletter Statistiken -->
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="mb-2">Newsletter-Statistiken</h6>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="h5 mb-0" id="subscriber-count">{{ subscriber_count or 0 }}</div>
+                                <small class="text-muted">Abonnenten</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="h5 mb-0" id="estimated-chars">0</div>
+                                <small class="text-muted">Zeichen</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="h5 mb-0" id="estimated-words">0</div>
+                                <small class="text-muted">Wörter</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Preview -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Live-Vorschau</h5>
+                </div>
+                <div class="card-body">
+                    <div id="email-preview" class="border rounded p-3" style="background-color: #f8f9fa; min-height: 500px;">
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-eye fa-3x mb-3"></i>
+                            <p>Live-Vorschau wird hier angezeigt...</p>
+                            <p>Beginnen Sie mit dem Schreiben oder klicken Sie auf "Live-Vorschau"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Newsletter History -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Newsletter-Verlauf</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Betreff</th>
+                                    <th>Empfänger</th>
+                                    <th>Status</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="newsletter-history">
+                                <!-- Wird per JavaScript geladen -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bestätigungs-Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Newsletter versenden</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Sind Sie sicher, dass Sie den Newsletter an alle <span id="confirm-count">0</span> Abonnenten senden möchten?</strong></p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Diese Aktion kann nicht rückgängig gemacht werden!
+                </div>
+                <div class="mb-3">
+                    <strong>Betreff:</strong> <span id="confirm-subject"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-success" onclick="confirmSendNewsletter()">
+                    <i class="fas fa-paper-plane"></i> Jetzt versenden
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Newsletter-Funktionen
+let currentNewsletter = null;
+
+// Auto-Update der Vorschau beim Tippen
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = ['subject', 'preheader', 'content', 'footer_text'];
+    inputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', updateStats);
+    });
+    
+    // Initial stats update
+    updateStats();
+    loadNewsletterHistory();
+});
+
+function updateStats() {
+    const content = document.getElementById('content').value;
+    const chars = content.length;
+    const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+    
+    document.getElementById('estimated-chars').textContent = chars;
+    document.getElementById('estimated-words').textContent = words;
+}
+
+function previewNewsletter() {
+    const formData = new FormData(document.getElementById('newsletterForm'));
+    
+    fetch('/admin/newsletter/preview', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('email-preview').innerHTML = data.preview_html;
+        } else {
+            showToast('Fehler beim Erstellen der Vorschau: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Fehler beim Laden der Vorschau', 'error');
+    });
+}
+
+function sendTestEmail() {
+    const formData = new FormData(document.getElementById('newsletterForm'));
+    
+    if (!formData.get('subject') || !formData.get('content')) {
+        showToast('Bitte füllen Sie Betreff und Inhalt aus', 'warning');
+        return;
+    }
+    
+    const testEmail = formData.get('test_email');
+    if (!testEmail) {
+        showToast('Bitte geben Sie eine Test-E-Mail-Adresse ein', 'warning');
+        return;
+    }
+    
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sende...';
+    btn.disabled = true;
+    
+    fetch('/admin/newsletter/test', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Test-E-Mail erfolgreich gesendet an ' + testEmail, 'success');
+        } else {
+            showToast('Fehler beim Senden der Test-E-Mail: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Fehler beim Senden der Test-E-Mail', 'error');
+    })
+    .finally(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+function sendNewsletter() {
+    const formData = new FormData(document.getElementById('newsletterForm'));
+    
+    if (!formData.get('subject') || !formData.get('content')) {
+        showToast('Bitte füllen Sie Betreff und Inhalt aus', 'warning');
+        return;
+    }
+    
+    // Zeige Bestätigungs-Modal
+    document.getElementById('confirm-subject').textContent = formData.get('subject');
+    document.getElementById('confirm-count').textContent = document.getElementById('subscriber-count').textContent;
+    
+    currentNewsletter = formData;
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+}
+
+function confirmSendNewsletter() {
+    if (!currentNewsletter) return;
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+    modal.hide();
+    
+    const btn = document.querySelector('[onclick="sendNewsletter()"]');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Versende...';
+    btn.disabled = true;
+    
+    fetch('/admin/newsletter/send', {
+        method: 'POST',
+        body: currentNewsletter
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(`Newsletter erfolgreich an ${data.sent_count} Empfänger gesendet!`, 'success');
+            loadNewsletterHistory();
+            // Form zurücksetzen
+            document.getElementById('newsletterForm').reset();
+            document.getElementById('email-preview').innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                    <p>Newsletter erfolgreich versendet!</p>
+                </div>
+            `;
+        } else {
+            showToast('Fehler beim Senden des Newsletters: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Fehler beim Senden des Newsletters', 'error');
+    })
+    .finally(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        currentNewsletter = null;
+    });
+}
+
+function loadNewsletterHistory() {
+    fetch('/admin/newsletter/history')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const tbody = document.getElementById('newsletter-history');
+            tbody.innerHTML = '';
+            
+            if (data.newsletters.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            Noch keine Newsletter versendet
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            data.newsletters.forEach(newsletter => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(newsletter.created_at).toLocaleDateString('de-DE')}</td>
+                    <td>${newsletter.subject}</td>
+                    <td>${newsletter.recipient_count}</td>
+                    <td>
+                        <span class="badge bg-${newsletter.status === 'sent' ? 'success' : 'warning'}">
+                            ${newsletter.status === 'sent' ? 'Versendet' : 'Ausstehend'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewNewsletter(${newsletter.id})">
+                            <i class="fas fa-eye"></i> Anzeigen
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error loading newsletter history:', error);
+    });
+}
+
+function viewNewsletter(id) {
+    // Öffne Newsletter in neuem Tab/Fenster
+    window.open(`/admin/newsletter/view/${id}`, '_blank');
+}
+
+function showToast(message, type = 'info') {
+    // Toast-Funktion (falls nicht bereits vorhanden)
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    container.style.zIndex = '1055';
+    document.body.appendChild(container);
+    return container;
+}
+</script>
+{% endblock %}

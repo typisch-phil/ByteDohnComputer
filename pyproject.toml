@@ -20,4 +20,5 @@ dependencies = [
     "lxml>=6.0.0",
     "zeep>=4.3.1",
     "python-dotenv>=1.1.1",
+    "sendgrid>=6.12.4",
 ]

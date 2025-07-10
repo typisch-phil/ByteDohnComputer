@@ -399,47 +399,86 @@ class EmailService:
         
         return self._send_email(order.customer.email, subject, html_body)
     
-    def send_newsletter_email(self, customer, subject, content):
-        """Newsletter E-Mail"""
-        html_template = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <style>
-                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f8f9fa; }
-                .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
-                .header { text-align: center; color: #0d6efd; margin-bottom: 30px; }
-                .content { line-height: 1.6; color: #333; }
-                .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>ByteDohm.de Newsletter</h1>
-                </div>
-                <div class="content">
-                    <p>Hallo {{ customer.first_name or 'lieber Kunde' }},</p>
+    def send_newsletter_email(self, customer, subject, content, preheader=None, footer_text=None):
+        """Newsletter E-Mail mit erweiterten Optionen"""
+        try:
+            # HTML E-Mail Template für Newsletter
+            html_body = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>{subject}</title>
+                {f'<meta name="description" content="{preheader}">' if preheader else ''}
+            </head>
+            <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: white;">
                     
-                    {{ content|safe }}
+                    <!-- Preheader (für E-Mail-Client Vorschau) -->
+                    {f'<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">{preheader}</div>' if preheader else ''}
                     
-                    <p>Viele Grüße,<br>
-                    Ihr ByteDohm.de Team</p>
+                    <!-- Header -->
+                    <div style="background-color: #2c3e50; color: white; text-align: center; padding: 30px;">
+                        <h1 style="margin: 0; font-size: 32px;">ByteDohm Newsletter</h1>
+                        <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Ihr PC-Konfigurator</p>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div style="padding: 30px;">
+                        <h2 style="color: #2c3e50; margin-top: 0; font-size: 24px;">{subject}</h2>
+                        
+                        <div style="line-height: 1.6; color: #333; font-size: 16px;">
+                            {content}
+                        </div>
+                        
+                        <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #3498db;">
+                            <p style="margin: 0; font-size: 14px; color: #666;">
+                                💡 <strong>Tipp:</strong> Besuchen Sie unseren 
+                                <a href="https://bytedohm.de/konfigurator" style="color: #3498db;">PC-Konfigurator</a> 
+                                und erstellen Sie Ihren Traum-PC!
+                            </p>
+                        </div>
+                        
+                        {f'<div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;"><p style="margin: 0; font-size: 14px; color: #856404;">{footer_text}</p></div>' if footer_text else ''}
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="background-color: #34495e; color: white; padding: 20px; text-align: center;">
+                        <p style="margin: 0; font-size: 14px;">
+                            Diese E-Mail wurde an Newsletter-Abonnenten von ByteDohm.de gesendet.<br>
+                            <strong>ByteDohm.de</strong> | Ihr Experte für PC-Konfiguration
+                        </p>
+                        <div style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
+                            <a href="#" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Newsletter abbestellen</a> |
+                            <a href="#" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Im Browser anzeigen</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="footer">
-                    <p>ByteDohm.de - Ihr Partner für maßgeschneiderte PC-Systeme</p>
-                    <p><a href="https://{{ domain }}/kunde/profil">Newsletter abmelden</a></p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-        
-        domain = os.environ.get('REPLIT_DEV_DOMAIN', 'localhost:5000')
-        html_body = render_template_string(html_template, customer=customer, content=content, domain=domain)
-        
-        return self._send_email(customer.email, subject, html_body)
+            </body>
+            </html>
+            """
+            
+            # Text-Version für E-Mail-Clients die HTML nicht unterstützen
+            text_body = f"""
+            ByteDohm Newsletter
+            
+            {subject}
+            
+            {content}
+            
+            {f'{footer_text}' if footer_text else ''}
+            
+            ---
+            ByteDohm.de - Ihr PC-Konfigurator
+            Diese E-Mail wurde an Newsletter-Abonnenten gesendet.
+            """
+            
+            return self._send_email(customer.email, subject, html_body, text_body)
+            
+        except Exception as e:
+            logging.error(f"Fehler beim Senden der Newsletter-E-Mail: {e}")
+            return False
 
 
 # Global instance
@@ -462,6 +501,6 @@ def send_status_update_email(order, old_status, new_status):
     """Sende Status-Update"""
     return email_service.send_status_update_email(order, old_status, new_status)
 
-def send_newsletter_email(customer, subject, content):
+def send_newsletter_email(customer, subject, content, preheader=None, footer_text=None):
     """Sende Newsletter"""
-    return email_service.send_newsletter_email(customer, subject, content)
+    return email_service.send_newsletter_email(customer, subject, content, preheader, footer_text)

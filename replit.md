@@ -130,6 +130,7 @@ The application is designed for flexible deployment:
 - July 10, 2025: Warenkorb-System optimiert - Entfernung langsamer API-Aufrufe, direktes Speichern der Komponentendaten für schnelleres Laden
 - July 10, 2025: Konfiguration-zu-Warenkorb-Funktion repariert - Direkte Integration ohne Umweg über Konfigurator, vollständige Komponentendaten werden gespeichert
 - July 10, 2025: MwSt.-System entfernt - Alle 19% MwSt.-Anzeigen entfernt wegen Kleinunternehmer-Regelung, tax_amount auf 0.0 gesetzt
+- July 10, 2025: Newsletter-System implementiert - Admin-Panel Newsletter-Erstellung mit Live-Vorschau, Test-E-Mail-Funktionalität und Massenversand an alle Abonnenten, erweiterte E-Mail-Templates mit Preheader und Footer-Text
 
 ## User Preferences
 
