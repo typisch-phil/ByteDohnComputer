@@ -523,11 +523,22 @@ def admin_update_order_status(order_id):
         if status_changed:
             try:
                 from email_service import send_status_update_email
-                success = send_status_update_email(order, old_status, new_status)
-                if success:
-                    flash(f'Bestellung {order.order_number} Status aktualisiert - E-Mail an Kunde gesendet', 'success')
+                
+                # Bei "shipped" Status auch Versandbenachrichtigung senden (falls Tracking-Nummer vorhanden)
+                if new_status == 'shipped' and order.tracking_number:
+                    from email_service import send_shipping_notification_email
+                    success = send_shipping_notification_email(order)
+                    if success:
+                        flash(f'Bestellung {order.order_number} als versandt markiert - Versandbenachrichtigung mit Tracking-Nummer gesendet', 'success')
+                    else:
+                        flash(f'Bestellung {order.order_number} Status aktualisiert - Versandbenachrichtigung fehlgeschlagen', 'warning')
                 else:
-                    flash(f'Bestellung {order.order_number} Status aktualisiert - E-Mail-Versand fehlgeschlagen', 'warning')
+                    # Standard Status-Update E-Mail
+                    success = send_status_update_email(order, old_status, new_status)
+                    if success:
+                        flash(f'Bestellung {order.order_number} Status aktualisiert - E-Mail an Kunde gesendet', 'success')
+                    else:
+                        flash(f'Bestellung {order.order_number} Status aktualisiert - E-Mail-Versand fehlgeschlagen', 'warning')
             except Exception as e:
                 flash(f'Bestellung {order.order_number} Status aktualisiert - E-Mail-Fehler: {str(e)}', 'warning')
         else:

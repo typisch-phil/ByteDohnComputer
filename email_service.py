@@ -357,6 +357,22 @@ class EmailService:
                         <h3>Neuer Status</h3>
                         <p style="font-size: 18px; color: #0d6efd; font-weight: bold;">{{ new_status_name }}</p>
                         <p><small>Vorher: {{ old_status_name }}</small></p>
+                        
+                        {% if new_status == 'shipped' and order.tracking_number %}
+                        <div style="margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 4px;">
+                            <h4 style="color: #28a745; margin: 0 0 10px 0;">📦 Sendungsverfolgung</h4>
+                            <p><strong>Tracking-Nummer:</strong></p>
+                            <p style="font-size: 20px; font-weight: bold; color: #28a745; font-family: monospace; margin: 10px 0;">{{ order.tracking_number }}</p>
+                            <p style="margin: 15px 0 5px 0;">
+                                <a href="https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?lang=de&idc={{ order.tracking_number }}" 
+                                   style="display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 4px;"
+                                   target="_blank">
+                                    Sendung verfolgen
+                                </a>
+                            </p>
+                            <p><small>Geschätzte Lieferzeit: 1-2 Werktage</small></p>
+                        </div>
+                        {% endif %}
                     </div>
                     
                     <p>Sie können den aktuellen Status jederzeit in Ihrem Dashboard einsehen.</p>
