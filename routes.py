@@ -457,7 +457,7 @@ def checkout_success():
             
             # Send order confirmation email
             try:
-                from email_service import send_order_confirmation_email
+                from email_service import send_order_confirmation_email, EmailService
                 send_order_confirmation_email(order)
             except Exception as e:
                 logging.error(f"Fehler beim Senden der Bestellbestätigung: {e}")
@@ -567,6 +567,62 @@ def datenschutz():
 def zahlungsmethoden():
     """Zahlungsmethoden page"""
     return render_template('legal/zahlungsmethoden.html')
+
+@app.route('/test-email')
+def test_email():
+    """Test E-Mail-System"""
+    try:
+        email_service = EmailService()
+        
+        # Test-E-Mail senden
+        test_email = "test@example.com"  # Ändern Sie zu Ihrer Test-E-Mail
+        subject = "ByteDohm E-Mail Test"
+        html_body = """
+        <html>
+        <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f8f9fa;">
+            <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px;">
+                <h2 style="color: #0d6efd; text-align: center;">ByteDohm E-Mail Test</h2>
+                <p>Dies ist eine Test-E-Mail vom ByteDohm E-Mail-System.</p>
+                <p>Wenn Sie diese E-Mail erhalten, funktioniert das System korrekt.</p>
+                <hr style="margin: 20px 0;">
+                <small style="color: #666;">ByteDohm.de - Ihr PC-Konfigurator</small>
+            </div>
+        </body>
+        </html>
+        """
+        
+        text_body = """
+        ByteDohm E-Mail Test
+        
+        Dies ist eine Test-E-Mail vom ByteDohm E-Mail-System.
+        Wenn Sie diese E-Mail erhalten, funktioniert das System korrekt.
+        
+        ByteDohm.de - Ihr PC-Konfigurator
+        """
+        
+        success = email_service._send_email(test_email, subject, html_body, text_body)
+        
+        if success:
+            return f"""
+            <h2>✅ E-Mail-Test ERFOLGREICH!</h2>
+            <p>Test-E-Mail wurde an {test_email} gesendet.</p>
+            <p>Überprüfen Sie die Konsole für Details.</p>
+            <p><a href="/">Zurück zur Startseite</a></p>
+            """
+        else:
+            return f"""
+            <h2>❌ E-Mail-Test FEHLGESCHLAGEN!</h2>
+            <p>Test-E-Mail konnte nicht an {test_email} gesendet werden.</p>
+            <p>Überprüfen Sie die Konsole für Fehlerdetails.</p>
+            <p><a href="/">Zurück zur Startseite</a></p>
+            """
+            
+    except Exception as e:
+        return f"""
+        <h2>❌ E-Mail-Test FEHLER!</h2>
+        <p>Fehler: {str(e)}</p>
+        <p><a href="/">Zurück zur Startseite</a></p>
+        """
 
 @app.route('/warenkorb')
 def cart():

@@ -17,7 +17,7 @@ class EmailService:
     
     def __init__(self):
         # SMTP Konfiguration
-        self.smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+        self.smtp_server = os.environ.get('SMTP_SERVER', 'mail.mailthree24.de')
         self.smtp_port = int(os.environ.get('SMTP_PORT', '587'))
         self.smtp_username = os.environ.get('SMTP_USERNAME')
         self.smtp_password = os.environ.get('SMTP_PASSWORD')
@@ -27,8 +27,19 @@ class EmailService:
     def _send_email(self, to_email, subject, html_body, text_body=None):
         """Interne Funktion zum E-Mail-Versand"""
         try:
+            print(f"\n=== E-MAIL DEBUG ===")
+            print(f"SMTP Server: {self.smtp_server}")
+            print(f"SMTP Port: {self.smtp_port}")
+            print(f"SMTP Username: {self.smtp_username}")
+            print(f"SMTP Password: {'*' * len(self.smtp_password) if self.smtp_password else 'None'}")
+            print(f"From Email: {self.sender_email}")
+            print(f"To Email: {to_email}")
+            print(f"Subject: {subject}")
+            print(f"===================\n")
+            
             if not self.smtp_username or not self.smtp_password:
                 logging.warning("SMTP Credentials nicht konfiguriert - E-Mail wird nicht gesendet")
+                print("FEHLER: SMTP Credentials fehlen!")
                 return False
                 
             # E-Mail erstellen
@@ -46,17 +57,27 @@ class EmailService:
             html_part = MimeText(html_body, 'html', 'utf-8')
             msg.attach(html_part)
             
+            print("Verbinde mit SMTP Server...")
             # SMTP-Verbindung und Versand
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                print("SMTP Verbindung hergestellt")
+                server.set_debuglevel(1)  # Debug-Ausgabe aktivieren
                 server.starttls()
+                print("TLS aktiviert")
                 server.login(self.smtp_username, self.smtp_password)
+                print("Login erfolgreich")
                 server.send_message(msg)
+                print("E-Mail gesendet!")
                 
             logging.info(f"E-Mail erfolgreich gesendet an {to_email}: {subject}")
+            print(f"SUCCESS: E-Mail an {to_email} gesendet!")
             return True
             
         except Exception as e:
             logging.error(f"E-Mail-Versand fehlgeschlagen an {to_email}: {str(e)}")
+            print(f"FEHLER beim E-Mail-Versand: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return False
     
     def send_registration_email(self, customer):
