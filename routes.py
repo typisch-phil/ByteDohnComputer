@@ -570,13 +570,53 @@ def zahlungsmethoden():
 
 @app.route('/test-email')
 def test_email():
-    """Test E-Mail-System"""
+    """Test E-Mail-System mit verschiedenen Konfigurationen"""
     try:
         from email_service import EmailService
         email_service = EmailService()
         
-        # Test-E-Mail senden
-        test_email = "info@bytedohm.de"  # Test-E-Mail
+        # Netzwerk-Tests
+        import socket
+        test_results = []
+        
+        # Test 1: DNS-Auflösung
+        try:
+            import socket
+            ip = socket.gethostbyname('mail.mailthree24.de')
+            test_results.append(f"✅ DNS: mail.mailthree24.de → {ip}")
+        except Exception as e:
+            test_results.append(f"❌ DNS-Fehler: {e}")
+            
+        # Test 2: Port 465 Verbindung
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(5)
+            result = sock.connect_ex(('mail.mailthree24.de', 465))
+            sock.close()
+            if result == 0:
+                test_results.append("✅ Port 465: Verbindung erfolgreich")
+            else:
+                test_results.append(f"❌ Port 465: Verbindung fehlgeschlagen ({result})")
+        except Exception as e:
+            test_results.append(f"❌ Port 465 Test-Fehler: {e}")
+            
+        # Test 3: Port 587 Verbindung
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(5)
+            result = sock.connect_ex(('mail.mailthree24.de', 587))
+            sock.close()
+            if result == 0:
+                test_results.append("✅ Port 587: Verbindung erfolgreich")
+            else:
+                test_results.append(f"❌ Port 587: Verbindung fehlgeschlagen ({result})")
+        except Exception as e:
+            test_results.append(f"❌ Port 587 Test-Fehler: {e}")
+        
+        test_output = "<br>".join(test_results)
+        
+        # E-Mail-Versand mit Port 587 testen
+        test_email = "info@bytedohm.de"
         subject = "ByteDohm E-Mail Test"
         html_body = """
         <html>
@@ -610,17 +650,39 @@ def test_email():
         
         if success:
             return f"""
-            <h2>✅ E-Mail-Test ERFOLGREICH!</h2>
-            <p>Test-E-Mail wurde an {test_email} gesendet.</p>
-            <p>Überprüfen Sie die Konsole für Details.</p>
-            <p><a href="/">Zurück zur Startseite</a></p>
+            <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px;">
+                <h2>✅ E-Mail-Test ERFOLGREICH!</h2>
+                <p>Test-E-Mail wurde an {test_email} gesendet.</p>
+                
+                <h3>🔍 Netzwerk-Diagnose:</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    {test_output}
+                </div>
+                
+                <p><a href="/" style="color: #0d6efd;">Zurück zur Startseite</a></p>
+            </div>
             """
         else:
             return f"""
-            <h2>❌ E-Mail-Test FEHLGESCHLAGEN!</h2>
-            <p>Test-E-Mail konnte nicht an {test_email} gesendet werden.</p>
-            <p>Überprüfen Sie die Konsole für Fehlerdetails.</p>
-            <p><a href="/">Zurück zur Startseite</a></p>
+            <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px;">
+                <h2>❌ E-Mail-Test FEHLGESCHLAGEN!</h2>
+                <p>Test-E-Mail konnte nicht an {test_email} gesendet werden.</p>
+                
+                <h3>🔍 Netzwerk-Diagnose:</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    {test_output}
+                </div>
+                
+                <h3>💡 Mögliche Lösungen:</h3>
+                <ul>
+                    <li>Überprüfen Sie die SMTP-Konfiguration in den Umgebungsvariablen</li>
+                    <li>Stellen Sie sicher, dass mail.mailthree24.de erreichbar ist</li>
+                    <li>Testen Sie Port 587 statt 465 (bereits konfiguriert)</li>
+                    <li>Kontaktieren Sie den E-Mail-Provider für Firewall-Einstellungen</li>
+                </ul>
+                
+                <p><a href="/" style="color: #0d6efd;">Zurück zur Startseite</a></p>
+            </div>
             """
             
     except Exception as e:
