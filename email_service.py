@@ -32,6 +32,8 @@ class EmailService:
             print(f"SMTP Port: {self.smtp_port}")
             print(f"SMTP Username: {self.smtp_username}")
             print(f"SMTP Password: {'*' * len(self.smtp_password) if self.smtp_password else 'None'}")
+            print(f"Username length: {len(self.smtp_username) if self.smtp_username else 0}")
+            print(f"Password length: {len(self.smtp_password) if self.smtp_password else 0}")
             print(f"From Email: {self.sender_email}")
             print(f"To Email: {to_email}")
             print(f"Subject: {subject}")
