@@ -12,18 +12,22 @@ from email import encoders
 from datetime import datetime
 from flask import render_template_string
 
+
 class EmailService:
     """E-Mail Service Klasse"""
-    
+
     def __init__(self):
         # SMTP Konfiguration
         self.smtp_server = os.environ.get('SMTP_SERVER', 'mail.bytedohm.de')
-        self.smtp_port = int(os.environ.get('SMTP_PORT', '465'))  # Port 465 für SSL
-        self.smtp_username = os.environ.get('SMTP_USERNAME', 'no-reply@bytedohm.de')
+        self.smtp_port = int(os.environ.get('SMTP_PORT',
+                                            '465'))  # Port 465 für SSL
+        self.smtp_username = os.environ.get('SMTP_USERNAME',
+                                            'no-reply@bytedohm.de')
         self.smtp_password = os.environ.get('SMTP_PASSWORD', 'HeikoCindy-8')
-        self.sender_email = os.environ.get('FROM_EMAIL', 'no-reply@bytedohm.de')
+        self.sender_email = os.environ.get('FROM_EMAIL',
+                                           'no-reply@bytedohm.de')
         self.sender_name = "ByteDohm.de"
-        
+
     def _send_email(self, to_email, subject, html_body, text_body=None):
         """Interne Funktion zum E-Mail-Versand"""
         try:
@@ -31,47 +35,57 @@ class EmailService:
             print(f"SMTP Server: {self.smtp_server}")
             print(f"SMTP Port: {self.smtp_port}")
             print(f"SMTP Username: {self.smtp_username}")
-            print(f"SMTP Password: {'*' * len(self.smtp_password) if self.smtp_password else 'None'}")
-            print(f"Username length: {len(self.smtp_username) if self.smtp_username else 0}")
-            print(f"Password length: {len(self.smtp_password) if self.smtp_password else 0}")
+            print(
+                f"SMTP Password: {'*' * len(self.smtp_password) if self.smtp_password else 'None'}"
+            )
+            print(
+                f"Username length: {len(self.smtp_username) if self.smtp_username else 0}"
+            )
+            print(
+                f"Password length: {len(self.smtp_password) if self.smtp_password else 0}"
+            )
             print(f"From Email: {self.sender_email}")
             print(f"To Email: {to_email}")
             print(f"Subject: {subject}")
             print(f"===================\n")
-            
+
             if not self.smtp_username or not self.smtp_password:
-                logging.warning("SMTP Credentials nicht konfiguriert - E-Mail wird nicht gesendet")
+                logging.warning(
+                    "SMTP Credentials nicht konfiguriert - E-Mail wird nicht gesendet"
+                )
                 print("FEHLER: SMTP Credentials fehlen!")
                 return False
-                
+
             # E-Mail erstellen
             msg = MIMEMultipart('alternative')
             msg['From'] = f"{self.sender_name} <{self.sender_email}>"
             msg['To'] = to_email
             msg['Subject'] = subject
-            
+
             # Text-Version
             if text_body:
                 text_part = MIMEText(text_body, 'plain', 'utf-8')
                 msg.attach(text_part)
-            
+
             # HTML-Version
             html_part = MIMEText(html_body, 'html', 'utf-8')
             msg.attach(html_part)
-            
+
             print("Verbinde mit SMTP Server...")
             # SMTP-Verbindung mit SSL/TLS-Verschlüsselung
             import ssl
-            
+
             # Sichere SSL/TLS-Konfiguration
             context = ssl.create_default_context()
-            
+
             # SMTP-Verbindung mit verbesserter Fehlerbehandlung
             server = None
             try:
                 if self.smtp_port == 465:
                     # SSL-Verbindung für Port 465
-                    server = smtplib.SMTP_SSL(self.smtp_server, self.smtp_port, context=context)
+                    server = smtplib.SMTP_SSL(self.smtp_server,
+                                              self.smtp_port,
+                                              context=context)
                     print("SSL-Verbindung hergestellt")
                 else:
                     # STARTTLS für Port 587
@@ -79,13 +93,13 @@ class EmailService:
                     print("SMTP Verbindung hergestellt")
                     server.starttls(context=context)
                     print("TLS-Verschlüsselung aktiviert")
-                
+
                 server.set_debuglevel(1)
                 server.login(self.smtp_username, self.smtp_password)
                 print("Login erfolgreich")
                 server.send_message(msg)
                 print("E-Mail gesendet!")
-                
+
             finally:
                 # Server-Verbindung sicher schließen
                 if server:
@@ -93,21 +107,22 @@ class EmailService:
                         server.quit()
                     except:
                         pass
-                
-            logging.info(f"E-Mail erfolgreich gesendet an {to_email}: {subject}")
+
+            logging.info(
+                f"E-Mail erfolgreich gesendet an {to_email}: {subject}")
             print(f"SUCCESS: E-Mail an {to_email} gesendet!")
             return True
-            
+
         except Exception as e:
             logging.error(f"E-Mail-Versand fehlgeschlagen an {to_email}: {e}")
             print(f"FEHLER beim E-Mail-Versand: {e}")
             print(f"Fehlertyp: {type(e).__name__}")
             return False
-    
+
     def send_registration_email(self, customer):
         """Willkommens-E-Mail nach Registrierung"""
         subject = "Willkommen bei ByteDohm.de!"
-        
+
         html_template = """
         <!DOCTYPE html>
         <html>
@@ -158,16 +173,18 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         domain = os.environ.get('REPLIT_DEV_DOMAIN', 'localhost:5000')
-        html_body = render_template_string(html_template, customer=customer, domain=domain)
-        
+        html_body = render_template_string(html_template,
+                                           customer=customer,
+                                           domain=domain)
+
         return self._send_email(customer.email, subject, html_body)
-    
+
     def send_order_confirmation_email(self, order):
         """Bestellbestätigungs-E-Mail"""
         subject = f"Bestellbestätigung #{order.order_number} - ByteDohm.de"
-        
+
         html_template = """
         <!DOCTYPE html>
         <html>
@@ -234,15 +251,15 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         html_body = render_template_string(html_template, order=order)
-        
+
         return self._send_email(order.customer.email, subject, html_body)
-    
+
     def send_shipping_notification_email(self, order):
         """Versandbenachrichtigung mit Tracking-Nummer"""
         subject = f"Ihre Bestellung #{order.order_number} wurde versandt - ByteDohm.de"
-        
+
         html_template = """
         <!DOCTYPE html>
         <html>
@@ -311,23 +328,23 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         html_body = render_template_string(html_template, order=order)
-        
+
         return self._send_email(order.customer.email, subject, html_body)
-    
+
     def send_status_update_email(self, order, old_status, new_status):
         """Status-Update E-Mail"""
         status_names = {
             'pending': 'Ausstehend',
-            'processing': 'In Bearbeitung', 
+            'processing': 'In Bearbeitung',
             'shipped': 'Versandt',
             'delivered': 'Geliefert',
             'cancelled': 'Storniert'
         }
-        
+
         subject = f"Status-Update für Bestellung #{order.order_number} - ByteDohm.de"
-        
+
         html_template = """
         <!DOCTYPE html>
         <html>
@@ -389,16 +406,15 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         html_body = render_template_string(
-            html_template, 
+            html_template,
             order=order,
             old_status_name=status_names.get(old_status, old_status),
-            new_status_name=status_names.get(new_status, new_status)
-        )
-        
+            new_status_name=status_names.get(new_status, new_status))
+
         return self._send_email(order.customer.email, subject, html_body)
-    
+
     def send_newsletter_email(self, customer, subject, content, preheader=None, footer_text=None):
         """Newsletter E-Mail mit erweiterten Optionen"""
         try:
@@ -414,24 +430,24 @@ class EmailService:
             </head>
             <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
                 <div style="max-width: 600px; margin: 0 auto; background-color: white;">
-                    
+
                     <!-- Preheader (für E-Mail-Client Vorschau) -->
                     {f'<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">{preheader}</div>' if preheader else ''}
-                    
+
                     <!-- Header -->
                     <div style="background-color: #2c3e50; color: white; text-align: center; padding: 30px;">
                         <h1 style="margin: 0; font-size: 32px;">ByteDohm Newsletter</h1>
                         <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Ihr PC-Konfigurator</p>
                     </div>
-                    
+
                     <!-- Content -->
                     <div style="padding: 30px;">
                         <h2 style="color: #2c3e50; margin-top: 0; font-size: 24px;">{subject}</h2>
-                        
+
                         <div style="line-height: 1.6; color: #333; font-size: 16px;">
                             {content}
                         </div>
-                        
+
                         <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #3498db;">
                             <p style="margin: 0; font-size: 14px; color: #666;">
                                 💡 <strong>Tipp:</strong> Besuchen Sie unseren 
@@ -439,7 +455,7 @@ class EmailService:
                                 und erstellen Sie Ihren Traum-PC!
                             </p>
                         </div>
-                        
+
                         {f'<div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;"><p style="margin: 0; font-size: 14px; color: #856404;">{footer_text}</p></div>' if footer_text else ''}
                     </div>
                     
@@ -450,7 +466,7 @@ class EmailService:
                             <strong>ByteDohm.de</strong> | Ihr Experte für PC-Konfiguration
                         </p>
                         <div style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
-                            <a href="#" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Newsletter abbestellen</a> |
+                            <a href="https://bytedohm.de/newsletter/abmelden" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Newsletter abbestellen</a> |
                             <a href="#" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Im Browser anzeigen</a>
                         </div>
                     </div>
@@ -458,24 +474,25 @@ class EmailService:
             </body>
             </html>
             """
-            
+
             # Text-Version für E-Mail-Clients die HTML nicht unterstützen
             text_body = f"""
             ByteDohm Newsletter
-            
+
             {subject}
-            
+
             {content}
-            
+
             {f'{footer_text}' if footer_text else ''}
             
             ---
             ByteDohm.de - Ihr PC-Konfigurator
             Diese E-Mail wurde an Newsletter-Abonnenten gesendet.
+            Abmelden: https://bytedohm.de/newsletter/abmelden
             """
-            
+
             return self._send_email(customer.email, subject, html_body, text_body)
-            
+
         except Exception as e:
             logging.error(f"Fehler beim Senden der Newsletter-E-Mail: {e}")
             return False
@@ -484,23 +501,34 @@ class EmailService:
 # Global instance
 email_service = EmailService()
 
+
 # Helper functions
 def send_registration_email(customer):
     """Sende Willkommens-E-Mail"""
     return email_service.send_registration_email(customer)
 
+
 def send_order_confirmation_email(order):
     """Sende Bestellbestätigung"""
     return email_service.send_order_confirmation_email(order)
+
 
 def send_shipping_notification_email(order):
     """Sende Versandbenachrichtigung"""
     return email_service.send_shipping_notification_email(order)
 
+
 def send_status_update_email(order, old_status, new_status):
     """Sende Status-Update"""
-    return email_service.send_status_update_email(order, old_status, new_status)
+    return email_service.send_status_update_email(order, old_status,
+                                                  new_status)
 
-def send_newsletter_email(customer, subject, content, preheader=None, footer_text=None):
+
+def send_newsletter_email(customer,
+                          subject,
+                          content,
+                          preheader=None,
+                          footer_text=None):
     """Sende Newsletter"""
-    return email_service.send_newsletter_email(customer, subject, content, preheader, footer_text)
+    return email_service.send_newsletter_email(customer, subject, content,
+                                               preheader, footer_text)

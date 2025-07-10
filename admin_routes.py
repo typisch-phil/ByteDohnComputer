@@ -783,7 +783,7 @@ def admin_newsletter_preview():
                     Diese E-Mail wurde an Newsletter-Abonnenten gesendet.
                 </p>
                 <p style="margin: 10px 0 0 0; font-size: 11px;">
-                    <a href="#" style="color: #6c757d;">Newsletter abbestellen</a> | 
+                    <a href="https://bytedohm.de/newsletter/abmelden" style="color: #6c757d;">Newsletter abbestellen</a> | 
                     <a href="#" style="color: #6c757d;">In Ihrem Browser anzeigen</a>
                 </p>
             </div>

@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify, redirect, url_for
+from flask import render_template, request, jsonify, redirect, url_for, flash
 from app import app, db
 from models import Configuration, Component, PrebuiltPC, Customer, Order, OrderItem, Invoice
 import json
@@ -97,6 +97,40 @@ def prebuild():
         prebuilt_pcs = []
     
     return render_template('prebuild.html', prebuilts=prebuilt_pcs)
+
+@app.route('/newsletter/abmelden')
+def newsletter_unsubscribe():
+    """Newsletter Abmeldung Seite"""
+    return render_template('newsletter_unsubscribe.html')
+
+@app.route('/newsletter/abmelden', methods=['POST'])
+def newsletter_unsubscribe_post():
+    """Newsletter Abmeldung verarbeiten"""
+    try:
+        email = request.form.get('email', '').strip()
+        
+        if not email:
+            flash('Bitte geben Sie eine E-Mail-Adresse ein.', 'error')
+            return render_template('newsletter_unsubscribe.html')
+        
+        # Kunde in der Datenbank finden
+        customer = Customer.query.filter_by(email=email).first()
+        
+        if customer:
+            # Newsletter-Abonnement deaktivieren
+            customer.newsletter_subscription = False
+            db.session.commit()
+            flash('Sie wurden erfolgreich vom Newsletter abgemeldet.', 'success')
+        else:
+            # Auch wenn kein Kunde gefunden wird, positive Nachricht zeigen (Datenschutz)
+            flash('Sie wurden erfolgreich vom Newsletter abgemeldet.', 'success')
+        
+        return render_template('newsletter_unsubscribe.html', success=True)
+        
+    except Exception as e:
+        print(f"Fehler bei Newsletter-Abmeldung: {e}")
+        flash('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.', 'error')
+        return render_template('newsletter_unsubscribe.html')
 
 @app.route('/api/validate-compatibility', methods=['POST'])
 def validate_compatibility():
