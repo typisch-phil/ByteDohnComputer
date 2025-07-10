@@ -5,9 +5,9 @@ Sendet automatische E-Mails für Registrierung, Bestellungen, Status-Updates und
 import os
 import smtplib
 import logging
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
-from email.mime.base import MimeBase
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
 from flask import render_template_string
@@ -43,18 +43,18 @@ class EmailService:
                 return False
                 
             # E-Mail erstellen
-            msg = MimeMultipart('alternative')
+            msg = MIMEMultipart('alternative')
             msg['From'] = f"{self.sender_name} <{self.sender_email}>"
             msg['To'] = to_email
             msg['Subject'] = subject
             
             # Text-Version
             if text_body:
-                text_part = MimeText(text_body, 'plain', 'utf-8')
+                text_part = MIMEText(text_body, 'plain', 'utf-8')
                 msg.attach(text_part)
             
             # HTML-Version
-            html_part = MimeText(html_body, 'html', 'utf-8')
+            html_part = MIMEText(html_body, 'html', 'utf-8')
             msg.attach(html_part)
             
             print("Verbinde mit SMTP Server...")

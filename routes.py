@@ -572,10 +572,11 @@ def zahlungsmethoden():
 def test_email():
     """Test E-Mail-System"""
     try:
+        from email_service import EmailService
         email_service = EmailService()
         
         # Test-E-Mail senden
-        test_email = "test@example.com"  # Ändern Sie zu Ihrer Test-E-Mail
+        test_email = "heiko@bytedohm.de"  # Echte Test-E-Mail
         subject = "ByteDohm E-Mail Test"
         html_body = """
         <html>
