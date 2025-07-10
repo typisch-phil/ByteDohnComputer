@@ -331,20 +331,16 @@ def create_checkout_session():
         db.session.add(config)
         db.session.commit()
         
-        # Create or get customer
-        customer_data = data.get('customer', {})
+        # Create anonymous customer for checkout (no name required)
         customer = None
+        customer_email = data.get('customer_email')
         
-        if customer_data.get('email'):
-            # Find existing customer or create new one
-            customer = Customer.query.filter_by(email=customer_data['email']).first()
+        if customer_email:
+            # Find existing customer by email or create new one without name requirement
+            customer = Customer.query.filter_by(email=customer_email).first()
             if not customer:
                 customer = Customer(
-                    email=customer_data['email'],
-                    first_name=customer_data.get('first_name', ''),
-                    last_name=customer_data.get('last_name', ''),
-                    phone=customer_data.get('phone', ''),
-                    address=customer_data.get('address', ''),
+                    email=customer_email,
                     created_at=datetime.utcnow()
                 )
                 db.session.add(customer)

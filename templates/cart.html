@@ -324,16 +324,8 @@ async function proceedToCheckout() {
         return;
     }
     
-    // Get configuration name from user
-    const configName = await Input.show(
-        'Geben Sie einen Namen für Ihre Bestellung ein:',
-        `PC-Bestellung ${new Date().toLocaleDateString()}`,
-        'Zur Kasse gehen',
-        'Bestellname',
-        'Wird für die Bestellverfolgung verwendet'
-    );
-    
-    if (!configName) return;
+    // Generate automatic configuration name (no user input required)
+    const configName = `PC-Bestellung ${new Date().toLocaleDateString('de-DE')}`;
     
     // Prepare checkout data
     const checkoutData = {
