@@ -601,7 +601,12 @@ def test_email():
         ByteDohm.de - Ihr PC-Konfigurator
         """
         
-        success = email_service._send_email(test_email, subject, html_body, text_body)
+        # E-Mail senden mit Fehlerbehandlung
+        try:
+            success = email_service._send_email(test_email, subject, html_body, text_body)
+        except Exception as email_error:
+            print(f"E-Mail-Fehler: {email_error}")
+            success = False
         
         if success:
             return f"""

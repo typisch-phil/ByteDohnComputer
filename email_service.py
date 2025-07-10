@@ -66,37 +66,42 @@ class EmailService:
             # Sichere SSL/TLS-Konfiguration
             context = ssl.create_default_context()
             
-            # Für Port 465 (SSL) oder 587 (TLS)
-            if self.smtp_port == 465:
-                # SSL-Verbindung für Port 465
-                with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port, context=context) as server:
+            # SMTP-Verbindung mit verbesserter Fehlerbehandlung
+            server = None
+            try:
+                if self.smtp_port == 465:
+                    # SSL-Verbindung für Port 465
+                    server = smtplib.SMTP_SSL(self.smtp_server, self.smtp_port, context=context)
                     print("SSL-Verbindung hergestellt")
-                    server.set_debuglevel(1)
-                    server.login(self.smtp_username, self.smtp_password)
-                    print("Login erfolgreich")
-                    server.send_message(msg)
-                    print("E-Mail gesendet!")
-            else:
-                # STARTTLS für Port 587
-                with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                else:
+                    # STARTTLS für Port 587
+                    server = smtplib.SMTP(self.smtp_server, self.smtp_port)
                     print("SMTP Verbindung hergestellt")
-                    server.set_debuglevel(1)
                     server.starttls(context=context)
                     print("TLS-Verschlüsselung aktiviert")
-                    server.login(self.smtp_username, self.smtp_password)
-                    print("Login erfolgreich")
-                    server.send_message(msg)
-                    print("E-Mail gesendet!")
+                
+                server.set_debuglevel(1)
+                server.login(self.smtp_username, self.smtp_password)
+                print("Login erfolgreich")
+                server.send_message(msg)
+                print("E-Mail gesendet!")
+                
+            finally:
+                # Server-Verbindung sicher schließen
+                if server:
+                    try:
+                        server.quit()
+                    except:
+                        pass
                 
             logging.info(f"E-Mail erfolgreich gesendet an {to_email}: {subject}")
             print(f"SUCCESS: E-Mail an {to_email} gesendet!")
             return True
             
         except Exception as e:
-            logging.error(f"E-Mail-Versand fehlgeschlagen an {to_email}: {str(e)}")
-            print(f"FEHLER beim E-Mail-Versand: {str(e)}")
-            import traceback
-            traceback.print_exc()
+            logging.error(f"E-Mail-Versand fehlgeschlagen an {to_email}: {e}")
+            print(f"FEHLER beim E-Mail-Versand: {e}")
+            print(f"Fehlertyp: {type(e).__name__}")
             return False
     
     def send_registration_email(self, customer):
