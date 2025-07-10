@@ -111,17 +111,21 @@ def profile():
     
     if request.method == 'POST':
         try:
+            print(f"Debug - Form data received: {dict(request.form)}")
+            
             # Update customer profile
-            customer.first_name = request.form.get('first_name', '')
-            customer.last_name = request.form.get('last_name', '')
-            customer.phone = request.form.get('phone', '')
+            customer.first_name = request.form.get('first_name', '').strip()
+            customer.last_name = request.form.get('last_name', '').strip()
+            customer.phone = request.form.get('phone', '').strip()
             
             # Update separate address fields
-            customer.street = request.form.get('street', '')
-            customer.house_number = request.form.get('house_number', '')
-            customer.postal_code = request.form.get('postal_code', '')
-            customer.city = request.form.get('city', '')
-            customer.country = request.form.get('country', 'Deutschland')
+            customer.street = request.form.get('street', '').strip()
+            customer.house_number = request.form.get('house_number', '').strip()
+            customer.postal_code = request.form.get('postal_code', '').strip()
+            customer.city = request.form.get('city', '').strip()
+            customer.country = request.form.get('country', 'Deutschland').strip()
+            
+            print(f"Debug - Address fields: street={customer.street}, house_number={customer.house_number}, postal_code={customer.postal_code}, city={customer.city}, country={customer.country}")
             
             # Update newsletter subscription
             customer.newsletter_subscription = 'newsletter' in request.form
@@ -148,13 +152,25 @@ def profile():
                 if customer.country and customer.country != 'Deutschland':
                     address_parts.append(customer.country)
                 customer.address = ", ".join(address_parts)
+                print(f"Debug - Combined address: {customer.address}")
+            else:
+                customer.address = ""
             
+            # Verify customer has required attributes
+            print(f"Debug - Customer before save: id={customer.id}, email={customer.email}")
+            
+            db.session.add(customer)  # Ensure customer is in session
             db.session.commit()
+            
+            print(f"Debug - Profile saved successfully for customer {customer.id}")
             flash('Profil erfolgreich aktualisiert.', 'success')
             return redirect(url_for('customer_dashboard.profile'))
         except Exception as e:
             db.session.rollback()
-            flash('Fehler beim Aktualisieren des Profils.', 'error')
+            print(f"Error updating profile: {e}")
+            import traceback
+            traceback.print_exc()
+            flash(f'Fehler beim Aktualisieren des Profils: {str(e)}', 'error')
     
     return render_template('customer/dashboard/profile.html', customer=customer)
 
