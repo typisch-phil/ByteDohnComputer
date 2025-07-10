@@ -696,10 +696,20 @@ def cart():
 @app.route('/checkout')
 def checkout():
     """Checkout page with payment methods and address validation"""
-    from customer.auth import validate_customer_session
+    customer = None
     
-    # Get current customer if logged in
-    customer = validate_customer_session()
+    try:
+        # First try Flask-Login
+        from flask_login import current_user
+        if current_user.is_authenticated and isinstance(current_user, Customer):
+            customer = current_user
+        else:
+            # Then try custom session validation
+            from customer.auth import validate_customer_session
+            customer = validate_customer_session()
+    except Exception as e:
+        print(f"Error checking customer authentication: {e}")
+        customer = None
     
     # Get cart items from session or localStorage (will be handled by frontend)
     return render_template('checkout.html', customer=customer)

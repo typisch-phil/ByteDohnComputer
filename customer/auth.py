@@ -58,28 +58,38 @@ def create_customer_session(customer, ip_address=None, user_agent=None):
 
 def validate_customer_session():
     """Validate current customer session"""
-    session_token = session.get('customer_session_token')
-    
-    if not session_token:
+    try:
+        # First check Flask-Login
+        from flask_login import current_user
+        if current_user.is_authenticated and isinstance(current_user, Customer):
+            return current_user
+        
+        # Then check custom session token
+        session_token = session.get('customer_session_token')
+        
+        if not session_token:
+            return None
+        
+        # Find active session
+        customer_session = CustomerSession.query.filter_by(
+            session_token=session_token,
+            is_active=True
+        ).first()
+        
+        if not customer_session:
+            return None
+        
+        # Check if session has expired
+        if customer_session.expires_at < datetime.utcnow():
+            customer_session.is_active = False
+            db.session.commit()
+            session.pop('customer_session_token', None)
+            return None
+        
+        return customer_session.customer
+    except Exception as e:
+        print(f"Error validating customer session: {e}")
         return None
-    
-    # Find active session
-    customer_session = CustomerSession.query.filter_by(
-        session_token=session_token,
-        is_active=True
-    ).first()
-    
-    if not customer_session:
-        return None
-    
-    # Check if session has expired
-    if customer_session.expires_at < datetime.utcnow():
-        customer_session.is_active = False
-        db.session.commit()
-        session.pop('customer_session_token', None)
-        return None
-    
-    return customer_session.customer
 
 
 def invalidate_customer_session():

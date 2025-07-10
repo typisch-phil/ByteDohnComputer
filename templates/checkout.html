@@ -459,21 +459,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Check if user is already logged in
     {% if customer %}
-        currentStep = 2;
-        customerData = {
-            id: {{ customer.id }},
-            email: '{{ customer.email }}',
-            first_name: '{{ customer.first_name or "" }}',
-            last_name: '{{ customer.last_name or "" }}',
-            street: '{{ customer.street or "" }}',
-            house_number: '{{ customer.house_number or "" }}',
-            postal_code: '{{ customer.postal_code or "" }}',
-            city: '{{ customer.city or "" }}',
-            country: '{{ customer.country or "Deutschland" }}',
-            phone: '{{ customer.phone or "" }}'
-        };
-        showStep(2);
+        try {
+            currentStep = 2;
+            customerData = {
+                id: {{ customer.id or 0 }},
+                email: '{{ customer.email or "" }}',
+                first_name: '{{ customer.first_name or "" }}',
+                last_name: '{{ customer.last_name or "" }}',
+                street: '{{ customer.street or "" }}',
+                house_number: '{{ customer.house_number or "" }}',
+                postal_code: '{{ customer.postal_code or "" }}',
+                city: '{{ customer.city or "" }}',
+                country: '{{ customer.country or "Deutschland" }}',
+                phone: '{{ customer.phone or "" }}'
+            };
+            console.log('Customer data loaded:', customerData);
+            showStep(2);
+        } catch (error) {
+            console.error('Error loading customer data:', error);
+            showStep(1);
+        }
     {% else %}
+        console.log('No customer logged in, showing login step');
         showStep(1);
     {% endif %}
 });
@@ -591,7 +598,7 @@ async function loginUser(event) {
     const data = Object.fromEntries(formData);
     
     try {
-        const response = await fetch('/customer/api/login', {
+        const response = await fetch('/kunde/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -602,14 +609,31 @@ async function loginUser(event) {
         const result = await response.json();
         
         if (result.success) {
-            Toast.show('Erfolgreich angemeldet!', 'success');
-            window.location.reload(); // Reload to update customer data
+            // Show success message
+            if (typeof Toast !== 'undefined') {
+                Toast.show('Erfolgreich angemeldet!', 'success');
+            } else {
+                alert('Erfolgreich angemeldet!');
+            }
+            
+            // Reload to update customer data
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         } else {
-            Toast.show(result.error || 'Anmeldung fehlgeschlagen', 'error');
+            if (typeof Toast !== 'undefined') {
+                Toast.show(result.error || 'Anmeldung fehlgeschlagen', 'error');
+            } else {
+                alert(result.error || 'Anmeldung fehlgeschlagen');
+            }
         }
     } catch (error) {
         console.error('Login error:', error);
-        Toast.show('Verbindungsfehler bei der Anmeldung', 'error');
+        if (typeof Toast !== 'undefined') {
+            Toast.show('Verbindungsfehler bei der Anmeldung', 'error');
+        } else {
+            alert('Verbindungsfehler bei der Anmeldung');
+        }
     }
 }
 
@@ -626,7 +650,7 @@ async function registerUser(event) {
     }
     
     try {
-        const response = await fetch('/customer/api/register', {
+        const response = await fetch('/kunde/api/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -637,14 +661,30 @@ async function registerUser(event) {
         const result = await response.json();
         
         if (result.success) {
-            Toast.show('Registrierung erfolgreich!', 'success');
-            window.location.reload(); // Reload to update customer data
+            if (typeof Toast !== 'undefined') {
+                Toast.show('Registrierung erfolgreich!', 'success');
+            } else {
+                alert('Registrierung erfolgreich!');
+            }
+            
+            // Reload to update customer data
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         } else {
-            Toast.show(result.error || 'Registrierung fehlgeschlagen', 'error');
+            if (typeof Toast !== 'undefined') {
+                Toast.show(result.error || 'Registrierung fehlgeschlagen', 'error');
+            } else {
+                alert(result.error || 'Registrierung fehlgeschlagen');
+            }
         }
     } catch (error) {
         console.error('Registration error:', error);
-        Toast.show('Verbindungsfehler bei der Registrierung', 'error');
+        if (typeof Toast !== 'undefined') {
+            Toast.show('Verbindungsfehler bei der Registrierung', 'error');
+        } else {
+            alert('Verbindungsfehler bei der Registrierung');
+        }
     }
 }
 
@@ -667,7 +707,11 @@ function validateAddress() {
     });
     
     if (!isValid) {
-        Toast.show('Bitte füllen Sie alle Pflichtfelder aus', 'warning');
+        if (typeof Toast !== 'undefined') {
+            Toast.show('Bitte füllen Sie alle Pflichtfelder aus', 'warning');
+        } else {
+            alert('Bitte füllen Sie alle Pflichtfelder aus');
+        }
         return;
     }
     
