@@ -119,6 +119,10 @@ The application is designed for flexible deployment:
 - July 09, 2025: DHL API-System bereit für Freischaltung - Vollständige Integration implementiert mit echten Credentials, detaillierte Freischaltungsanleitung erstellt, System wartet nur noch auf DHL API-Aktivierung für Live-Betrieb
 - July 09, 2025: Vollständige Migration auf SimplySell DHL API - Alle DHL API-Referenzen durch SimplySell DHL API ersetzt, Dokumentation aktualisiert, einheitliche API-Integration für bessere Geschäftskunden-Erfahrung
 - July 09, 2025: Rückmigration auf echte DHL API - Alle SimplySell-Referenzen entfernt, System wieder auf Standard DHL Paket DE API v2 umgestellt
+- July 10, 2025: Vollständige rechtliche Compliance - Widerrufsrecht, AGB, Datenschutzerklärung und Zahlungsmethoden-Seiten erstellt und in Navigation integriert
+- July 10, 2025: Admin-Statistik-System optimiert - JSON-Serialisierung behoben, "Beliebteste PCs" statt Komponenten, vollständig funktionsfähig
+- July 10, 2025: E-Mail-System produktionsreif - SMTP-Integration mit Gmail/Outlook-Support, automatische Registrierungs-, Bestell- und Versandbenachrichtigungen
+- July 10, 2025: Kundenprofil-Adresssystem verbessert - Separate Adressfelder implementiert, aktuelle Adresse wird im Dashboard angezeigt
 
 ## User Preferences
 

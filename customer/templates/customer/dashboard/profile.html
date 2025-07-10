@@ -150,11 +150,33 @@
                         <span>{{ customer.last_login.strftime('%d.%m.%Y') }}</span>
                     </div>
                     {% endif %}
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between mb-1">
                         <span>Status:</span>
                         <span class="badge bg-success">Aktiv</span>
                     </div>
                 </div>
+                
+                <!-- Current Address Display -->
+                {% if customer.street or customer.city or customer.postal_code %}
+                <hr>
+                <div class="mb-2">
+                    <h6 class="mb-2">Aktuelle Adresse:</h6>
+                    <div class="small text-muted">
+                        {% if customer.street %}
+                            <div>{{ customer.street }}{% if customer.house_number %} {{ customer.house_number }}{% endif %}</div>
+                        {% endif %}
+                        {% if customer.postal_code or customer.city %}
+                            <div>
+                                {% if customer.postal_code %}{{ customer.postal_code }}{% endif %}
+                                {% if customer.city %}{% if customer.postal_code %} {% endif %}{{ customer.city }}{% endif %}
+                            </div>
+                        {% endif %}
+                        {% if customer.country and customer.country != 'Deutschland' %}
+                            <div>{{ customer.country }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
 

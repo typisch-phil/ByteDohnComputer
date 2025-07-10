@@ -177,28 +177,28 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Beliebteste Komponenten</h5>
+                            <h5 class="card-title mb-0">Beliebteste PCs</h5>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Komponente</th>
+                                            <th>PC-Modell</th>
                                             <th>Bestellungen</th>
                                             <th>Gesamtumsatz</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for component in stats.popular_components %}
+                                        {% for pc in stats.popular_pcs %}
                                         <tr>
-                                            <td>{{ component.item_name }}</td>
-                                            <td>{{ component.order_count }}</td>
-                                            <td>{{ "%.2f"|format(component.total_revenue) }} €</td>
+                                            <td>{{ pc.item_name }}</td>
+                                            <td>{{ pc.order_count }}</td>
+                                            <td>{{ "%.2f"|format(pc.total_revenue) }} €</td>
                                         </tr>
                                         {% else %}
                                         <tr>
-                                            <td colspan="3" class="text-center text-muted">Noch keine Komponentenverkäufe</td>
+                                            <td colspan="3" class="text-center text-muted">Noch keine PC-Verkäufe</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -277,7 +277,7 @@ function exportStats() {
         order_stats: {{ stats.order_stats | tojson }},
         payment_stats: {{ stats.payment_stats | tojson }},
         top_customers: {{ stats.top_customers | tojson }},
-        popular_components: {{ stats.popular_components | tojson }},
+        popular_pcs: {{ stats.popular_pcs | tojson }},
         generated_at: new Date().toISOString()
     };
     

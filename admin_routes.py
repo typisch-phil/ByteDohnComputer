@@ -673,21 +673,21 @@ def admin_statistics():
             'total_spent': float(customer.total_spent) if customer.total_spent else 0.0
         })
     
-    # Product statistics
-    popular_components_raw = db.session.query(
+    # Popular PCs statistics
+    popular_pcs_raw = db.session.query(
         OrderItem.item_name,
         func.count(OrderItem.id).label('order_count'),
         func.sum(OrderItem.total_price).label('total_revenue')
     ).filter(
-        OrderItem.item_type == 'component'
+        OrderItem.item_type == 'prebuilt'
     ).group_by(OrderItem.item_name).order_by(func.count(OrderItem.id).desc()).limit(10).all()
     
-    popular_components = []
-    for component in popular_components_raw:
-        popular_components.append({
-            'item_name': component.item_name,
-            'order_count': component.order_count,
-            'total_revenue': float(component.total_revenue) if component.total_revenue else 0.0
+    popular_pcs = []
+    for pc in popular_pcs_raw:
+        popular_pcs.append({
+            'item_name': pc.item_name,
+            'order_count': pc.order_count,
+            'total_revenue': float(pc.total_revenue) if pc.total_revenue else 0.0
         })
     
     stats = {
@@ -697,7 +697,7 @@ def admin_statistics():
         'payment_stats': payment_stats,
         'monthly_revenue': monthly_revenue,
         'top_customers': top_customers,
-        'popular_components': popular_components
+        'popular_pcs': popular_pcs
     }
     
     return render_template('admin/statistics.html', stats=stats)
