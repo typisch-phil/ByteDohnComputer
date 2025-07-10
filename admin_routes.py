@@ -496,18 +496,43 @@ def admin_update_order_status(order_id):
     """Update order status"""
     order = Order.query.get_or_404(order_id)
     
+    # Aktuelle Status speichern für E-Mail
+    old_status = order.status
+    old_payment_status = order.payment_status
+    
     new_status = request.form.get('status')
     payment_status = request.form.get('payment_status')
     
+    status_changed = False
+    payment_changed = False
+    
     if new_status and new_status in ['pending', 'processing', 'shipped', 'delivered', 'cancelled']:
-        order.status = new_status
+        if new_status != old_status:
+            order.status = new_status
+            status_changed = True
         
     if payment_status and payment_status in ['pending', 'paid', 'failed', 'refunded']:
-        order.payment_status = payment_status
+        if payment_status != old_payment_status:
+            order.payment_status = payment_status
+            payment_changed = True
     
     try:
         db.session.commit()
-        flash(f'Bestellung {order.order_number} Status aktualisiert', 'success')
+        
+        # E-Mail-Benachrichtigung bei Status-Änderung
+        if status_changed:
+            try:
+                from email_service import send_status_update_email
+                success = send_status_update_email(order, old_status, new_status)
+                if success:
+                    flash(f'Bestellung {order.order_number} Status aktualisiert - E-Mail an Kunde gesendet', 'success')
+                else:
+                    flash(f'Bestellung {order.order_number} Status aktualisiert - E-Mail-Versand fehlgeschlagen', 'warning')
+            except Exception as e:
+                flash(f'Bestellung {order.order_number} Status aktualisiert - E-Mail-Fehler: {str(e)}', 'warning')
+        else:
+            flash(f'Bestellung {order.order_number} Status aktualisiert', 'success')
+            
     except Exception as e:
         flash(f'Fehler beim Aktualisieren des Status: {str(e)}', 'error')
         db.session.rollback()
