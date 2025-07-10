@@ -776,16 +776,16 @@ def admin_newsletter_preview():
             </div>
             
             <!-- Footer -->
-            <div style="background-color: #f8f9fa; padding: 20px; border-top: 1px solid #dee2e6; font-size: 12px; color: #6c757d;">
+            <div style="background-color: #34495e; color: white; padding: 20px; text-align: center;">
                 {f'<p style="margin: 0 0 10px 0;">{footer_text}</p>' if footer_text else ''}
-                <p style="margin: 0;">
-                    <strong>ByteDohm.de</strong> | Ihr PC-Konfigurator<br>
-                    Diese E-Mail wurde an Newsletter-Abonnenten gesendet.
+                <p style="margin: 0; font-size: 14px;">
+                    Diese E-Mail wurde an Newsletter-Abonnenten von ByteDohm.de gesendet.<br>
+                    <strong>ByteDohm.de</strong> | Ihr Experte für PC-Konfiguration
                 </p>
-                <p style="margin: 10px 0 0 0; font-size: 11px;">
-                    <a href="https://bytedohm.de/newsletter/abmelden" style="color: #6c757d;">Newsletter abbestellen</a> | 
-                    <a href="#" style="color: #6c757d;">In Ihrem Browser anzeigen</a>
-                </p>
+                <div style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
+                    <a href="https://bytedohm.de/newsletter/abmelden" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Newsletter abbestellen</a> |
+                    <a href="#" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Im Browser anzeigen</a>
+                </div>
             </div>
         </div>
         """

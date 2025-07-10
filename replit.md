@@ -132,6 +132,7 @@ The application is designed for flexible deployment:
 - July 10, 2025: MwSt.-System entfernt - Alle 19% MwSt.-Anzeigen entfernt wegen Kleinunternehmer-Regelung, tax_amount auf 0.0 gesetzt
 - July 10, 2025: Newsletter-System implementiert - Admin-Panel Newsletter-Erstellung mit Live-Vorschau, Test-E-Mail-Funktionalität und Massenversand an alle Abonnenten, erweiterte E-Mail-Templates mit Preheader und Footer-Text
 - July 10, 2025: Newsletter-Abmeldefunktion hinzugefügt - Kunden können sich über /newsletter/abmelden vom Newsletter abmelden, Abmelde-Links in allen Newsletter-E-Mails integriert
+- July 10, 2025: Newsletter-Template bereinigt - Doppelten Footer-Bereich entfernt und einheitliches Design für alle Newsletter-E-Mails
 
 ## User Preferences
 
