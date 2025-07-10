@@ -576,7 +576,7 @@ def test_email():
         email_service = EmailService()
         
         # Test-E-Mail senden
-        test_email = "heiko@bytedohm.de"  # Echte Test-E-Mail
+        test_email = "info@bytedohm.de"  # Test-E-Mail
         subject = "ByteDohm E-Mail Test"
         html_body = """
         <html>
