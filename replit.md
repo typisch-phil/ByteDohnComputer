@@ -133,9 +133,6 @@ The application is designed for flexible deployment:
 - July 10, 2025: Newsletter-System implementiert - Admin-Panel Newsletter-Erstellung mit Live-Vorschau, Test-E-Mail-Funktionalität und Massenversand an alle Abonnenten, erweiterte E-Mail-Templates mit Preheader und Footer-Text
 - July 10, 2025: Newsletter-Abmeldefunktion hinzugefügt - Kunden können sich über /newsletter/abmelden vom Newsletter abmelden, Abmelde-Links in allen Newsletter-E-Mails integriert
 - July 10, 2025: Newsletter-Template bereinigt - Doppelten Footer-Bereich entfernt und einheitliches Design für alle Newsletter-E-Mails
-- July 10, 2025: Migration von Python zu PHP gestartet - Hauptseiten (index.php, konfigurator.php, warenkorb.php, fertig-pcs.php) und Kundensystem (login, register, dashboard) in PHP erstellt
-- July 10, 2025: PHP Migration erweitert - Admin-System, Checkout-Prozess, Zahlungsabwicklung und rechtliche Seiten vollständig in PHP implementiert
-- July 10, 2025: PHP Migration vollständig abgeschlossen - Alle Python-Funktionen erfolgreich zu PHP migriert, Setup-Script und Dokumentation erstellt, Website vollständig funktionsfähig
 
 ## User Preferences
 

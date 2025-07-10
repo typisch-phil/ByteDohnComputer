@@ -463,10 +463,11 @@ class EmailService:
                     <div style="background-color: #34495e; color: white; padding: 20px; text-align: center;">
                         <p style="margin: 0; font-size: 14px;">
                             Diese E-Mail wurde an Newsletter-Abonnenten von ByteDohm.de gesendet.<br>
-                            <strong>© 2025 ByteDohm – Dein Partner für High-Performance-PCs</strong>
+                            <strong>ByteDohm.de</strong> | Ihr Experte für PC-Konfiguration
                         </p>
                         <div style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
-                            <a href="https://bytedohm.de/newsletter/abmelden" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Newsletter abbestellen</a>
+                            <a href="https://bytedohm.de/newsletter/abmelden" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Newsletter abbestellen</a> |
+                            <a href="#" style="color: #bdc3c7; text-decoration: none; margin: 0 10px;">Im Browser anzeigen</a>
                         </div>
                     </div>
                 </div>
