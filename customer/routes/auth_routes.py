@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_user, logout_user, current_user
 from app import db
 from models import Customer
@@ -174,3 +174,124 @@ def forgot_password():
             flash('Bitte geben Sie Ihre E-Mail-Adresse ein.', 'error')
     
     return render_template('customer/auth/forgot_password.html')
+
+@customer_auth.route('/api/login', methods=['POST'])
+def api_login():
+    """API endpoint for customer login"""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').strip().lower()
+        password = data.get('password', '')
+        
+        # Validate input
+        if not email or not password:
+            return jsonify({'success': False, 'error': 'E-Mail und Passwort sind erforderlich'}), 400
+        
+        # Find customer
+        customer = Customer.query.filter_by(email=email).first()
+        
+        if not customer or not customer.check_password(password):
+            return jsonify({'success': False, 'error': 'Ungültige E-Mail oder Passwort'}), 401
+        
+        # Login customer
+        login_user(customer, remember=True)
+        customer.update_last_login()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Willkommen zurück, {customer.first_name}!',
+            'customer': {
+                'id': customer.id,
+                'email': customer.email,
+                'first_name': customer.first_name,
+                'last_name': customer.last_name,
+                'full_name': customer.get_full_name()
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': 'Anmeldung fehlgeschlagen'}), 500
+
+@customer_auth.route('/api/register', methods=['POST'])
+def api_register():
+    """API endpoint for customer registration"""
+    try:
+        data = request.get_json()
+        
+        # Get form data
+        email = data.get('email', '').strip().lower()
+        password = data.get('password', '')
+        first_name = data.get('first_name', '').strip()
+        last_name = data.get('last_name', '').strip()
+        terms_accepted = data.get('terms', False)
+        
+        # Validation
+        errors = []
+        
+        # Required fields
+        if not email:
+            errors.append('E-Mail ist erforderlich.')
+        elif not validate_email_format(email):
+            errors.append('Ungültige E-Mail-Adresse.')
+        elif Customer.query.filter_by(email=email).first():
+            errors.append('Diese E-Mail-Adresse ist bereits registriert.')
+        
+        if not first_name:
+            errors.append('Vorname ist erforderlich.')
+        
+        if not last_name:
+            errors.append('Nachname ist erforderlich.')
+        
+        if not password:
+            errors.append('Passwort ist erforderlich.')
+        elif not validate_password_strength(password):
+            errors.append('Passwort muss mindestens 8 Zeichen lang sein.')
+        
+        if not terms_accepted:
+            errors.append('Sie müssen die AGB akzeptieren.')
+        
+        if errors:
+            return jsonify({'success': False, 'error': '; '.join(errors)}), 400
+        
+        # Create new customer
+        from datetime import datetime
+        customer = Customer(
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            created_at=datetime.utcnow()
+        )
+        customer.set_password(password)
+        
+        try:
+            db.session.add(customer)
+            db.session.commit()
+            
+            # Login customer immediately
+            login_user(customer, remember=True)
+            
+            # Send welcome email
+            try:
+                from email_service import send_registration_email
+                send_registration_email(customer)
+            except Exception as e:
+                print(f"Failed to send welcome email: {e}")
+            
+            return jsonify({
+                'success': True,
+                'message': f'Willkommen bei ByteDohm, {customer.first_name}!',
+                'customer': {
+                    'id': customer.id,
+                    'email': customer.email,
+                    'first_name': customer.first_name,
+                    'last_name': customer.last_name,
+                    'full_name': customer.get_full_name()
+                }
+            })
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': 'Registrierung fehlgeschlagen'}), 500
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': 'Registrierung fehlgeschlagen'}), 500

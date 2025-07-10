@@ -693,6 +693,17 @@ def cart():
     """Shopping cart page"""
     return render_template('cart.html')
 
+@app.route('/checkout')
+def checkout():
+    """Checkout page with payment methods and address validation"""
+    from customer.auth import validate_customer_session
+    
+    # Get current customer if logged in
+    customer = validate_customer_session()
+    
+    # Get cart items from session or localStorage (will be handled by frontend)
+    return render_template('checkout.html', customer=customer)
+
 @app.route('/api/check-auth-status', methods=['GET'])
 def check_auth_status():
     """Check if user is authenticated"""
@@ -834,6 +845,28 @@ def create_checkout_session_from_cart():
         
         # Use authenticated customer
         customer_id = customer.id
+        
+        # Update customer address if provided
+        if data.get('customer_data'):
+            customer_data = data['customer_data']
+            if customer_data.get('first_name'):
+                customer.first_name = customer_data['first_name']
+            if customer_data.get('last_name'):
+                customer.last_name = customer_data['last_name']
+            if customer_data.get('street'):
+                customer.street = customer_data['street']
+            if customer_data.get('house_number'):
+                customer.house_number = customer_data['house_number']
+            if customer_data.get('postal_code'):
+                customer.postal_code = customer_data['postal_code']
+            if customer_data.get('city'):
+                customer.city = customer_data['city']
+            if customer_data.get('country'):
+                customer.country = customer_data['country']
+            if customer_data.get('phone'):
+                customer.phone = customer_data['phone']
+            
+            db.session.commit()
         
         # Save configuration before checkout
         config_name = data.get('config_name', f"PC-Bestellung {datetime.now().strftime('%Y-%m-%d %H:%M')}")

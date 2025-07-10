@@ -1,0 +1,787 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - ByteDohm.de{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h2 mb-4">Checkout</h1>
+            
+            <!-- Progress Steps -->
+            <div class="checkout-progress mb-4">
+                <div class="progress-steps">
+                    <div class="step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Anmeldung</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Adresse</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Zahlung</div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Bestätigung</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Checkout Form -->
+        <div class="col-lg-8">
+            <div class="checkout-form">
+                
+                <!-- Step 1: Authentication -->
+                <div class="checkout-step" id="step-1">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user me-2"></i>
+                                Anmeldung
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if customer %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Angemeldet als: <strong>{{ customer.email }}</strong>
+                                    <div class="mt-2">
+                                        <small>{{ customer.get_full_name() or 'Profil vervollständigen' }}</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <a href="/customer/logout" class="btn btn-outline-secondary">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Abmelden
+                                    </a>
+                                    <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                        Weiter <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            {% else %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="mb-3">Bereits Kunde?</h6>
+                                        <form id="login-form" onsubmit="loginUser(event)">
+                                            <div class="mb-3">
+                                                <label for="login-email" class="form-label">E-Mail</label>
+                                                <input type="email" class="form-control" id="login-email" name="email" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="login-password" class="form-label">Passwort</label>
+                                                <input type="password" class="form-control" id="login-password" name="password" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary w-100">
+                                                <i class="fas fa-sign-in-alt me-2"></i>Anmelden
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="mb-3">Neuer Kunde?</h6>
+                                        <form id="register-form" onsubmit="registerUser(event)">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="register-first-name" class="form-label">Vorname</label>
+                                                        <input type="text" class="form-control" id="register-first-name" name="first_name" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="register-last-name" class="form-label">Nachname</label>
+                                                        <input type="text" class="form-control" id="register-last-name" name="last_name" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="register-email" class="form-label">E-Mail</label>
+                                                <input type="email" class="form-control" id="register-email" name="email" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="register-password" class="form-label">Passwort</label>
+                                                <input type="password" class="form-control" id="register-password" name="password" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="register-password-confirm" class="form-label">Passwort bestätigen</label>
+                                                <input type="password" class="form-control" id="register-password-confirm" name="password_confirm" required>
+                                            </div>
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="checkbox" id="register-terms" name="terms" required>
+                                                <label class="form-check-label" for="register-terms">
+                                                    <small>Ich akzeptiere die <a href="/agb" target="_blank">AGB</a> und <a href="/datenschutz" target="_blank">Datenschutzerklärung</a></small>
+                                                </label>
+                                            </div>
+                                            <button type="submit" class="btn btn-success w-100">
+                                                <i class="fas fa-user-plus me-2"></i>Registrieren
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Address -->
+                <div class="checkout-step" id="step-2" style="display: none;">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                Lieferadresse
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="address-form">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="first-name" class="form-label">Vorname *</label>
+                                            <input type="text" class="form-control" id="first-name" name="first_name" 
+                                                   value="{{ customer.first_name if customer else '' }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="last-name" class="form-label">Nachname *</label>
+                                            <input type="text" class="form-control" id="last-name" name="last_name" 
+                                                   value="{{ customer.last_name if customer else '' }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="street" class="form-label">Straße *</label>
+                                            <input type="text" class="form-control" id="street" name="street" 
+                                                   value="{{ customer.street if customer else '' }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="house-number" class="form-label">Hausnummer *</label>
+                                            <input type="text" class="form-control" id="house-number" name="house_number" 
+                                                   value="{{ customer.house_number if customer else '' }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="postal-code" class="form-label">PLZ *</label>
+                                            <input type="text" class="form-control" id="postal-code" name="postal_code" 
+                                                   value="{{ customer.postal_code if customer else '' }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="city" class="form-label">Stadt *</label>
+                                            <input type="text" class="form-control" id="city" name="city" 
+                                                   value="{{ customer.city if customer else '' }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="country" class="form-label">Land *</label>
+                                    <select class="form-select" id="country" name="country" required>
+                                        <option value="Deutschland" {{ 'selected' if customer and customer.country == 'Deutschland' else '' }}>Deutschland</option>
+                                        <option value="Österreich" {{ 'selected' if customer and customer.country == 'Österreich' else '' }}>Österreich</option>
+                                        <option value="Schweiz" {{ 'selected' if customer and customer.country == 'Schweiz' else '' }}>Schweiz</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Telefonnummer (Optional)</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           value="{{ customer.phone if customer else '' }}">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                                        <i class="fas fa-arrow-left me-2"></i>Zurück
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="validateAddress()">
+                                        Weiter <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Payment -->
+                <div class="checkout-step" id="step-3" style="display: none;">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-credit-card me-2"></i>
+                                Zahlungsmethode
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="payment-methods">
+                                <div class="form-check payment-method mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="payment-stripe" value="stripe" checked>
+                                    <label class="form-check-label w-100" for="payment-stripe">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fab fa-cc-stripe fa-2x me-3 text-primary"></i>
+                                            <div>
+                                                <strong>Kreditkarte / Debitkarte</strong>
+                                                <div class="small text-muted">Visa, Mastercard, American Express</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check payment-method mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="payment-paypal" value="paypal">
+                                    <label class="form-check-label w-100" for="payment-paypal">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fab fa-paypal fa-2x me-3 text-primary"></i>
+                                            <div>
+                                                <strong>PayPal</strong>
+                                                <div class="small text-muted">Zahlung über PayPal</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check payment-method mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="payment-sofort" value="sofort">
+                                    <label class="form-check-label w-100" for="payment-sofort">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-university fa-2x me-3 text-primary"></i>
+                                            <div>
+                                                <strong>Sofortüberweisung</strong>
+                                                <div class="small text-muted">Direkte Banküberweisung</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-check payment-method mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="payment-bank" value="bank_transfer">
+                                    <label class="form-check-label w-100" for="payment-bank">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-money-check fa-2x me-3 text-primary"></i>
+                                            <div>
+                                                <strong>Vorkasse</strong>
+                                                <div class="small text-muted">Überweisung im Voraus</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                                    <i class="fas fa-arrow-left me-2"></i>Zurück
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                    Weiter <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Confirmation -->
+                <div class="checkout-step" id="step-4" style="display: none;">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Bestellung bestätigen
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="confirmation-summary">
+                                <h6>Lieferadresse</h6>
+                                <div id="address-summary" class="mb-3 p-3 bg-light rounded">
+                                    <!-- Will be populated by JavaScript -->
+                                </div>
+                                
+                                <h6>Zahlungsmethode</h6>
+                                <div id="payment-summary" class="mb-3 p-3 bg-light rounded">
+                                    <!-- Will be populated by JavaScript -->
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="confirm-terms" required>
+                                    <label class="form-check-label" for="confirm-terms">
+                                        <small>Ich akzeptiere die <a href="/agb" target="_blank">AGB</a>, <a href="/datenschutz" target="_blank">Datenschutzerklärung</a> und <a href="/widerrufsrecht" target="_blank">Widerrufsbelehrung</a></small>
+                                    </label>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                                        <i class="fas fa-arrow-left me-2"></i>Zurück
+                                    </button>
+                                    <button type="button" class="btn btn-success btn-lg" onclick="submitOrder()">
+                                        <i class="fas fa-shopping-cart me-2"></i>Jetzt kaufen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Order Summary -->
+        <div class="col-lg-4">
+            <div class="card sticky-top">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Bestellübersicht
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="order-summary">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Wird geladen...</span>
+                            </div>
+                            <div class="mt-2">Warenkorb wird geladen...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.checkout-progress {
+    margin-bottom: 2rem;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e9ecef;
+    z-index: 1;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    background: white;
+    padding: 0 10px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.step.active .step-number {
+    background: #0d6efd;
+    color: white;
+}
+
+.step.completed .step-number {
+    background: #198754;
+    color: white;
+}
+
+.step-title {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.step.active .step-title {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.payment-method {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.payment-method:hover {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+}
+
+.payment-method input[type="radio"]:checked + label {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+    .progress-steps {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .progress-steps::before {
+        display: none;
+    }
+}
+</style>
+
+<script>
+let currentStep = 1;
+let customerData = null;
+let cartItems = [];
+
+// Initialize checkout
+document.addEventListener('DOMContentLoaded', function() {
+    loadCartItems();
+    
+    // Check if user is already logged in
+    {% if customer %}
+        currentStep = 2;
+        customerData = {
+            id: {{ customer.id }},
+            email: '{{ customer.email }}',
+            first_name: '{{ customer.first_name or "" }}',
+            last_name: '{{ customer.last_name or "" }}',
+            street: '{{ customer.street or "" }}',
+            house_number: '{{ customer.house_number or "" }}',
+            postal_code: '{{ customer.postal_code or "" }}',
+            city: '{{ customer.city or "" }}',
+            country: '{{ customer.country or "Deutschland" }}',
+            phone: '{{ customer.phone or "" }}'
+        };
+        showStep(2);
+    {% else %}
+        showStep(1);
+    {% endif %}
+});
+
+function loadCartItems() {
+    // Load cart items from localStorage
+    const savedCart = localStorage.getItem('cart_items');
+    if (savedCart) {
+        cartItems = JSON.parse(savedCart);
+    }
+    
+    // Also check sessionStorage for pending cart
+    const pendingCart = sessionStorage.getItem('pending_checkout_cart');
+    if (pendingCart) {
+        cartItems = JSON.parse(pendingCart);
+        sessionStorage.removeItem('pending_checkout_cart');
+    }
+    
+    updateOrderSummary();
+}
+
+function updateOrderSummary() {
+    const summaryDiv = document.getElementById('order-summary');
+    
+    if (cartItems.length === 0) {
+        summaryDiv.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                <div class="text-muted">Ihr Warenkorb ist leer</div>
+                <a href="/warenkorb" class="btn btn-primary btn-sm mt-2">
+                    Zum Warenkorb
+                </a>
+            </div>
+        `;
+        return;
+    }
+    
+    let total = 0;
+    let itemsHtml = '';
+    
+    // Note: This is a simplified version. In a real app, you'd fetch component details from the server
+    cartItems.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        
+        itemsHtml += `
+            <div class="order-item d-flex justify-content-between mb-2">
+                <div>
+                    <div class="fw-bold">${item.name || 'Komponente'}</div>
+                    <small class="text-muted">Anzahl: ${item.quantity}</small>
+                </div>
+                <div class="text-end">
+                    <div class="fw-bold">€${itemTotal.toFixed(2)}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    summaryDiv.innerHTML = `
+        <div class="order-items">
+            ${itemsHtml}
+        </div>
+        <hr>
+        <div class="order-total d-flex justify-content-between">
+            <div class="fw-bold">Gesamtsumme:</div>
+            <div class="fw-bold fs-5 text-primary">€${total.toFixed(2)}</div>
+        </div>
+        <div class="mt-3">
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Inkl. 19% MwSt. • Versand wird an der Kasse berechnet
+            </small>
+        </div>
+    `;
+}
+
+function showStep(step) {
+    // Hide all steps
+    document.querySelectorAll('.checkout-step').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Show current step
+    document.getElementById(`step-${step}`).style.display = 'block';
+    
+    // Update progress
+    document.querySelectorAll('.step').forEach((el, index) => {
+        el.classList.remove('active', 'completed');
+        if (index + 1 === step) {
+            el.classList.add('active');
+        } else if (index + 1 < step) {
+            el.classList.add('completed');
+        }
+    });
+    
+    currentStep = step;
+}
+
+function nextStep() {
+    if (currentStep < 4) {
+        showStep(currentStep + 1);
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        showStep(currentStep - 1);
+    }
+}
+
+async function loginUser(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const response = await fetch('/customer/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            Toast.show('Erfolgreich angemeldet!', 'success');
+            window.location.reload(); // Reload to update customer data
+        } else {
+            Toast.show(result.error || 'Anmeldung fehlgeschlagen', 'error');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        Toast.show('Verbindungsfehler bei der Anmeldung', 'error');
+    }
+}
+
+async function registerUser(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
+    
+    // Validate password confirmation
+    if (data.password !== data.password_confirm) {
+        Toast.show('Passwörter stimmen nicht überein', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/customer/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            Toast.show('Registrierung erfolgreich!', 'success');
+            window.location.reload(); // Reload to update customer data
+        } else {
+            Toast.show(result.error || 'Registrierung fehlgeschlagen', 'error');
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        Toast.show('Verbindungsfehler bei der Registrierung', 'error');
+    }
+}
+
+function validateAddress() {
+    const form = document.getElementById('address-form');
+    const formData = new FormData(form);
+    
+    // Basic validation
+    const requiredFields = ['first_name', 'last_name', 'street', 'house_number', 'postal_code', 'city', 'country'];
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        const value = formData.get(field);
+        if (!value || value.trim() === '') {
+            isValid = false;
+            document.getElementById(field.replace('_', '-')).classList.add('is-invalid');
+        } else {
+            document.getElementById(field.replace('_', '-')).classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        Toast.show('Bitte füllen Sie alle Pflichtfelder aus', 'warning');
+        return;
+    }
+    
+    // Store address data
+    customerData = {
+        ...customerData,
+        ...Object.fromEntries(formData)
+    };
+    
+    nextStep();
+}
+
+function updateConfirmationSummary() {
+    if (!customerData) return;
+    
+    // Update address summary
+    const addressSummary = document.getElementById('address-summary');
+    addressSummary.innerHTML = `
+        <strong>${customerData.first_name} ${customerData.last_name}</strong><br>
+        ${customerData.street} ${customerData.house_number}<br>
+        ${customerData.postal_code} ${customerData.city}<br>
+        ${customerData.country}
+        ${customerData.phone ? `<br>Tel: ${customerData.phone}` : ''}
+    `;
+    
+    // Update payment summary
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+    const paymentSummary = document.getElementById('payment-summary');
+    
+    if (paymentMethod) {
+        const methodLabels = {
+            'stripe': 'Kreditkarte / Debitkarte',
+            'paypal': 'PayPal',
+            'sofort': 'Sofortüberweisung',
+            'bank_transfer': 'Vorkasse'
+        };
+        
+        paymentSummary.innerHTML = `
+            <strong>${methodLabels[paymentMethod.value]}</strong>
+        `;
+    }
+}
+
+// Update confirmation when moving to step 4
+document.addEventListener('DOMContentLoaded', function() {
+    // Override nextStep for step 3 to update confirmation
+    const originalNextStep = window.nextStep;
+    window.nextStep = function() {
+        if (currentStep === 3) {
+            updateConfirmationSummary();
+        }
+        originalNextStep();
+    };
+});
+
+async function submitOrder() {
+    if (cartItems.length === 0) {
+        Toast.show('Ihr Warenkorb ist leer', 'warning');
+        return;
+    }
+    
+    const termsAccepted = document.getElementById('confirm-terms').checked;
+    if (!termsAccepted) {
+        Toast.show('Bitte akzeptieren Sie die AGB und Datenschutzerklärung', 'warning');
+        return;
+    }
+    
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+    if (!paymentMethod) {
+        Toast.show('Bitte wählen Sie eine Zahlungsmethode', 'warning');
+        return;
+    }
+    
+    // Prepare order data
+    const orderData = {
+        cart_items: cartItems,
+        total_price: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        config_name: `PC-Bestellung ${new Date().toLocaleDateString('de-DE')}`,
+        customer_data: customerData,
+        payment_method: paymentMethod.value,
+        shipping_address: {
+            first_name: customerData.first_name,
+            last_name: customerData.last_name,
+            street: customerData.street,
+            house_number: customerData.house_number,
+            postal_code: customerData.postal_code,
+            city: customerData.city,
+            country: customerData.country,
+            phone: customerData.phone
+        }
+    };
+    
+    try {
+        const response = await fetch('/api/create-checkout-session-from-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Clear cart and redirect to payment
+            localStorage.removeItem('cart_items');
+            window.location.href = result.checkout_url;
+        } else {
+            Toast.show(result.error || 'Fehler beim Erstellen der Bestellung', 'error');
+        }
+    } catch (error) {
+        console.error('Order submission error:', error);
+        Toast.show('Verbindungsfehler beim Erstellen der Bestellung', 'error');
+    }
+}
+</script>
+{% endblock %}

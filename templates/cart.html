@@ -49,9 +49,9 @@
                         <strong id="total-price" class="text-primary">€0.00</strong>
                     </div>
                     
-                    <button id="checkout-btn" class="btn btn-primary w-100 mb-2" onclick="proceedToCheckout()" disabled>
+                    <a href="/checkout" id="checkout-btn" class="btn btn-primary w-100 mb-2 text-decoration-none text-center" style="display: none;">
                         <i class="fas fa-credit-card"></i> Zur Kasse
-                    </button>
+                    </a>
                     
                     <button id="clear-cart-btn" class="btn btn-outline-danger w-100 mb-2" onclick="clearCartConfirm()" style="display: none;">
                         <i class="fas fa-trash"></i> Warenkorb leeren
@@ -225,12 +225,12 @@ class Cart {
         if (this.items.length === 0) {
             cartContainer.style.display = 'none';
             emptyCart.style.display = 'block';
-            checkoutBtn.disabled = true;
+            checkoutBtn.style.display = 'none';
             configInfo.style.display = 'none';
         } else {
             cartContainer.style.display = 'block';
             emptyCart.style.display = 'none';
-            checkoutBtn.disabled = false;
+            checkoutBtn.style.display = 'block';
             configInfo.style.display = 'block';
             
             cartContainer.innerHTML = this.items.map(item => {
