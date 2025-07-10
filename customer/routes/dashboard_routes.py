@@ -103,6 +103,61 @@ def configurations():
     return render_template('customer/dashboard/configurations.html', configs=configs)
 
 
+@customer_dashboard.route('/api/configuration/<int:config_id>')
+@customer_login_required
+def get_configuration_api(config_id):
+    """API endpoint to get configuration data with component details"""
+    customer = current_user
+    
+    # Get configuration that belongs to the customer
+    config = Configuration.query.filter_by(
+        id=config_id, 
+        customer_id=customer.id
+    ).first()
+    
+    if not config:
+        return jsonify({'success': False, 'error': 'Konfiguration nicht gefunden'}), 404
+    
+    try:
+        # Parse components from JSON
+        import json
+        components_data = json.loads(config.components)
+        
+        # Fetch component details for each category
+        enriched_components = {}
+        
+        for category, component_id in components_data.items():
+            if component_id:
+                # Get component from database
+                component = Component.query.filter_by(
+                    id=component_id,
+                    category=category + 's' if category != 'ram' else 'ram'
+                ).first()
+                
+                if component:
+                    enriched_components[category] = {
+                        'id': component.id,
+                        'name': component.name,
+                        'price': component.price,
+                        'category': component.category
+                    }
+        
+        return jsonify({
+            'success': True,
+            'configuration': {
+                'id': config.id,
+                'name': config.name,
+                'total_price': config.total_price,
+                'components': enriched_components,
+                'created_at': config.created_at.isoformat()
+            }
+        })
+        
+    except Exception as e:
+        print(f"Error loading configuration {config_id}: {e}")
+        return jsonify({'success': False, 'error': 'Fehler beim Laden der Konfiguration'}), 500
+
+
 @customer_dashboard.route('/profil', methods=['GET', 'POST'])
 @customer_login_required
 def profile():
