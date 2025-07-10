@@ -21,7 +21,7 @@ class EmailService:
         self.smtp_port = int(os.environ.get('SMTP_PORT', '587'))
         self.smtp_username = os.environ.get('SMTP_USERNAME')
         self.smtp_password = os.environ.get('SMTP_PASSWORD')
-        self.sender_email = os.environ.get('SENDER_EMAIL', 'info@bytedohm.de')
+        self.sender_email = os.environ.get('FROM_EMAIL', 'no-reply@bytedohm.de')
         self.sender_name = "ByteDohm.de"
         
     def _send_email(self, to_email, subject, html_body, text_body=None):
