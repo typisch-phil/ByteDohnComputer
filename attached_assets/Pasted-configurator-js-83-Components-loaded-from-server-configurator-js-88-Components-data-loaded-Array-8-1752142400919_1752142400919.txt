@@ -1,0 +1,78 @@
+configurator.js:83 Components loaded from server
+configurator.js:88 Components data loaded: Array(8)
+configurator.js:89 Total components: 9
+configurator.js:201 Added event listener for search-cpu
+configurator.js:201 Added event listener for filter-cpu-socket
+configurator.js:201 Added event listener for filter-cpu-cores
+configurator.js:201 Added event listener for sort-cpu
+configurator.js:201 Added event listener for search-motherboard
+configurator.js:201 Added event listener for filter-mb-socket
+configurator.js:201 Added event listener for filter-mb-form-factor
+configurator.js:201 Added event listener for sort-motherboard
+configurator.js:201 Added event listener for search-ram
+configurator.js:201 Added event listener for filter-ram-type
+configurator.js:201 Added event listener for filter-ram-capacity
+configurator.js:201 Added event listener for sort-ram
+configurator.js:201 Added event listener for search-gpu
+configurator.js:201 Added event listener for filter-gpu-memory
+configurator.js:201 Added event listener for filter-gpu-brand
+configurator.js:201 Added event listener for sort-gpu
+configurator.js:201 Added event listener for search-ssd
+configurator.js:201 Added event listener for filter-ssd-capacity
+configurator.js:201 Added event listener for filter-ssd-interface
+configurator.js:201 Added event listener for sort-ssd
+configurator.js:201 Added event listener for search-case
+configurator.js:201 Added event listener for filter-case-form-factor
+configurator.js:201 Added event listener for filter-case-size
+configurator.js:201 Added event listener for sort-case
+configurator.js:201 Added event listener for search-psu
+configurator.js:201 Added event listener for filter-psu-wattage
+configurator.js:201 Added event listener for filter-psu-efficiency
+configurator.js:201 Added event listener for sort-psu
+configurator.js:201 Added event listener for search-cooler
+configurator.js:201 Added event listener for filter-cooler-type
+configurator.js:201 Added event listener for filter-cooler-socket
+configurator.js:201 Added event listener for sort-cooler
+configurator.js:1044 Calculating total price. Selected components: Object
+configurator.js:1045 Available components data: Array(8)
+configurator.js:1070 Total calculated price: 0
+configurator.js:1076 Updating total price: 0
+configurator.js:1080 Total price element updated: 0,00 €
+konfigurator?load=3:1176 Loading saved configuration: Meine PC-Konfiguration_TEST
+configurator.js:38 === TESTING ALL INPUTS ===
+configurator.js:47 ✓ Found element: search-cpu, type: INPUT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: filter-cpu-socket, type: SELECT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: filter-cpu-cores, type: SELECT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: search-motherboard, type: INPUT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+configurator.js:47 ✓ Found element: filter-mb-socket, type: SELECT, value: ""
+configurator.js:48   - Events: no onclick
+configurator.js:49   - Style: display=block, pointer-events=auto
+konfigurator?load=3:1182 Saved components: Object
+configurator.js:1044 Calculating total price. Selected components: Object
+configurator.js:1045 Available components data: Array(8)
+configurator.js:1059 Found component cpu: AMD Ryzen 7 7800X3D - €449.99
+configurator.js:1059 Found component motherboard: ASUS ROG Strix X670E-E - €399.99
+configurator.js:1059 Found component ram: 32GB DDR5-5600 Kit - €189.99
+configurator.js:1059 Found component gpu: RTX 4080 Super 16GB - €1199.99
+configurator.js:1059 Found component ssd: Lexar - €120
+configurator.js:1059 Found component case: Fractal Design Define 7 - €120
+configurator.js:1059 Found component psu: Corsair RM850x 850W 80+ Gold - €145
+configurator.js:1059 Found component cooler: Noctua NH-D15 Chromax - €120
+configurator.js:1070 Total calculated price: 2744.96
+configurator.js:1076 Updating total price: 2744.96
+configurator.js:1080 Total price element updated: 2.744,96 €
+configurator.js:611 Sending compatibility check with: Object
+konfigurator?load=3:1190 Configuration loaded successfully
+configurator.js:626 Compatibility result: Object
+configurator.js:930 Error adding to cart: TypeError: Cannot read properties of undefined (reading 'cpu')
+    at PCConfigurator.addToCart (configurator.js:889:68)
+    at HTMLButtonElement.onclick (konfigurator?load=3:748:147)
+addToCart @ configurator.js:930

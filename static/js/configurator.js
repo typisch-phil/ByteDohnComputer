@@ -886,7 +886,7 @@ class PCConfigurator {
                     }
                     
                     // Get component details for cart
-                    const componentList = this.componentsByCategory[category] || [];
+                    const componentList = this.components[categoryKey] || [];
                     const component = componentList.find(c => c.id === componentId);
                     
                     newCart.push({
