@@ -11,6 +11,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
 from flask import render_template_string
+from backend.models.models import Customer, Order
 
 
 class EmailService:

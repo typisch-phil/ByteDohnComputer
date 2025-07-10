@@ -5,8 +5,8 @@ Versand-Routen für Kundenseite
 
 from flask import jsonify, request, render_template
 from app import app
-from dhl_integration import create_shipping_label_for_order, track_order_shipment, get_shipping_quote
-from models import Order
+from backend.services.dhl_integration import create_shipping_label_for_order, track_order_shipment, get_shipping_quote
+from backend.models.models import Order
 import logging
 
 @app.route('/api/shipping/rates', methods=['POST'])
@@ -79,14 +79,14 @@ def tracking_page():
                 error = result['error']
                 
             # Immer alternative Optionen bereitstellen
-            from dhl_alternatives import get_alternative_tracking_data
+            from backend.services.dhl_alternatives import get_alternative_tracking_data
             alternatives = get_alternative_tracking_data(tracking_number)
             
         except Exception as e:
             error = f"Fehler beim Verfolgen: {str(e)}"
             # Auch bei Fehlern alternative Optionen anbieten
             try:
-                from dhl_alternatives import get_alternative_tracking_data
+                from backend.services.dhl_alternatives import get_alternative_tracking_data
                 alternatives = get_alternative_tracking_data(tracking_number)
             except:
                 pass

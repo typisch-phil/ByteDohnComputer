@@ -4,7 +4,7 @@ from functools import wraps
 from flask import session, request, redirect, url_for, flash, current_app
 from flask_login import LoginManager, login_user, logout_user, current_user
 from app import app, db
-from models import Customer, CustomerSession
+from backend.models.models import Customer, CustomerSession
 
 # Initialize Flask-Login for customer authentication
 customer_login_manager = LoginManager()

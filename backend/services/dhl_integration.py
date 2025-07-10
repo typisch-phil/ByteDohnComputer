@@ -8,7 +8,8 @@ import requests
 import json
 import base64
 from datetime import datetime, timedelta
-from models import Order, Customer, db
+from backend.models.models import Order, Customer
+from app import db
 import logging
 
 class DHLShippingAPI:

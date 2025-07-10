@@ -4,9 +4,9 @@ from flask import request, render_template, redirect, url_for, flash, session, j
 from flask_login import login_required, login_user, logout_user, UserMixin, current_user
 from werkzeug.security import check_password_hash
 from app import app, db
-from models import Component, PrebuiltPC, AdminUser, Order, OrderItem, Customer, Invoice
-from dhl_integration import create_shipping_label_for_order, track_order_shipment
-from email_service import send_registration_email, EmailService, send_newsletter_email
+from backend.models.models import Component, PrebuiltPC, AdminUser, Order, OrderItem, Customer, Invoice
+from backend.services.dhl_integration import create_shipping_label_for_order, track_order_shipment
+from backend.services.email_service import send_registration_email, EmailService, send_newsletter_email
 
 # Admin Authentication
 @app.route('/admin/login', methods=['GET', 'POST'])

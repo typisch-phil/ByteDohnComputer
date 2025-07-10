@@ -48,7 +48,7 @@ login_manager.login_message = 'Bitte melden Sie sich an, um auf das Admin Panel 
 
 @login_manager.user_loader
 def load_user(user_id):
-    from models import AdminUser
+    from backend.models.models import AdminUser
     return AdminUser.query.get(int(user_id))
 
 # Add template filters
@@ -63,9 +63,9 @@ def from_json_filter(value):
     return value or {}
 
 # Import routes after app creation to avoid circular imports
-from routes import *
-from admin_routes import *
-from dhl_routes import *
+from backend.routes.routes import *
+from backend.routes.admin_routes import *
+from backend.routes.dhl_routes import *
 
 # Register customer blueprints
 from customer.routes.auth_routes import customer_auth
@@ -76,12 +76,12 @@ app.register_blueprint(customer_dashboard)
 
 with app.app_context():
     # Import models to ensure tables are created
-    import models
+    from backend.models import models
     try:
         db.create_all()
         
         # Create default admin user if none exists
-        from models import AdminUser, Component, PrebuiltPC
+        from backend.models.models import AdminUser, Component, PrebuiltPC
         import json
         if not AdminUser.query.first():
             admin = AdminUser(

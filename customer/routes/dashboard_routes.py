@@ -3,7 +3,7 @@ from flask_login import current_user
 from sqlalchemy import func, desc
 from app import db
 from customer.auth import customer_login_required
-from models import Customer, Order, Configuration, Component, Invoice
+from backend.models.models import Customer, Order, Configuration, Component, Invoice
 
 # Create blueprint for customer dashboard
 customer_dashboard = Blueprint('customer_dashboard', __name__, 

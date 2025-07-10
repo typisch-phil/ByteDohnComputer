@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_user, logout_user, current_user
 from app import db
-from models import Customer
+from backend.models.models import Customer
 from customer.auth import (
     create_customer_session, 
     invalidate_customer_session,

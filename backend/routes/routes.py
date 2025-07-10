@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify, redirect, url_for, flash
 from app import app, db
-from models import Configuration, Component, PrebuiltPC, Customer, Order, OrderItem, Invoice
+from backend.models.models import Configuration, Component, PrebuiltPC, Customer, Order, OrderItem, Invoice
 import json
 import os
 import stripe
