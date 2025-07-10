@@ -346,7 +346,7 @@ class EmailService:
             <div class="container">
                 <div class="header">
                     <h1>📋 Status-Update</h1>
-                    <h2>#{order.order_number}</h2>
+                    <h2>#{{ order.order_number }}</h2>
                 </div>
                 <div class="content">
                     <p>Hallo {{ order.customer.first_name or 'lieber Kunde' }},</p>
