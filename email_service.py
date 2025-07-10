@@ -18,7 +18,7 @@ class EmailService:
     def __init__(self):
         # SMTP Konfiguration
         self.smtp_server = os.environ.get('SMTP_SERVER', 'mail.mailthree24.de')
-        self.smtp_port = int(os.environ.get('SMTP_PORT', '587'))
+        self.smtp_port = int(os.environ.get('SMTP_PORT', '465'))  # Port 465 für SSL/TLS
         self.smtp_username = os.environ.get('SMTP_USERNAME')
         self.smtp_password = os.environ.get('SMTP_PASSWORD')
         self.sender_email = os.environ.get('FROM_EMAIL', 'no-reply@bytedohm.de')
@@ -60,16 +60,33 @@ class EmailService:
             msg.attach(html_part)
             
             print("Verbinde mit SMTP Server...")
-            # SMTP-Verbindung und Versand
-            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-                print("SMTP Verbindung hergestellt")
-                server.set_debuglevel(1)  # Debug-Ausgabe aktivieren
-                server.starttls()
-                print("TLS aktiviert")
-                server.login(self.smtp_username, self.smtp_password)
-                print("Login erfolgreich")
-                server.send_message(msg)
-                print("E-Mail gesendet!")
+            # SMTP-Verbindung mit SSL/TLS-Verschlüsselung
+            import ssl
+            
+            # Sichere SSL/TLS-Konfiguration
+            context = ssl.create_default_context()
+            
+            # Für Port 465 (SSL) oder 587 (TLS)
+            if self.smtp_port == 465:
+                # SSL-Verbindung für Port 465
+                with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port, context=context) as server:
+                    print("SSL-Verbindung hergestellt")
+                    server.set_debuglevel(1)
+                    server.login(self.smtp_username, self.smtp_password)
+                    print("Login erfolgreich")
+                    server.send_message(msg)
+                    print("E-Mail gesendet!")
+            else:
+                # STARTTLS für Port 587
+                with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                    print("SMTP Verbindung hergestellt")
+                    server.set_debuglevel(1)
+                    server.starttls(context=context)
+                    print("TLS-Verschlüsselung aktiviert")
+                    server.login(self.smtp_username, self.smtp_password)
+                    print("Login erfolgreich")
+                    server.send_message(msg)
+                    print("E-Mail gesendet!")
                 
             logging.info(f"E-Mail erfolgreich gesendet an {to_email}: {subject}")
             print(f"SUCCESS: E-Mail an {to_email} gesendet!")
