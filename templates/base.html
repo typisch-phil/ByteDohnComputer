@@ -22,7 +22,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
@@ -62,17 +62,7 @@
                             <i class="fas fa-envelope"></i> Kontakt
                         </a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-info-circle"></i> Rechtliches
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('widerrufsrecht') }}">Widerrufsrecht</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('agb') }}">AGB</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('datenschutz') }}">Datenschutzerklärung</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('zahlungsmethoden') }}">Zahlungsmethoden</a></li>
-                        </ul>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('customer_auth.login') }}">
                             <i class="fas fa-user me-1"></i>Kundenkonto
@@ -84,9 +74,49 @@
     </nav>
 
     <!-- Main Content -->
-    <main>
+    <main class="flex-fill">
         {% block content %}{% endblock %}
     </main>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>ByteDohm.de</h5>
+                    <p class="mb-0">Ihr professioneller Partner für PC-Konfiguration und Fertig-PCs.</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Rechtliches</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('widerrufsrecht') }}" class="text-light-emphasis text-decoration-none">Widerrufsrecht</a></li>
+                        <li><a href="{{ url_for('agb') }}" class="text-light-emphasis text-decoration-none">AGB</a></li>
+                        <li><a href="{{ url_for('datenschutz') }}" class="text-light-emphasis text-decoration-none">Datenschutzerklärung</a></li>
+                        <li><a href="{{ url_for('zahlungsmethoden') }}" class="text-light-emphasis text-decoration-none">Zahlungsmethoden</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Kontakt</h6>
+                    <p class="mb-1">E-Mail: info@bytedohm.de</p>
+                    <p class="mb-1">Telefon: +49 (0) 123 456789</p>
+                    <div class="mt-3">
+                        <a href="/sendungsverfolgung" class="text-light-emphasis text-decoration-none">
+                            <i class="fas fa-truck me-1"></i>Sendungsverfolgung
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <small>&copy; 2025 ByteDohm.de - Alle Rechte vorbehalten</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small>Powered by ByteDohm Technology</small>
+                </div>
+            </div>
+        </div>
+    </footer>
     
     <!-- Toast Container -->
     <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
