@@ -101,6 +101,12 @@ class Customer(UserMixin, db.Model):
     last_name = db.Column(db.String(100), nullable=True)
     phone = db.Column(db.String(20), nullable=True)
     address = db.Column(db.Text, nullable=True)
+    street = db.Column(db.String(200), nullable=True)
+    house_number = db.Column(db.String(20), nullable=True)
+    postal_code = db.Column(db.String(20), nullable=True)
+    city = db.Column(db.String(100), nullable=True)
+    country = db.Column(db.String(50), default='Deutschland', nullable=True)
+    newsletter_subscription = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships

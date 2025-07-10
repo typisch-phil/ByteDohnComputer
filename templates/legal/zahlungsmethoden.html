@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Zahlungsmethoden - ByteDohm{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">Zahlungsmethoden</h1>
+            
+            <div class="card">
+                <div class="card-body">
+                    <p class="lead">Bei ByteDohm bieten wir Ihnen verschiedene sichere Zahlungsmöglichkeiten für Ihre Bestellung.</p>
+                    
+                    <h3>Kreditkarte</h3>
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <p>Bezahlen Sie bequem und sicher mit Ihrer Kreditkarte. Wir akzeptieren:</p>
+                            <ul>
+                                <li>Visa</li>
+                                <li>Mastercard</li>
+                                <li>American Express</li>
+                            </ul>
+                            <p>Die Zahlung wird über unseren sicheren Zahlungspartner Stripe abgewickelt. Ihre Kreditkartendaten werden SSL-verschlüsselt übertragen und sind jederzeit sicher.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-credit-card fa-4x text-primary mb-2"></i>
+                                <p><small>SSL-verschlüsselt</small></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>SEPA-Lastschrift</h3>
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <p>Bezahlen Sie bequem per SEPA-Lastschrift. Der Betrag wird automatisch von Ihrem Bankkonto abgebucht.</p>
+                            <ul>
+                                <li>Sichere Abwicklung über Stripe</li>
+                                <li>Für alle EU-Bankkonten verfügbar</li>
+                                <li>Automatische Abbuchung nach Bestellbestätigung</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-university fa-4x text-success mb-2"></i>
+                                <p><small>SEPA-zertifiziert</small></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Sofortüberweisung</h3>
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <p>Überweisen Sie den Betrag direkt über Ihr Online-Banking. Schnell, sicher und ohne Registrierung.</p>
+                            <ul>
+                                <li>Direkte Überweisung über Ihr Online-Banking</li>
+                                <li>TÜV-zertifizierte Sicherheit</li>
+                                <li>Sofortige Zahlungsbestätigung</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-bolt fa-4x text-warning mb-2"></i>
+                                <p><small>Sofort verfügbar</small></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Sicherheit</h3>
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-shield-alt"></i> Ihre Sicherheit ist uns wichtig</h5>
+                        <p>Alle Zahlungen werden über unseren zertifizierten Partner Stripe abgewickelt. Stripe erfüllt die höchsten Sicherheitsstandards:</p>
+                        <ul class="mb-0">
+                            <li>PCI DSS Level 1 zertifiziert</li>
+                            <li>SSL/TLS-Verschlüsselung</li>
+                            <li>3D Secure für Kreditkartenzahlungen</li>
+                            <li>Betrugserkennung in Echtzeit</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Zahlungsablauf</h3>
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-light rounded p-3">
+                                <i class="fas fa-shopping-cart fa-2x text-primary mb-2"></i>
+                                <h6>1. Bestellung</h6>
+                                <small>Produkte in den Warenkorb legen</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-light rounded p-3">
+                                <i class="fas fa-credit-card fa-2x text-primary mb-2"></i>
+                                <h6>2. Zahlung</h6>
+                                <small>Zahlungsmethode wählen</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-light rounded p-3">
+                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <h6>3. Bestätigung</h6>
+                                <small>Sofortige Bestellbestätigung</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-light rounded p-3">
+                                <i class="fas fa-shipping-fast fa-2x text-info mb-2"></i>
+                                <h6>4. Versand</h6>
+                                <small>Schnelle Lieferung per DHL</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Häufige Fragen</h3>
+                    <div class="accordion" id="paymentFAQ">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    Wann wird meine Kreditkarte belastet?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#paymentFAQ">
+                                <div class="accordion-body">
+                                    Ihre Kreditkarte wird sofort nach der Bestellbestätigung belastet. Sie erhalten umgehend eine Zahlungsbestätigung per E-Mail.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    Sind meine Zahlungsdaten sicher?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#paymentFAQ">
+                                <div class="accordion-body">
+                                    Ja, absolut. Alle Zahlungsdaten werden SSL-verschlüsselt übertragen und von unserem zertifizierten Partner Stripe nach höchsten Sicherheitsstandards verarbeitet.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                    Kann ich meine Bestellung stornieren?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#paymentFAQ">
+                                <div class="accordion-body">
+                                    Ja, Sie können Ihre Bestellung innerhalb von 14 Tagen widerrufen. Weitere Details finden Sie in unserem Widerrufsrecht.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

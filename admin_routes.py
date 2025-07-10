@@ -622,14 +622,22 @@ def admin_statistics():
     ).group_by(Order.status).all()
     
     # Payment statistics
-    payment_stats = db.session.query(
+    payment_stats_raw = db.session.query(
         Order.payment_status,
         func.count(Order.id).label('count'),
         func.sum(Order.total_amount).label('total')
     ).group_by(Order.payment_status).all()
     
+    payment_stats = []
+    for stat in payment_stats_raw:
+        payment_stats.append({
+            'payment_status': stat.payment_status,
+            'count': stat.count,
+            'total': float(stat.total) if stat.total else 0.0
+        })
+    
     # Monthly revenue trend
-    monthly_revenue = db.session.query(
+    monthly_revenue_raw = db.session.query(
         extract('month', Order.created_at).label('month'),
         func.sum(Order.total_amount).label('revenue')
     ).filter(
@@ -637,8 +645,15 @@ def admin_statistics():
         Order.created_at >= start_date
     ).group_by(extract('month', Order.created_at)).all()
     
+    monthly_revenue = []
+    for revenue in monthly_revenue_raw:
+        monthly_revenue.append({
+            'month': int(revenue.month),
+            'revenue': float(revenue.revenue) if revenue.revenue else 0.0
+        })
+    
     # Top customers
-    top_customers = db.session.query(
+    top_customers_raw = db.session.query(
         Customer.email,
         Customer.first_name,
         Customer.last_name,
@@ -648,8 +663,18 @@ def admin_statistics():
         Order.payment_status == 'paid'
     ).group_by(Customer.id).order_by(func.sum(Order.total_amount).desc()).limit(10).all()
     
+    top_customers = []
+    for customer in top_customers_raw:
+        top_customers.append({
+            'email': customer.email,
+            'first_name': customer.first_name,
+            'last_name': customer.last_name,
+            'order_count': customer.order_count,
+            'total_spent': float(customer.total_spent) if customer.total_spent else 0.0
+        })
+    
     # Product statistics
-    popular_components = db.session.query(
+    popular_components_raw = db.session.query(
         OrderItem.item_name,
         func.count(OrderItem.id).label('order_count'),
         func.sum(OrderItem.total_price).label('total_revenue')
@@ -657,9 +682,17 @@ def admin_statistics():
         OrderItem.item_type == 'component'
     ).group_by(OrderItem.item_name).order_by(func.count(OrderItem.id).desc()).limit(10).all()
     
+    popular_components = []
+    for component in popular_components_raw:
+        popular_components.append({
+            'item_name': component.item_name,
+            'order_count': component.order_count,
+            'total_revenue': float(component.total_revenue) if component.total_revenue else 0.0
+        })
+    
     stats = {
-        'total_sales': total_sales,
-        'monthly_sales': monthly_sales,
+        'total_sales': float(total_sales) if total_sales else 0.0,
+        'monthly_sales': float(monthly_sales) if monthly_sales else 0.0,
         'order_stats': dict(order_stats),
         'payment_stats': payment_stats,
         'monthly_revenue': monthly_revenue,

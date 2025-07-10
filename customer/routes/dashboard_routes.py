@@ -110,15 +110,48 @@ def profile():
     customer = current_user
     
     if request.method == 'POST':
-        # Update profile information
-        customer.first_name = request.form.get('first_name', '').strip()
-        customer.last_name = request.form.get('last_name', '').strip()
-        customer.phone = request.form.get('phone', '').strip() or None
-        customer.address = request.form.get('address', '').strip() or None
-        
         try:
+            # Update customer profile
+            customer.first_name = request.form.get('first_name', '')
+            customer.last_name = request.form.get('last_name', '')
+            customer.phone = request.form.get('phone', '')
+            
+            # Update separate address fields
+            customer.street = request.form.get('street', '')
+            customer.house_number = request.form.get('house_number', '')
+            customer.postal_code = request.form.get('postal_code', '')
+            customer.city = request.form.get('city', '')
+            customer.country = request.form.get('country', 'Deutschland')
+            
+            # Update newsletter subscription
+            customer.newsletter_subscription = 'newsletter' in request.form
+            
+            # Update combined address field for compatibility
+            if customer.street or customer.house_number or customer.postal_code or customer.city:
+                address_parts = []
+                if customer.street:
+                    street_part = customer.street
+                    if customer.house_number:
+                        street_part += f" {customer.house_number}"
+                    address_parts.append(street_part)
+                if customer.postal_code or customer.city:
+                    city_part = ""
+                    if customer.postal_code:
+                        city_part += customer.postal_code
+                    if customer.city:
+                        if city_part:
+                            city_part += f" {customer.city}"
+                        else:
+                            city_part = customer.city
+                    if city_part:
+                        address_parts.append(city_part)
+                if customer.country and customer.country != 'Deutschland':
+                    address_parts.append(customer.country)
+                customer.address = ", ".join(address_parts)
+            
             db.session.commit()
             flash('Profil erfolgreich aktualisiert.', 'success')
+            return redirect(url_for('customer_dashboard.profile'))
         except Exception as e:
             db.session.rollback()
             flash('Fehler beim Aktualisieren des Profils.', 'error')

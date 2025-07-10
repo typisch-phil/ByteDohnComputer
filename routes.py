@@ -454,6 +454,13 @@ def checkout_success():
             )
             db.session.add(invoice)
             db.session.commit()
+            
+            # Send order confirmation email
+            try:
+                from email_service import send_order_confirmation_email
+                send_order_confirmation_email(order)
+            except Exception as e:
+                logging.error(f"Fehler beim Senden der Bestellbestätigung: {e}")
         
         return render_template('checkout_success.html', 
                              session=checkout_session,
@@ -538,6 +545,28 @@ def stripe_webhook():
             db.session.commit()
     
     return '', 200
+
+
+# Legal pages
+@app.route('/widerrufsrecht')
+def widerrufsrecht():
+    """Widerrufsrecht page"""
+    return render_template('legal/widerrufsrecht.html')
+
+@app.route('/agb')
+def agb():
+    """AGB page"""
+    return render_template('legal/agb.html')
+
+@app.route('/datenschutz')
+def datenschutz():
+    """Datenschutzerklärung page"""
+    return render_template('legal/datenschutz.html')
+
+@app.route('/zahlungsmethoden')
+def zahlungsmethoden():
+    """Zahlungsmethoden page"""
+    return render_template('legal/zahlungsmethoden.html')
 
 @app.route('/warenkorb')
 def cart():
