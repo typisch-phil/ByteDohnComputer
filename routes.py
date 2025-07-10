@@ -693,10 +693,60 @@ def cart():
     """Shopping cart page"""
     return render_template('cart.html')
 
+@app.route('/api/check-auth-status', methods=['GET'])
+def check_auth_status():
+    """Check if user is authenticated"""
+    try:
+        # Check customer authentication
+        from customer.auth import validate_customer_session
+        customer = validate_customer_session()
+        
+        if customer:
+            return jsonify({
+                'is_authenticated': True,
+                'user_type': 'customer',
+                'user_id': customer.id,
+                'user_name': customer.get_full_name() or customer.email
+            })
+        
+        # Check admin authentication
+        try:
+            from flask_login import current_user
+            if current_user.is_authenticated and hasattr(current_user, 'username'):
+                return jsonify({
+                    'is_authenticated': True,
+                    'user_type': 'admin',
+                    'user_id': current_user.id,
+                    'user_name': current_user.username
+                })
+        except:
+            pass
+        
+        return jsonify({
+            'is_authenticated': False,
+            'user_type': None,
+            'user_id': None,
+            'user_name': None
+        })
+        
+    except Exception as e:
+        logging.error(f"Error checking auth status: {e}")
+        return jsonify({
+            'is_authenticated': False,
+            'error': 'Fehler beim Überprüfen des Anmeldestatus'
+        }), 500
+
 @app.route('/api/create-checkout-session-from-cart', methods=['POST'])
 def create_checkout_session_from_cart():
     """Create Stripe checkout session from cart items"""
     try:
+        # Check authentication first
+        from customer.auth import validate_customer_session
+        customer = validate_customer_session()
+        
+        if not customer:
+            return jsonify({'error': 'Sie müssen sich anmelden, um eine Bestellung aufzugeben'}), 401
+        
         data = request.get_json()
         
         # Validate required data
@@ -782,14 +832,8 @@ def create_checkout_session_from_cart():
             'prebuilts': config_prebuilts
         }
         
-        # Get current customer if logged in
-        customer_id = None
-        try:
-            from flask_login import current_user
-            if current_user.is_authenticated and hasattr(current_user, 'id'):
-                customer_id = current_user.id
-        except:
-            pass
+        # Use authenticated customer
+        customer_id = customer.id
         
         # Save configuration before checkout
         config_name = data.get('config_name', f"PC-Bestellung {datetime.now().strftime('%Y-%m-%d %H:%M')}")

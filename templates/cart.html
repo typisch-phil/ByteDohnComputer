@@ -316,6 +316,27 @@ let cart;
 // Initialize cart when page loads
 document.addEventListener('DOMContentLoaded', function() {
     cart = new Cart();
+    
+    // Check if user returned from login with pending cart
+    const pendingCart = sessionStorage.getItem('pending_checkout_cart');
+    if (pendingCart) {
+        try {
+            const cartItems = JSON.parse(pendingCart);
+            // Restore cart items
+            cart.items = cartItems;
+            cart.saveToStorage();
+            cart.updateDisplay();
+            
+            // Clear pending cart from session storage
+            sessionStorage.removeItem('pending_checkout_cart');
+            
+            // Show message that cart was restored
+            Toast.show('Ihr Warenkorb wurde wiederhergestellt. Sie können jetzt zur Kasse gehen.', 'success');
+        } catch (error) {
+            console.error('Error restoring cart:', error);
+            sessionStorage.removeItem('pending_checkout_cart');
+        }
+    }
 });
 
 async function proceedToCheckout() {
@@ -324,6 +345,41 @@ async function proceedToCheckout() {
         return;
     }
     
+    // Check if user is logged in first
+    try {
+        const authResponse = await fetch('/api/check-auth-status', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const authData = await authResponse.json();
+        
+        if (!authData.is_authenticated) {
+            // User is not logged in - show login prompt
+            const shouldLogin = await Confirm.show(
+                'Sie müssen sich anmelden, um eine Bestellung aufzugeben. Möchten Sie sich jetzt anmelden?',
+                'Anmeldung erforderlich',
+                'info'
+            );
+            
+            if (shouldLogin) {
+                // Store current cart in sessionStorage before redirect
+                sessionStorage.setItem('pending_checkout_cart', JSON.stringify(cart.items));
+                window.location.href = '/customer/login?next=/warenkorb';
+                return;
+            } else {
+                return; // User declined to login
+            }
+        }
+    } catch (error) {
+        console.error('Error checking auth status:', error);
+        Toast.show('Fehler beim Überprüfen des Anmeldestatus', 'error');
+        return;
+    }
+    
+    // User is logged in - proceed with checkout
     // Generate automatic configuration name (no user input required)
     const configName = `PC-Bestellung ${new Date().toLocaleDateString('de-DE')}`;
     
