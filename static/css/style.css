@@ -662,17 +662,7 @@ body {
     border-bottom: none;
 }
 
-/* Footer */
-.footer {
-    background: var(--tech-dark);
-    color: white;
-    padding: 40px 0;
-    text-align: center;
-}
 
-.footer p {
-    margin-bottom: 0;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
