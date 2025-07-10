@@ -867,49 +867,169 @@ class PCConfigurator {
             return;
         }
         
-        // Add components to cart
-        const cart = JSON.parse(localStorage.getItem('cart_items') || '[]');
+        // Show loading animation
+        this.showCartLoadingAnimation();
         
-        // Clear existing cart (or optionally merge)
-        const newCart = [];
-        
-        for (const [category, componentId] of Object.entries(this.selectedComponents)) {
-            if (componentId) {
-                // Handle category name mapping for cart
-                let categoryKey = category + 's';
-                if (category === 'ram') {
-                    categoryKey = 'ram'; // RAM category doesn't use plural
+        try {
+            // Add components to cart
+            const cart = JSON.parse(localStorage.getItem('cart_items') || '[]');
+            
+            // Clear existing cart (or optionally merge)
+            const newCart = [];
+            
+            for (const [category, componentId] of Object.entries(this.selectedComponents)) {
+                if (componentId) {
+                    // Handle category name mapping for cart
+                    let categoryKey = category + 's';
+                    if (category === 'ram') {
+                        categoryKey = 'ram'; // RAM category doesn't use plural
+                    }
+                    
+                    newCart.push({
+                        componentId: componentId,
+                        category: categoryKey,
+                        quantity: 1,
+                        addedAt: new Date().toISOString()
+                    });
                 }
-                
-                newCart.push({
-                    componentId: componentId,
-                    category: categoryKey,
-                    quantity: 1,
-                    addedAt: new Date().toISOString()
-                });
             }
+            
+            // Simulate loading time for better UX (components need to load)
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Save to localStorage
+            localStorage.setItem('cart_items', JSON.stringify(newCart));
+            
+            // Update cart badge in navigation
+            if (typeof updateCartBadge === 'function') {
+                updateCartBadge();
+            }
+            
+            // Hide loading animation
+            this.hideCartLoadingAnimation();
+            
+            // Show success message and ask about redirect
+            Toast.show('Konfiguration wurde zum Warenkorb hinzugefügt!', 'success');
+            
+            const goToCart = await Confirm.show(
+                'Ihre PC-Konfiguration wurde erfolgreich hinzugefügt. Möchten Sie zum Warenkorb gehen?',
+                'Zum Warenkorb gehen?',
+                'info'
+            );
+            
+            if (goToCart) {
+                window.location.href = '/warenkorb';
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            this.hideCartLoadingAnimation();
+            Toast.show('Fehler beim Hinzufügen zum Warenkorb. Bitte versuchen Sie es erneut.', 'error');
+        }
+    }
+    
+    showCartLoadingAnimation() {
+        // Create loading overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'cart-loading-overlay';
+        overlay.className = 'cart-loading-overlay';
+        overlay.innerHTML = `
+            <div class="cart-loading-content">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Wird geladen...</span>
+                </div>
+                <h5 class="mb-2">Konfiguration wird in den Warenkorb geladen</h5>
+                <p class="text-muted mb-0">Bitte warten Sie einen Moment...</p>
+                <div class="loading-progress mt-3">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .cart-loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                backdrop-filter: blur(5px);
+            }
+            
+            .cart-loading-content {
+                background: white;
+                padding: 2rem;
+                border-radius: 15px;
+                text-align: center;
+                max-width: 400px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                animation: cartLoadingFadeIn 0.3s ease-out;
+            }
+            
+            @keyframes cartLoadingFadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.9) translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+            
+            .loading-progress .progress {
+                height: 8px;
+                border-radius: 10px;
+                background-color: #e9ecef;
+            }
+            
+            .loading-progress .progress-bar {
+                border-radius: 10px;
+                background: linear-gradient(45deg, #007bff, #0056b3);
+            }
+        `;
+        
+        document.head.appendChild(style);
+        document.body.appendChild(overlay);
+        
+        // Disable body scroll
+        document.body.style.overflow = 'hidden';
+    }
+    
+    hideCartLoadingAnimation() {
+        const overlay = document.getElementById('cart-loading-overlay');
+        if (overlay) {
+            overlay.style.animation = 'cartLoadingFadeOut 0.3s ease-out forwards';
+            setTimeout(() => {
+                overlay.remove();
+                document.body.style.overflow = '';
+            }, 300);
         }
         
-        // Save to localStorage
-        localStorage.setItem('cart_items', JSON.stringify(newCart));
-        
-        // Update cart badge in navigation
-        if (typeof updateCartBadge === 'function') {
-            updateCartBadge();
-        }
-        
-        // Show success message and ask about redirect
-        Toast.show('Konfiguration wurde zum Warenkorb hinzugefügt!', 'success');
-        
-        const goToCart = await Confirm.show(
-            'Ihre PC-Konfiguration wurde erfolgreich hinzugefügt. Möchten Sie zum Warenkorb gehen?',
-            'Zum Warenkorb gehen?',
-            'info'
-        );
-        
-        if (goToCart) {
-            window.location.href = '/warenkorb';
-        }
+        // Add fade out animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes cartLoadingFadeOut {
+                from {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: scale(0.9) translateY(-20px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
     }
     
     calculateTotalPrice() {

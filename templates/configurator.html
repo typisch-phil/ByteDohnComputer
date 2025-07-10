@@ -774,6 +774,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (window.showToast) {
                     window.showToast('Konfiguration "{{ saved_config.name }}" wurde geladen!', 'success');
                 }
+                
+                // Check if auto_cart parameter is set
+                const urlParams = new URLSearchParams(window.location.search);
+                const autoCart = urlParams.get('auto_cart');
+                
+                if (autoCart === 'true') {
+                    // Auto-add to cart after configuration is loaded
+                    setTimeout(() => {
+                        if (window.configurator && window.configurator.addToCart) {
+                            console.log('Auto-adding configuration to cart');
+                            window.configurator.addToCart();
+                        }
+                    }, 1500); // Wait a bit more for everything to be fully initialized
+                }
             }).catch(error => {
                 console.error('Error loading configuration:', error);
                 if (window.showToast) {

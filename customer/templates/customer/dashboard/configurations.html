@@ -53,9 +53,13 @@
             <div class="card-footer bg-transparent">
                 <div class="d-flex gap-2">
                     <a href="{{ url_for('configurator') }}?load={{ config.id }}" 
-                       class="btn btn-outline-primary btn-sm flex-fill">
+                       class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-edit me-1"></i>Bearbeiten
                     </a>
+                    <button class="btn btn-outline-success btn-sm" 
+                            onclick="addConfigToCart({{ config.id }}, '{{ config.name }}')">
+                        <i class="fas fa-shopping-cart me-1"></i>Warenkorb
+                    </button>
                     <button class="btn btn-outline-danger btn-sm" 
                             onclick="deleteConfiguration({{ config.id }}, '{{ config.name }}')">
                         <i class="fas fa-trash me-1"></i>Löschen
@@ -151,6 +155,136 @@ function deleteConfiguration(configId, configName) {
     new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
 
+function addConfigToCart(configId, configName) {
+    // Show loading animation
+    showConfigLoadingAnimation(configName);
+    
+    // Simulate loading time for better UX
+    setTimeout(() => {
+        try {
+            // Add configuration to cart (simplified - redirect to configurator with load parameter)
+            // The configurator will load the config and user can then add to cart
+            hideConfigLoadingAnimation();
+            
+            // Show success message
+            showToast(`Konfiguration "${configName}" wird geladen. Sie können sie dann zum Warenkorb hinzufügen.`, 'info');
+            
+            // Redirect to configurator with load parameter
+            window.location.href = `/konfigurator?load=${configId}&auto_cart=true`;
+            
+        } catch (error) {
+            hideConfigLoadingAnimation();
+            showToast('Fehler beim Laden der Konfiguration.', 'error');
+        }
+    }, 1000);
+}
+
+function showConfigLoadingAnimation(configName) {
+    // Create loading overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'config-loading-overlay';
+    overlay.className = 'config-loading-overlay';
+    overlay.innerHTML = `
+        <div class="config-loading-content">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Wird geladen...</span>
+            </div>
+            <h5 class="mb-2">Konfiguration wird geladen</h5>
+            <p class="text-muted mb-0">"${configName}" wird für den Warenkorb vorbereitet...</p>
+            <div class="loading-progress mt-3">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .config-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+        
+        .config-loading-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: configLoadingFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes configLoadingFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .loading-progress .progress {
+            height: 8px;
+            border-radius: 10px;
+            background-color: #e9ecef;
+        }
+        
+        .loading-progress .progress-bar {
+            border-radius: 10px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+    `;
+    
+    document.head.appendChild(style);
+    document.body.appendChild(overlay);
+    
+    // Disable body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+function hideConfigLoadingAnimation() {
+    const overlay = document.getElementById('config-loading-overlay');
+    if (overlay) {
+        overlay.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+function showToast(message, type = 'info') {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 10000; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 5000);
+}
+
 document.getElementById('confirmDelete').addEventListener('click', function() {
     if (configToDelete) {
         // TODO: Implement delete functionality via AJAX
@@ -158,7 +292,7 @@ document.getElementById('confirmDelete').addEventListener('click', function() {
         bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
         
         // Show placeholder message
-        alert('Löschfunktion wird in Kürze implementiert. Bitte kontaktieren Sie den Support.');
+        showToast('Löschfunktion wird in Kürze implementiert. Bitte kontaktieren Sie den Support.', 'info');
         
         configToDelete = null;
     }
