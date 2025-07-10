@@ -17,10 +17,10 @@ class EmailService:
     
     def __init__(self):
         # SMTP Konfiguration
-        self.smtp_server = os.environ.get('SMTP_SERVER', 'mail.mailthree24.de')
-        self.smtp_port = int(os.environ.get('SMTP_PORT', '587'))  # Fallback auf 587
-        self.smtp_username = os.environ.get('SMTP_USERNAME')
-        self.smtp_password = os.environ.get('SMTP_PASSWORD')
+        self.smtp_server = os.environ.get('SMTP_SERVER', 'mail.bytedohm.de')
+        self.smtp_port = int(os.environ.get('SMTP_PORT', '465'))  # Port 465 für SSL
+        self.smtp_username = os.environ.get('SMTP_USERNAME', 'no-reply@bytedohm.de')
+        self.smtp_password = os.environ.get('SMTP_PASSWORD', 'HeikoCindy-8')
         self.sender_email = os.environ.get('FROM_EMAIL', 'no-reply@bytedohm.de')
         self.sender_name = "ByteDohm.de"
         

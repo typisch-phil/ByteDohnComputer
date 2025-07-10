@@ -582,8 +582,8 @@ def test_email():
         # Test 1: DNS-Auflösung
         try:
             import socket
-            ip = socket.gethostbyname('mail.mailthree24.de')
-            test_results.append(f"✅ DNS: mail.mailthree24.de → {ip}")
+            ip = socket.gethostbyname('mail.bytedohm.de')
+            test_results.append(f"✅ DNS: mail.bytedohm.de → {ip}")
         except Exception as e:
             test_results.append(f"❌ DNS-Fehler: {e}")
             
@@ -591,7 +591,7 @@ def test_email():
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(5)
-            result = sock.connect_ex(('mail.mailthree24.de', 465))
+            result = sock.connect_ex(('mail.bytedohm.de', 465))
             sock.close()
             if result == 0:
                 test_results.append("✅ Port 465: Verbindung erfolgreich")
@@ -604,7 +604,7 @@ def test_email():
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(5)
-            result = sock.connect_ex(('mail.mailthree24.de', 587))
+            result = sock.connect_ex(('mail.bytedohm.de', 587))
             sock.close()
             if result == 0:
                 test_results.append("✅ Port 587: Verbindung erfolgreich")
